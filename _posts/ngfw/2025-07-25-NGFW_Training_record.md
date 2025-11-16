@@ -2,7 +2,7 @@
 layout: post
 title: BLUEMAX NGF 방화벽 기능 통합 실습 기록
 date: 2025-07-25 17:00:00 +0900
-categories: [NGFW]
+categories: [ngfw]
 tags: [Firewall, BLUEMAX, NAT, HA]
 ---
 

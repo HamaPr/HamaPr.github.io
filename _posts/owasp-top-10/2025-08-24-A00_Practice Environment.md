@@ -2,7 +2,7 @@
 layout: post
 title: "A00:OWASP Top 10 취약점 분석 및 실습 환경 구축"
 date: 2025-08-24 17:00:00 +0900
-categories: [OWASP Top 10]
+categories: [owasp-top-10]
 ---
 
 ---

@@ -2,7 +2,7 @@
 layout: post
 title: "IDOR 공부"
 date: 2025-08-25 17:00:00 +0900
-categories: [웹 해킹]
+categories: [web-hacking]
 ---
 
 ### 1. 개요

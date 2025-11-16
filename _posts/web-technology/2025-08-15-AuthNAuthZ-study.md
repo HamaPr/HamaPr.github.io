@@ -2,7 +2,7 @@
 layout: post
 title: "인증과 인가 공부"
 date: 2025-08-15 17:00:00 +0900
-categories: [웹 기술]
+categories: [web-technology]
 ---
 
 ### 1. 개요

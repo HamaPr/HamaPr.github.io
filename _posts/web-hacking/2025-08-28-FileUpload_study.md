@@ -2,7 +2,7 @@
 layout: post
 title: "파일 업로드 취약점 공부"
 date: 2025-08-28 17:00:00 +0900
-categories: [웹 해킹]
+categories: [web-hacking]
 ---
 
 ### 1. 개요

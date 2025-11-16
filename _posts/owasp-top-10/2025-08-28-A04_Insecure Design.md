@@ -2,7 +2,7 @@
 layout: post
 title: "A04:2021 - Insecure Design (안전하지 않은 설계) 분석 보고서"
 date: 2025-08-28 17:00:00 +0900
-categories: [OWASP Top 10]
+categories: [owasp-top-10]
 ---
 ---
 

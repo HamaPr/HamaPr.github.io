@@ -2,7 +2,7 @@
 layout: post
 title: "사이버 킬체인과 MITRE ATT&CK 프레임워크 공부"
 date: 2025-08-29 17:00:00 +0900
-categories: [시스템 해킹]
+categories: [system-hacking]
 ---
 
 ### 1. 개요

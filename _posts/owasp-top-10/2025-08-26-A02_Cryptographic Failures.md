@@ -2,7 +2,7 @@
 layout: post
 title: "A02:2021 - Cryptographic Failures (암호화 실패) 분석 보고서"
 date: 2025-08-26 17:00:00 +0900
-categories: [OWASP Top 10]
+categories: [owasp-top-10]
 ---
 ---
 

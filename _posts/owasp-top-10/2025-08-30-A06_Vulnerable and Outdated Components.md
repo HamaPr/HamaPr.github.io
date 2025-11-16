@@ -2,7 +2,7 @@
 layout: post
 title: "A06:2021 - Vulnerable and Outdated Components (취약하고 오래된 구성 요소) 분석 보고서"
 date: 2025-08-30 17:00:00 +0900
-categories: [OWASP Top 10]
+categories: [owasp-top-10]
 ---
 ---
 

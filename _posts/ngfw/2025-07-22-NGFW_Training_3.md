@@ -2,7 +2,7 @@
 layout: post
 title: BLUEMAX NGFW 실습 기록 (3/3) - 차세대 보안 기능(L7 제어) 검증
 date: 2025-07-22 17:00:00 +0900
-categories: [NGFW]
+categories: [ngfw]
 tags: [Firewall, BLUEMAX, NGFW, L7-Control, DLP, Anti-Virus]
 ---
 

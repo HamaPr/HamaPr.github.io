@@ -2,7 +2,7 @@
 layout: post
 title: "방화벽과 웹 방화벽 공부"
 date: 2025-08-18 17:00:00 +0900
-categories: [웹 기술]
+categories: [web-technology]
 ---
 
 ### 1. 개요

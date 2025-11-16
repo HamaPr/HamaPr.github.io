@@ -2,7 +2,7 @@
 layout: post
 title: 리눅스 마스터 2급 취득
 date: 2025-09-13 15:00:00 +0900
-categories: [자격증]
+categories: [certificates]
 tags: [linux]
 ---
 

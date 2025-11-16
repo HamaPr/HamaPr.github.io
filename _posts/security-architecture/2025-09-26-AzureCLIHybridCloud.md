@@ -2,7 +2,7 @@
 layout: post
 title: "하이브리드 클라우드 보안 아키텍처 구축"
 date: 2025-09-26 17:00:00 +0900
-categories: [보안 아키텍처]
+categories: [security-architecture]
 ---
 
 ### Azure CLI로 구축한 하이브리드 클라우드 보안 아키텍처

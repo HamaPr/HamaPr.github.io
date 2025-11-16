@@ -2,7 +2,7 @@
 layout: post
 title: "인코딩 vs 암호화 vs 해싱 공부"
 date: 2025-08-16 17:00:00 +0900
-categories: [웹 기술]
+categories: [web-technology]
 ---
 
 ### 1. 개요

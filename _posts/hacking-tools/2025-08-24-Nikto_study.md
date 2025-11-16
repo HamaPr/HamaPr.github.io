@@ -2,7 +2,7 @@
 layout: post
 title: "Nikto 공부"
 date: 2025-08-24 17:00:00 +0900
-categories: [해킹 툴]
+categories: [hacking-tools]
 ---
 
 ### 1. Nikto 개요

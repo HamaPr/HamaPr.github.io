@@ -2,7 +2,7 @@
 layout: post
 title: "Wireshark 공부"
 date: 2025-08-26 17:00:00 +0900
-categories: [해킹 툴]
+categories: [hacking-tools]
 ---
 
 ### 1. Wireshark 개요

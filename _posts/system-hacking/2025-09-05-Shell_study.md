@@ -2,7 +2,7 @@
 layout: post
 title: "리버스 쉘과 바인드 쉘 공부"
 date: 2025-09-05 17:00:00 +0900
-categories: [시스템 해킹]
+categories: [system-hacking]
 ---
 
 ### 1. 개요

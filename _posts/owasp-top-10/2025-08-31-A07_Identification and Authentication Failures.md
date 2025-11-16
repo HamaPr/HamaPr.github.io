@@ -2,7 +2,7 @@
 layout: post
 title: "A07:2021 - Identification and Authentication Failures (식별 및 인증 실패) 분석 보고서"
 date: 2025-08-31 17:00:00 +0900
-categories: [OWASP Top 10]
+categories: [owasp-top-10]
 ---
 ---
 

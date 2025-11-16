@@ -2,7 +2,7 @@
 layout: post
 title: "Azure CLI 명령어 공부"
 date: 2025-09-18 17:00:00 +0900
-categories: [시스템 해킹]
+categories: [system-hacking]
 ---
 
 ### 1. 개요

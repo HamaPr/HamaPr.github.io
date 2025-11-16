@@ -2,7 +2,7 @@
 layout: post
 title: 네트워크 관리사 2급 취득
 date: 2025-07-12 15:00:00 +0900
-categories: [자격증]
+categories: [certificates]
 tags: [네트워크 관리사, ICQA, network]
 ---
 

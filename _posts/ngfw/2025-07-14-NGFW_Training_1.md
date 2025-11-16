@@ -2,7 +2,7 @@
 layout: post
 title: BLUEMAX NGFW 실습 기록 (1/3) - 방화벽 기본과 L2/L3 모드
 date: 2025-07-14 17:00:00 +0900
-categories: [NGFW]
+categories: [ngfw]
 tags: [Firewall, BLUEMAX, Routing, NAT, Bridge]
 ---
 

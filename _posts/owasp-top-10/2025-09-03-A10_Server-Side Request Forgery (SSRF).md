@@ -2,7 +2,7 @@
 layout: post
 title: "A10:2021 - Server-Side Request Forgery (SSRF) 분석 보고서"
 date: 2025-09-03 17:00:00 +0900
-categories: [OWASP Top 10]
+categories: [owasp-top-10]
 ---
 ---
 

@@ -2,7 +2,7 @@
 layout: post
 title: "대칭키와 비대칭키 암호 공부"
 date: 2025-08-17 17:00:00 +0900
-categories: [웹 기술]
+categories: [web-technology]
 ---
 
 ### 1. 개요

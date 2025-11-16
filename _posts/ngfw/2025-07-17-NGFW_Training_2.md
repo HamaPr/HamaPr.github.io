@@ -2,7 +2,7 @@
 layout: post
 title: BLUEMAX NGFW 실습 기록 (2/3) - HA 이중화와 IPsec VPN 구성
 date: 2025-07-17 17:00:00 +0900
-categories: [NGFW]
+categories: [ngfw]
 tags: [Firewall, BLUEMAX, HA, High-Availability, VPN, IPsec]
 ---
 

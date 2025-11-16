@@ -2,7 +2,7 @@
 layout: post
 title: 정보보안기사 1차 필기 합격
 date: 2025-09-24 15:00:00 +0900
-categories: [자격증]
+categories: [certificates]
 tags: [정보보안기사, KISA, CISSP]
 ---
 
