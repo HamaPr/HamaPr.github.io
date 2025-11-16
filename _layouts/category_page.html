@@ -10,11 +10,16 @@ layout: default
 <hr>
 
 <ul class="post-list">
-  {% assign category_posts = site.categories[page.category] | sort: 'date' | reverse %}
-  {% for post in category_posts %}
-    <li>
-      <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
-      <span class="post-meta">{{ post.date | date: "%Y-%m-%d" }}</span>
-    </li>
-  {% endfor %}
+  {%- assign category_posts = site.categories[page.category] -%}
+  {%- if category_posts and category_posts.size > 0 -%}
+    {%- assign sorted_posts = category_posts | sort: 'date' | reverse -%}
+    {%- for post in sorted_posts -%}
+      <li>
+        <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        <span class="post-meta">{{ post.date | date: "%Y-%m-%d" }}</span>
+      </li>
+    {%- endfor -%}
+  {%- else -%}
+    <li>이 카테고리에는 아직 게시글이 없습니다.</li>
+  {%- endif -%}
 </ul>
