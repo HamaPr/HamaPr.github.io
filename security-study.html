@@ -3,22 +3,20 @@ layout: default
 title: 보안 공부
 exclude_from_nav: true
 ---
-
 <h1>{{ page.title }}</h1>
 <p>보안 공부 목록입니다.</p>
 <hr>
-
 <ul class="category-list">
-  {% assign tech_categories = "웹 기술|웹 해킹|앱 해킹|시스템 해킹|해킹 툴|NGFW" | split: "|" %}
-  {% for cat in tech_categories %}
-    {% assign posts_in_cat = site.categories[cat] %}
-    {% if posts_in_cat.size > 0 %}
+  {% assign tech_categories = "web-technology|web-hacking|app-hacking|system-hacking|hacking-tools|ngfw" | split: "|" %}
+  {% for cat_id in tech_categories %}
+    {% assign posts_in_cat = site.categories[cat_id] %}
+    {% if posts_in_cat %}
       {% assign sorted_posts = posts_in_cat | sort: 'date' %}
       {% assign oldest_post = sorted_posts | first %}
       {% assign newest_post = sorted_posts | last %}
       <li>
-        <a class="post-link" href="/category/{{ cat | slugify }}/">
-          <span class="category-title-text">{{ cat }}</span> <span class="post-count">({{ posts_in_cat.size }})</span>
+        <a class="post-link" href="/category/{{ cat_id | slugify }}/">
+          <span class="category-title-text">{{ site.category_names[cat_id] | default: cat_id }}</span> <span class="post-count">({{ posts_in_cat | size }})</span>
         </a>
         <span class="post-date-range">
           {{ oldest_post.date | date: "%y-%m-%d" }} ~ {{ newest_post.date | date: "%y-%m-%d" }}

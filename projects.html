@@ -2,22 +2,20 @@
 layout: default
 title: 프로젝트
 ---
-
 <h1>{{ page.title }}</h1>
 <p>그동안 진행했던 프로젝트의 결과물을 정리해두었습니다.</p>
 <hr>
-
 <ul class="category-list">
-  {% assign project_categories = "OWASP Top 10|보안 아키텍처|모의침투 시나리오" | split: "|" %}
-  {% for cat in project_categories %}
-    {% assign posts_in_cat = site.categories[cat] %}
-    {% if posts_in_cat.size > 0 %}
+  {% assign project_categories = "owasp-top-10|security-architecture|penetration-test-scenario" | split: "|" %}
+  {% for cat_id in project_categories %}
+    {% assign posts_in_cat = site.categories[cat_id] %}
+    {% if posts_in_cat %}
       {% assign sorted_posts = posts_in_cat | sort: 'date' %}
       {% assign oldest_post = sorted_posts | first %}
       {% assign newest_post = sorted_posts | last %}
       <li>
-        <a class="post-link" href="/category/{{ cat | slugify }}/">
-          <span class="category-title-text">{{ cat }}</span> <span class="post-count">({{ posts_in_cat.size }})</span>
+        <a class="post-link" href="/category/{{ cat_id | slugify }}/">
+          <span class="category-title-text">{{ site.category_names[cat_id] | default: cat_id }}</span> <span class="post-count">({{ posts_in_cat | size }})</span>
         </a>
         <span class="post-date-range">
           {{ oldest_post.date | date: "%y-%m-%d" }} ~ {{ newest_post.date | date: "%y-%m-%d" }}
