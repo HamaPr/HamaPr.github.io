@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // 기능 4: PDF 팝업 모달 기능
+    // 기능 4: PDF 팝업 모달
     // =========================================================================
     const reportLinks = document.querySelectorAll('.report-container a.download-button');
     if (reportLinks.length > 0 && !document.getElementById('pdf-modal')) {
