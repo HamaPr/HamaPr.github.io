@@ -12,10 +12,6 @@ plugins:
   - jekyll-seo-tag
   - jekyll-archives
 
-collections:
-  posts:
-    output: true
-
 future: false
 
 defaults:
