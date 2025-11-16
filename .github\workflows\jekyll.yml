@@ -5,7 +5,7 @@ name: Build and Deploy Jekyll site to GitHub Pages
 on:
   push:
     branches:
-      - main  # main 브랜치에 push될 때마다 자동으로 실행됩니다.
+      - main
 
 jobs:
   build:
@@ -14,11 +14,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Ruby and Jekyll
+      # [수정] Ruby 설치와 Gem 설치 단계를 명확하게 분리합니다.
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1' # Jekyll 4.x 권장 버전
-          bundler-cache: true # Gemfile.lock을 기반으로 gem 자동 설치 (bundle install)
+          ruby-version: '3.1'
+          # bundler-cache 옵션을 여기서 제거합니다.
+
+      # [추가] Gemfile을 이용해 플러그인을 설치하는 단계를 직접 명시합니다.
+      # 이 방법이 캐시 문제 없이 가장 확실합니다.
+      - name: Install dependencies
+        run: bundle install
 
       - name: Build site
         run: bundle exec jekyll build
