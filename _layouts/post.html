@@ -1,25 +1,25 @@
 ---
 layout: default
 ---
-<!-- [추가] 사이드바와 메인 콘텐츠를 감싸는 전체 컨테이너 -->
-<div class="page-container">
+<!-- [수정] 사이드바와 메인 콘텐츠를 감싸는 컨테이너 -->
+<div class="post-container">
   
-  <!-- [추가] 사이드바 HTML -->
+  <!-- 사이드바 HTML -->
   <aside class="sidebar">
     <nav class="sidebar-nav">
-      <h4><a href="/" style="text-decoration: none; color: inherit;">HamaPr's Blog</a></h4>
+      <h4><a href="/" style="text-decoration: none; color: inherit;">HAMAPR'S BLOG</a></h4>
       <ul>
         <li><a href="/">- Home</a></li>
         <li><a href="/categories/">- Categories</a></li>
       </ul>
-      <h4>On This Page</h4>
+      <h4>ON THIS PAGE</h4>
       <ul id="toc">
-        <!-- 이 부분은 script.js가 자동으로 채워줍니다. -->
+        <!-- script.js가 자동으로 목차를 채워줍니다. -->
       </ul>
     </nav>
   </aside>
 
-  <!-- [추가] 메인 콘텐츠 영역을 감싸는 태그. CSS에서 사이드바 너비만큼 왼쪽 여백을 줍니다. -->
+  <!-- 메인 콘텐츠 영역 -->
   <div class="main-content">
     <div class="content-wrapper">
       <article class="post">
@@ -32,6 +32,7 @@ layout: default
           {{ content }}
         </div>
 
+        {%- comment -%} 이전 글 / 다음 글 네비게이션 {%- endcomment -%}
         {%- assign current_category = page.categories.first -%}
         {%- if current_category -%}
           {%- assign posts_in_category = site.categories[current_category] | sort: 'date' -%}
@@ -50,7 +51,7 @@ layout: default
               {% if prev_idx >= 0 %}
                 {% assign prev_post = posts_in_category[prev_idx] %}
                 <a class="post-nav-item post-nav-prev"
-                  href="{{ prev_post.url | relative_url }}">
+                   href="{{ prev_post.url | relative_url }}">
                   <div class="nav-arrow">« 이전 글</div>
                   <span class="post-title">{{ prev_post.title }}</span>
                 </a>
@@ -61,7 +62,7 @@ layout: default
               {% if next_idx < posts_in_category.size %}
                 {% assign next_post = posts_in_category[next_idx] %}
                 <a class="post-nav-item post-nav-next"
-                  href="{{ next_post.url | relative_url }}">
+                   href="{{ next_post.url | relative_url }}">
                   <div class="nav-arrow">다음 글 »</div>
                   <span class="post-title">{{ next_post.title }}</span>
                 </a>
