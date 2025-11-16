@@ -1,11 +1,9 @@
 /* =============================================================================
-   HamaPr의 블로그 - 최종 통합 스타일시트 (v2.0)
-   - Main Blog 레이아웃 기반
-   - Report 디자인 (색상, 타이포그래피, 사이드바) 적용
+   HamaPr의 블로그 - 최종 스타일시트
    ============================================================================= */
 
 /* ------------------- */
-/* [MERGED] 색상 변수 정의 (Report 기준) */
+/* 색상 변수 정의 */
 /* ------------------- */
 :root {
   --bg-color:          #202124;
@@ -18,23 +16,19 @@
   --copy-btn-bg:       #5F6368;
   --link-color:        #89B2F6;
   --link-hover-color:  #a3c2f7;
-
-  /* --- Report에서 가져온 색상 변수 --- */
-  --h2-heading-color:  #55B4AD; /* 중주제 (초록 계열) */
-  --h3-heading-color:  #D99362; /* 대주제 (주황 계열) */
-  --h4-heading-color:  var(--link-color); /* 소주제 (파랑 계열) */
-  --h5-heading-color:  #70C19A; /* 목록 내 소제목 (연초록) */
-  --strong-emphasis:   #F0C674; /* 본문 내 강조 (골드/노랑) */
+  --h2-heading-color:  #55B4AD;
+  --h3-heading-color:  #D99362;
+  --h4-heading-color:  var(--link-color);
+  --h5-heading-color:  #70C19A;
+  --strong-emphasis:   #F0C674;
   --list-heading-color:var(--h5-heading-color);
   --inline-code-color: var(--link-color);
   --inline-code-bg:    var(--code-bg);
-
-  /* --- Main 블로그의 기존 변수들을 Report 기준으로 연결 --- */
   --category-color:    var(--h2-heading-color);
   --major-topic-color: var(--h3-heading-color);
   --minor-topic-color: var(--h4-heading-color);
   --emphasis-color:    var(--strong-emphasis);
-  --inline-code-bg-main: var(--border-color); /* Main 블로그의 인라인 코드 배경색 (필요시 사용) */
+  --inline-code-bg-main: var(--border-color);
 }
 
 ::selection {
@@ -45,7 +39,7 @@
 html { scroll-behavior: smooth; }
 
 /* ------------------- */
-/* 기본 스타일 (Global) */
+/* 기본 스타일 */
 /* ------------------- */
 body {
   font-family: "Pretendard", sans-serif;
@@ -71,91 +65,18 @@ hr.short-rule {
 }
 
 /* ==========================================================================
-   [ADDED from Report] 사이드바 및 메인 레이아웃
+   [수정/추가] 헤더 및 네비게이션
    ========================================================================== */
-.sidebar {
-  width: 280px; position: fixed; top: 0; left: 0; height: 100vh;
-  background-color: #202124; border-right: 1px solid var(--border-color);
-  padding: 20px 10px; overflow-y: auto; box-sizing: border-box;
-}
-.sidebar-nav h4 {
-  font-size: 0.8em; font-weight: 700; color: var(--footer-text);
-  text-transform: uppercase; letter-spacing: 0.5px;
-  padding: 0 12px; margin-top: 25px; margin-bottom: 8px;
-}
-.sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
-.sidebar-nav li a, .sidebar-nav summary {
-  display: flex; align-items: center; padding: 6px 12px;
-  color: var(--footer-text); border-radius: 4px;
-  transition: background-color 0.2s, color 0.2s;
-  font-size: 0.95em; cursor: pointer; text-decoration: none;
-}
-.sidebar-nav li a:hover, .sidebar-nav summary:hover {
-  background-color: var(--header-bg); color: var(--text-color);
-}
-.sidebar-nav li a.active {
-  color: var(--link-hover-color); font-weight: 500;
-  background-color: rgba(137, 178, 246, 0.1);
-}
-.sidebar-nav details[open] > summary {
-  color: var(--link-hover-color); font-weight: 500;
-}
-.sidebar-nav details { margin-bottom: 2px; }
-.sidebar-nav summary { list-style: none; position: relative; }
-.sidebar-nav summary::-webkit-details-marker { display: none; }
-.sidebar-nav summary::before {
-  content: '>'; font-family: monospace; font-weight: bold; font-size: 1.2em;
-  position: relative; left: -2px; margin-right: 6px;
-  transform: rotate(0deg); transition: transform 0.2s ease-in-out;
-}
-.sidebar-nav details[open] > summary::before { transform: rotate(90deg); }
-.sidebar-nav summary a { padding: 0; flex-grow: 1; display: block; }
-.sidebar-nav summary a:hover { background-color: transparent; }
-.sidebar-nav details ul { padding-left: 20px; margin-top: 5px; }
-.sidebar-nav details ul li a { font-size: 0.9em; }
-.sidebar-nav .toc-level-2 { padding-left: 0px; }
-.sidebar-nav .toc-level-3 { padding-left: 15px; }
-.sidebar-nav .toc-level-4 { padding-left: 30px; }
-.sidebar-nav .toc-level-5 { padding-left: 45px; }
-
-/* --- 사이드바 스크롤바 --- */
-.sidebar::-webkit-scrollbar { width: 8px; }
-.sidebar::-webkit-scrollbar-track { background: transparent; }
-.sidebar::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; }
-.sidebar::-webkit-scrollbar-thumb:hover { background-color: var(--copy-btn-bg); }
-
-
-/* [MODIFIED] 메인 컨텐츠 영역 (사이드바 적용) */
-.main-content {
-  margin-left: 280px;
-  width: calc(100% - 280px);
-  box-sizing: border-box;
-}
-
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.content-wrapper {
-  max-width: 1100px;
-  margin: 0 auto 30px;
-  padding: 50px 80px;
-  background-color: var(--content-bg);
-  border-radius: 8px;
-}
-
-/* ------------------- */
-/* 헤더 및 네비게이션 (Main) */
-/* ------------------- */
 .site-header {
   background-color: var(--header-bg);
   border-bottom: 1px solid var(--border-color);
   padding: 20px 0;
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* 헤더와 아래 콘텐츠 사이 간격 */
 }
-.site-header .container {
+.container {
+  max-width: 1200px; /* 전체 레이아웃 너비와 맞춤 */
+  margin: 0 auto;
+  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -174,8 +95,73 @@ hr.short-rule {
   text-decoration: none; background-color: transparent;
 }
 
+
+/* ==========================================================================
+   [수정/추가] 헤더 아래 2단 레이아웃 (사이드바 + 본문)
+   ========================================================================== */
+.post-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 사이드바 스타일 */
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky; /* 스크롤 시 화면에 고정 */
+    top: 30px;       /* 화면 상단에서 30px 떨어진 위치에 고정 */
+}
+.sidebar-nav h4 {
+  font-size: 0.8em; font-weight: 700; color: var(--footer-text);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 0 12px; margin-top: 25px; margin-bottom: 8px;
+}
+.sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
+.sidebar-nav li a {
+  display: flex; align-items: center; padding: 6px 12px;
+  color: var(--footer-text); border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+  font-size: 0.95em; text-decoration: none;
+}
+.sidebar-nav li a:hover {
+  background-color: var(--header-bg); color: var(--text-color);
+}
+.sidebar-nav li a.active {
+  color: var(--link-hover-color); font-weight: 500;
+  background-color: rgba(137, 178, 246, 0.1);
+}
+.sidebar-nav .toc-level-2 { padding-left: 0px; }
+.sidebar-nav .toc-level-3 { padding-left: 15px; }
+.sidebar-nav .toc-level-4 { padding-left: 30px; }
+.sidebar-nav .toc-level-5 { padding-left: 45px; }
+
+/* 메인 콘텐츠 영역 (본문) */
+.main-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+.content-wrapper {
+  max-width: 1100px;
+  margin: 0 auto 30px;
+  padding: 50px 80px;
+  background-color: var(--content-bg);
+  border-radius: 8px;
+}
+/* 게시물이 아닌 페이지(홈, 카테고리 목록 등)를 위한 content-wrapper */
+.page-wrapper {
+  max-width: 900px;
+  margin: 0 auto 30px;
+  padding: 50px 80px;
+  background-color: var(--content-bg);
+  border-radius: 8px;
+}
+
 /* ------------------- */
-/* 포스트 상세 페이지 헤더 (Main) */
+/* 포스트 상세 페이지 헤더 */
 /* ------------------- */
 .post-header {
   text-align: center;
@@ -190,7 +176,7 @@ hr.short-rule {
 }
 
 /* ==========================================================================
-   [MERGED] 본문 콘텐츠 스타일 (Report 기준)
+   본문 콘텐츠 스타일
    ========================================================================== */
 .post-content p, .post-content ul, .post-content ol, .post-content blockquote, .post-content table {
   max-width: 800px; margin-left: auto; margin-right: auto;
@@ -199,7 +185,7 @@ hr.short-rule {
 .post-content h2, .post-content h3, .post-content h4, .post-content h5, .post-content pre {
   max-width: 900px; margin-left: auto; margin-right: auto;
 }
-.post-content section { /* for scroll spy */
+.post-content section {
   padding-top: 60px; margin-top: -60px;
 }
 
@@ -225,8 +211,6 @@ hr.short-rule {
 .post-content strong {
   color: var(--strong-emphasis); font-weight: 600;
 }
-/* Main 블로그의 ***text*** 소주제 스타일은 제거 (h4 등으로 대체) */
-/* .post-content strong > em, .post-content em > strong ... */
 
 .post-content ul li strong, .post-content ol li strong {
   color: var(--list-heading-color); font-weight: 700;
@@ -257,7 +241,6 @@ hr.short-rule {
   transform: scale(1.5); cursor: zoom-out; position: relative; z-index: 10;
 }
 
-/* --- 코드 블록 (Main) & 테이블 (Report) --- */
 .content-wrapper pre {
   background-color: var(--code-bg); padding: 15px;
   white-space: pre-wrap; overflow-wrap: break-word; position: relative;
@@ -278,10 +261,10 @@ hr.short-rule {
 .post-content th { background-color: var(--code-bg); color: var(--link-color); }
 
 /* ------------------- */
-/* 포스트/카테고리 목록 (Main) - 그대로 유지 */
+/* 포스트/카테고리 목록 */
 /* ------------------- */
 .post-meta { color: var(--footer-text); font-size: 0.9em; }
-.post-list, .category-list, .project-list { list-style: none; padding-left: 0; }
+.post-list, .category-list { list-style: none; padding-left: 0; }
 .post-list li {
   display: flex; justify-content: space-between; align-items: baseline;
   margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;
@@ -321,7 +304,7 @@ hr.short-rule {
 .category-list .category-group-link { justify-content: flex-start; }
 
 /* ------------------- */
-/* 포스트 네비게이션, 푸터 등 (Main) - 그대로 유지 */
+/* 포스트 네비게이션, 푸터 */
 /* ------------------- */
 .post-nav {
   margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color);
@@ -345,6 +328,7 @@ hr.short-rule {
 
 .site-footer {
   text-align: center; padding: 20px 0; font-size: 0.9em; color: var(--footer-text);
+  margin-top: 40px; /* 푸터와 위 콘텐츠 사이 간격 */
 }
 .signature-icon {
   height: 1.2em; vertical-align: -0.2em; margin-left: 3px;
@@ -360,7 +344,7 @@ hr.short-rule {
 }
 
 /* ==========================================================================
-   [ADDED from Report] PDF 첨부 및 팝업 모달 스타일
+   PDF 첨부 및 팝업 모달 스타일
    ========================================================================== */
 .report-container {
   max-width: 900px; margin-left: auto; margin-right: auto;
@@ -402,24 +386,23 @@ body.modal-open { overflow: hidden; }
 }
 
 /* ==========================================================================
-   [MERGED] 반응형 디자인
+   [수정/추가] 반응형 디자인
    ========================================================================== */
-@media (max-width: 1200px) {
-  /* 화면이 1200px 이하일 때 사이드바 숨기기 */
-  .sidebar { display: none; }
-  .main-content { margin-left: 0; width: 100%; }
+@media (max-width: 1024px) {
+    /* 화면이 1024px 이하일 때, 사이드바를 본문 위로 올립니다. */
+    .post-container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        position: static; /* sticky 고정 해제 */
+        margin-bottom: 40px;
+    }
 }
 
 @media (max-width: 768px) {
-  /* 모바일 화면용 기본 글자 크기 조정 */
   body { font-size: 16px; }
-
-  /* 메인 컨텐츠 영역의 여백(padding) 줄이기 */
-  .content-wrapper { padding: 40px 25px; }
-
-  /* 헤더의 제목과 네비게이션 세로 정렬 */
+  .content-wrapper, .page-wrapper { padding: 40px 25px; }
   .site-header .container { flex-direction: column; gap: 15px; }
-
-  /* 이전/다음글 네비게이션 세로 정렬 */
   .post-nav { flex-direction: column; }
 }
