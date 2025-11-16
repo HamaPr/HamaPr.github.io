@@ -2,7 +2,7 @@
 layout: post
 title: "리눅스 명령어 공부"
 date: 2025-09-02 17:00:00 +0900
-categories: [system-hacking]hacking]
+categories: [system-hacking]
 ---
 
 ### 1. 개요
@@ -101,5 +101,6 @@ categories: [system-hacking]hacking]
     ```
 
 이러한 로그 분석은 [A09: 보안 로깅 및 모니터링 실패](https://hamap0.github.io/projects/owasp-top-10/2025/09/02/A09_Security-Logging-and-Monitoring-Failures.html) 프로젝트에서 로그의 중요성을 이해하는 기반이 된다.
+
 
 <hr class="short-rule">
