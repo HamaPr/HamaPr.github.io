@@ -1,149 +1,146 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // =========================================================================
-    // [NEW] 기능 0: 자동 목차 (TOC) 생성 기능
-    // =========================================================================
-    const tocContainer = document.getElementById('toc');
-    const postContent = document.querySelector('.post-content');
+  // =========================================================================
+  // 기능 0: 자동 목차 (TOC) 생성 (게시글 페이지에서만 작동)
+  // =========================================================================
+  const tocContainer = document.getElementById('toc');
+  const postContent = document.querySelector('.post-content');
 
-    // 게시글 페이지에만 목차 생성 로직 실행
-    if (tocContainer && postContent) {
-        const headings = postContent.querySelectorAll('h2, h3, h4');
-        let tocHTML = '';
-
-        headings.forEach(heading => {
-            // 제목 태그에 id가 없으면 자동으로 생성 (스크롤 이동을 위해 필수)
-            if (!heading.id) {
-                // 제목 텍스트를 기반으로 URL 친화적인 ID 생성
-                heading.id = heading.textContent.trim().toLowerCase()
-                                  .replace(/\s+/g, '-')
-                                  .replace(/[^\w\-]+/g, '');
-            }
-
-            const level = heading.tagName.toLowerCase(); // h2, h3, h4
-            const text = heading.textContent;
-            const id = heading.id;
-
-            tocHTML += `<li class="toc-level-${level}">
-                          <a href="#${id}">${text}</a>
-                        </li>`;
-        });
-
-        tocContainer.innerHTML = tocHTML;
-    }
-        
-    // =========================================================================
-    // 기능 1: 사이드바 스크롤 추적 및 부드러운 이동
-    // =========================================================================
-    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
-    const sections = document.querySelectorAll('h2[id], h3[id], h4[id], h5[id]');
-
-    // IntersectionObserver가 없으면 기능 실행 중단
-    if ('IntersectionObserver' in window && sections.length > 0) {
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px 0px -70% 0px', // 화면 상단 30% 지점에서 활성화
-            threshold: 0
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            let visibleSectionId = null;
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    visibleSectionId = entry.target.getAttribute('id');
-                }
-            });
-
-            if (visibleSectionId) {
-                 sidebarLinks.forEach(link => {
-                    link.classList.remove('active');
-                    // href 속성값이 # + id 와 일치하는 링크에 active 클래스 추가
-                    if (link.getAttribute('href') === `#${visibleSectionId}`) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-        }, observerOptions);
-
-        sections.forEach(section => {
-            observer.observe(section);
-        });
-    }
-
-
-    sidebarLinks.forEach(anchor => {
-        // 외부 링크가 아닌 페이지 내부 링크(#)에만 부드러운 스크롤 적용
-        if (anchor.getAttribute('href').startsWith('#')) {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        }
+  if (tocContainer && postContent) {
+    const headings = postContent.querySelectorAll('h2, h3, h4');
+    let tocHTML = '';
+    headings.forEach(heading => {
+      if (!heading.id) {
+        heading.id = heading.textContent.trim().toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w\-]+/g, '');
+      }
+      const level = heading.tagName.substring(1); // '2', '3', '4'
+      const text = heading.textContent;
+      const id = heading.id;
+      tocHTML += `<li class="toc-level-${level}"><a href="#${id}">${text}</a></li>`;
     });
+    tocContainer.innerHTML = tocHTML;
+  }
 
-    // =========================================================================
-    // 기능 2: PDF 팝업 모달
-    // =========================================================================
-    
-    // 모달이 이미 HTML에 있는지 확인하고, 없으면 추가
-    if (!document.getElementById('pdf-modal')) {
-        const modalHTML = `
-            <div id="pdf-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-button">&times;</span>
-                    <iframe id="pdf-viewer" frameborder="0"></iframe>
-                </div>
-            </div>`;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
+  // =========================================================================
+  // 기능 1: 사이드바 스크롤 추적 및 부드러운 이동 (게시글 페이지에서만 작동)
+  // =========================================================================
+  const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+  const sections = document.querySelectorAll('.post-content h2[id], .post-content h3[id], .post-content h4[id]');
+
+  if ('IntersectionObserver' in window && sections.length > 0 && sidebarLinks.length > 0) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          sidebarLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${id}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, { rootMargin: '0px 0px -80% 0px', threshold: 0 });
+    sections.forEach(section => observer.observe(section));
+  }
+
+  sidebarLinks.forEach(anchor => {
+    if (anchor.getAttribute('href').startsWith('#')) {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetElement = document.querySelector(this.getAttribute('href'));
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
     }
+  });
+  
+  // =========================================================================
+  // 기능 2: PDF 팝업 모달
+  // =========================================================================
+  const reportLinks = document.querySelectorAll('.report-container a.download-button');
+  if (reportLinks.length > 0 && !document.getElementById('pdf-modal')) {
+    const modalHTML = `<div id="pdf-modal" class="modal"><div class="modal-content"><span class="close-button">&times;</span><iframe id="pdf-viewer" frameborder="0"></iframe></div></div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
 
     const modal = document.getElementById('pdf-modal');
     const closeBtn = modal.querySelector('.close-button');
     const iframe = document.getElementById('pdf-viewer');
-    const reportLinks = document.querySelectorAll('.report-container a.download-button');
-    const body = document.body;
 
-    function closeModal() {
-        modal.style.display = 'none';
-        iframe.src = '';
-        body.classList.remove('modal-open');
-    }
-
-    function openModal(pdfSrc) {
-        iframe.src = pdfSrc;
-        modal.style.display = 'flex';
-        body.classList.add('modal-open');
-    }
+    const closeModal = () => {
+      modal.style.display = 'none';
+      iframe.src = '';
+      document.body.classList.remove('modal-open');
+    };
+    const openModal = (pdfSrc) => {
+      iframe.src = pdfSrc;
+      modal.style.display = 'flex';
+      document.body.classList.add('modal-open');
+    };
 
     reportLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault(); 
-            const pdfSrc = this.getAttribute('href');
-            if (pdfSrc) {
-                openModal(pdfSrc);
-            }
-        });
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        openModal(this.getAttribute('href'));
+      });
     });
 
     closeBtn.addEventListener('click', closeModal);
-    
-    modal.addEventListener('click', function(event) {
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
+    modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+    document.addEventListener('keydown', (event) => { if (event.key === "Escape") closeModal(); });
+  }
 
-    document.addEventListener('keydown', function(event) {
-        if (event.key === "Escape" && modal.style.display === 'flex') { 
-            closeModal();
-        }
+  // =========================================================================
+  // 기능 3: 코드 블록 복사 (기존 기능)
+  // =========================================================================
+  const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+  const copiedIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  document.querySelectorAll('.content-wrapper pre').forEach(block => {
+    const button = document.createElement('button');
+    button.className = 'copy-button';
+    button.innerHTML = copyIconSVG;
+    button.title = '코드 복사';
+    block.appendChild(button);
+    button.addEventListener('click', () => {
+      const code = block.querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        button.innerHTML = copiedIconSVG;
+        button.classList.add('copied');
+        button.title = '복사 완료!';
+        setTimeout(() => {
+          button.innerHTML = copyIconSVG;
+          button.classList.remove('copied');
+          button.title = '코드 복사';
+        }, 2000);
+      });
     });
+  });
+
+  // =========================================================================
+  // 기능 4: 이미지 확대/축소 (기존 기능)
+  // =========================================================================
+  if (postContent) {
+    for (const img of postContent.getElementsByTagName('img')) {
+      img.addEventListener('click', function() {
+        this.classList.toggle('zoomed');
+      });
+    }
+  }
+
+  // =========================================================================
+  // 기능 5: 맨 위로 가기 버튼 (기존 기능)
+  // =========================================================================
+  const backToTopBtn = document.getElementById('back-to-top');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      backToTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+    });
+    backToTopBtn.addEventListener('click', e => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 });
