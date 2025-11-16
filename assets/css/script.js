@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // =========================================================================
-    // 기능 1: 코드 블록 복사 기능
+    // 기능 1: 코드 블록 복사
     // =========================================================================
     const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
     const copiedIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         button.title = '코드 복사';
         block.appendChild(button);
         button.addEventListener('click', () => {
-            const code = block.querySelector('pre code').innerText;
+            const code = block.querySelector('pre > code').innerText;
             navigator.clipboard.writeText(code).then(() => {
                 button.innerHTML = copiedIconSVG;
                 button.classList.add('copied');
@@ -28,18 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
-    // 기능 2: 이미지 확대/축소 기능
+    // 기능 2: 이미지 확대/축소
     // =========================================================================
     const postContent = document.querySelector('.post-content');
     if (postContent) {
         const images = postContent.getElementsByTagName('img');
         for (const img of images) {
-            // 이미 부모가 링크인 경우는 확대 기능을 적용하지 않음 (예: 썸네일)
-            if (img.parentElement.tagName !== 'A') {
-                img.addEventListener('click', function() {
-                    this.classList.toggle('zoomed');
-                });
-            }
+            img.addEventListener('click', function() {
+                this.classList.toggle('zoomed');
+            });
         }
     }
 
