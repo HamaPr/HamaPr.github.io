@@ -1,4 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // =========================================================================
+    // [NEW] 기능 0: 자동 목차 (TOC) 생성 기능
+    // =========================================================================
+    const tocContainer = document.getElementById('toc');
+    const postContent = document.querySelector('.post-content');
+
+    // 게시글 페이지에만 목차 생성 로직 실행
+    if (tocContainer && postContent) {
+        const headings = postContent.querySelectorAll('h2, h3, h4');
+        let tocHTML = '';
+
+        headings.forEach(heading => {
+            // 제목 태그에 id가 없으면 자동으로 생성 (스크롤 이동을 위해 필수)
+            if (!heading.id) {
+                // 제목 텍스트를 기반으로 URL 친화적인 ID 생성
+                heading.id = heading.textContent.trim().toLowerCase()
+                                  .replace(/\s+/g, '-')
+                                  .replace(/[^\w\-]+/g, '');
+            }
+
+            const level = heading.tagName.toLowerCase(); // h2, h3, h4
+            const text = heading.textContent;
+            const id = heading.id;
+
+            tocHTML += `<li class="toc-level-${level}">
+                          <a href="#${id}">${text}</a>
+                        </li>`;
+        });
+
+        tocContainer.innerHTML = tocHTML;
+    }
+        
     // =========================================================================
     // 기능 1: 사이드바 스크롤 추적 및 부드러운 이동
     // =========================================================================
