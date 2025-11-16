@@ -50,7 +50,10 @@ if (postContentForImages) {
 
     for (const img of images) {
         img.addEventListener('click', function(event) {
-            // 이미지가 링크의 일부일 경우, 링크 이동을 막고 확대만 실행
+            if (this.closest('.report-container a')) {
+                return; 
+            }
+            
             event.preventDefault(); 
             
             this.classList.toggle('zoomed');
