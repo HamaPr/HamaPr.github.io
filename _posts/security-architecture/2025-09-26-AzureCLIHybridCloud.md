@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "하이브리드 클라우드 보안 아키텍처 구축"
+title: "Azure CLI를 이용한 하이브리드 클라우드 보안 아키텍처 구축"
 date: 2025-09-26 17:00:00 +0900
 categories: [security-architecture]
 ---
@@ -182,5 +182,6 @@ az network vnet-gateway list-bgp-peer-status -g st421-rg-azure -n st421-vng-azur
 ### 4. 마무리
 
 이번 프로젝트를 통해 BGP 기반의 동적 라우팅을 적용한 하이브리드 클라우드 네트워크를 구축하고, Ansible을 이용해 구성 관리를 자동화하는 전 과정을 경험할 수 있었습니다. 특히, Local Network Gateway 설정 시 BGP 피어링 주소를 명시하는 것의 중요성과 NSG를 통한 티어 간 접근 제어가 보안 아키텍처의 핵심임을 이해하는 의미 있는 과정이었습니다.
+
 
 <hr class="short-rule">
