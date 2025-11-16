@@ -30,3 +30,18 @@ jekyll-archives:
     category: category_page
   permalinks:
     category: '/category/:name/'
+
+    # Category Display Names (카테고리 보여주는 이름 설정)
+category_names:
+  owasp-top-10: "OWASP Top 10"
+  security-architecture: "보안 아키텍처"
+  penetration-test-scenario: "모의침투 시나리오"
+  system-hacking: "시스템 해킹"
+  web-technology: "웹 기술"
+  web-hacking: "웹 해킹"
+  app-hacking: "앱 해킹"
+  certificates: "자격증"
+  hacking-tools: "해킹 툴"
+  ngfw: "NGFW"
+  bandit: "Bandit"
+  att&ck: "ATT&CK"

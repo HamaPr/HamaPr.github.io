@@ -3,17 +3,16 @@ layout: default
 title: Categories
 permalink: /categories/
 ---
-
 <h1>모든 카테고리</h1>
 <hr>
-
 <ul class="category-list">
   {% for category in site.categories %}
     {% assign posts_in_cat = category | last %}
     {% if posts_in_cat.size > 0 %}
+      {% assign cat_id = category | first %}
       <li class="category-list-item">
-        <a href="/category/{{ category | first | slugify }}/">
-          <span class="category-title-text">{{ category | first }}</span>
+        <a href="/category/{{ cat_id | slugify }}/">
+          <span class="category-title-text">{{ site.category_names[cat_id] | default: cat_id }}</span>
         </a>
         <span class="post-date-range">
           [{{ posts_in_cat.size }} 개의 포스트]
