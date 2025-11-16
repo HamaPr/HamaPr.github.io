@@ -1,64 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // =========================================================================
-  // 기능 0: 자동 목차 (TOC) 생성 (게시글 페이지에서만 작동)
-  // =========================================================================
-  const tocContainer = document.getElementById('toc');
-  const postContent = document.querySelector('.post-content');
-
-  if (tocContainer && postContent) {
-    const headings = postContent.querySelectorAll('h2, h3, h4');
-    let tocHTML = '';
-    headings.forEach(heading => {
-      if (!heading.id) {
-        heading.id = heading.textContent.trim().toLowerCase()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w\-]+/g, '');
-      }
-      const level = heading.tagName.substring(1); // '2', '3', '4'
-      const text = heading.textContent;
-      const id = heading.id;
-      tocHTML += `<li class="toc-level-${level}"><a href="#${id}">${text}</a></li>`;
-    });
-    tocContainer.innerHTML = tocHTML;
-  }
-
-  // =========================================================================
-  // 기능 1: 사이드바 스크롤 추적 및 부드러운 이동 (게시글 페이지에서만 작동)
-  // =========================================================================
-  const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
-  const sections = document.querySelectorAll('.post-content h2[id], .post-content h3[id], .post-content h4[id]');
-
-  if ('IntersectionObserver' in window && sections.length > 0 && sidebarLinks.length > 0) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('id');
-          sidebarLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${id}`) {
-              link.classList.add('active');
-            }
-          });
-        }
-      });
-    }, { rootMargin: '0px 0px -80% 0px', threshold: 0 });
-    sections.forEach(section => observer.observe(section));
-  }
-
-  sidebarLinks.forEach(anchor => {
-    if (anchor.getAttribute('href').startsWith('#')) {
-      anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetElement = document.querySelector(this.getAttribute('href'));
-        if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    }
-  });
-  
-  // =========================================================================
   // 기능 2: PDF 팝업 모달
   // =========================================================================
   const reportLinks = document.querySelectorAll('.report-container a.download-button');
