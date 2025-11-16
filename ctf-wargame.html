@@ -4,18 +4,14 @@ title: CTF/Wargame
 exclude_from_nav: true
 ---
 <h1>{{ page.title }}</h1>
-<p>CTF/Wargame 풀이 목록입니다.</p>
+<p class="page-description">CTF/Wargame 풀이 목록입니다.</p>
 <hr>
 
 {% assign ctf_categories = "bandit" | split: "|" %}
-
 {% for cat_id in ctf_categories %}
   {% assign posts_in_cat = site.categories[cat_id] %}
   {% if posts_in_cat %}
-    <!-- 카테고리 제목 -->
     <h3><a href="/category/{{ cat_id | slugify }}/">{{ site.category_names[cat_id] | default: cat_id }}</a></h3>
-
-    <!-- 해당 카테고리의 게시물 목록 (오래된 순) -->
     <ul class="post-list">
       {% assign sorted_posts = posts_in_cat | sort: 'date' %}
       {% for post in sorted_posts %}
@@ -25,7 +21,6 @@ exclude_from_nav: true
         </li>
       {% endfor %}
     </ul>
-    <!-- 카테고리 사이 구분선 -->
     <hr class="short-rule">
   {% endif %}
 {% endfor %}
