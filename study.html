@@ -9,31 +9,35 @@ title: Study
 
 <ul class="category-list">
 
-  <!-- 1. '보안 공부' 상위 카테고리 그룹 링크 (수정 없음) -->
+  <!-- 1. '보안 공부' 상위 카테고리 그룹 링크 -->
   <li class="category-group-link">
     {% assign tech_categories = "웹 기술|웹 해킹|앱 해킹|시스템 해킹|해킹 툴|NGFW" | split: "|" %}
     {% assign active_tech_count = 0 %}
     {% for cat in tech_categories %}
-      {% if site.categories[cat].size > 0 %}{% assign active_tech_count = active_tech_count | plus: 1 %}{% endif %}
+      {% if site.categories[cat].size > 0 %}
+        {% assign active_tech_count = active_tech_count | plus: 1 %}
+      {% endif %}
     {% endfor %}
     <a class="post-link" href="{{ '/security-study.html' | relative_url }}">
       <span class="category-title-text">보안 공부</span><span class="category-count-bracket">[{{ active_tech_count }}]</span>
     </a>
   </li>
 
-  <!-- 2. 'CTF/Wargame' 상위 카테고리 그룹 링크 (수정 없음) -->
+  <!-- 2. 'CTF/Wargame' 상위 카테고리 그룹 링크 -->
   <li class="category-group-link">
     {% assign ctf_categories = "bandit|드림핵|OWASP-JuiceShop|TryHackMe|PortSwigger|OvertheWire|Rcity|Pwnable" | split: "|" %}
     {% assign active_ctf_count = 0 %}
     {% for cat in ctf_categories %}
-      {% if site.categories[cat].size > 0 %}{% assign active_ctf_count = active_ctf_count | plus: 1 %}{% endif %}
+      {% if site.categories[cat].size > 0 %}
+        {% assign active_ctf_count = active_ctf_count | plus: 1 %}
+      {% endif %}
     {% endfor %}
     <a class="post-link" href="{{ '/ctf-wargame.html' | relative_url }}">
       <span class="category-title-text">CTF/Wargame</span><span class="category-count-bracket">[{{ active_ctf_count }}]</span>
     </a>
   </li>
   
-  <!-- 3. '자격증' 독립 카테고리 (수정) -->
+  <!-- 3. '자격증' 독립 카테고리 -->
   {% assign independent_categories = "자격증" | split: "|" %}
   {% for cat in independent_categories %}
     {% assign posts_in_cat = site.categories[cat] %}
@@ -42,8 +46,7 @@ title: Study
       {% assign oldest_post = sorted_posts | first %}
       {% assign newest_post = sorted_posts | last %}
       <li>
-        <!-- [수정] 링크 주소를 jekyll-archives 규칙에 맞게 변경 -->
-        <a class="post-link" href="{{ '/category/' | append: (cat | slugify) | append: '/' | relative_url }}">
+        <a class="post-link" href="/category/{{ cat | slugify }}/">
           <span class="category-title-text">{{ cat }}</span> <span class="post-count">({{ posts_in_cat.size }})</span>
         </a>
         <span class="post-date-range">

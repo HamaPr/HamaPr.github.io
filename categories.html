@@ -10,7 +10,6 @@ permalink: /categories/
 <ul class="category-list">
   {% for category in site.categories %}
     <li class="category-list-item">
-      <!-- 바로 이 부분! 링크 주소를 새 규칙에 맞게 수정합니다. -->
       <a href="/category/{{ category | first | slugify }}/">
         <span class="category-title-text">{{ category | first }}</span>
       </a>
