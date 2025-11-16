@@ -1,5 +1,5 @@
 /* =============================================================================
-   HamaPr의 블로그 - 최종 스타일시트
+   HamaPr의 블로그
    ============================================================================= */
 
 /* ------------------- */
@@ -64,17 +64,17 @@ hr.short-rule {
   margin: 2em auto;
 }
 
-/* ==========================================================================
-   [수정/추가] 헤더 및 네비게이션
-   ========================================================================== */
+/* ------------------- */
+/* 헤더 및 네비게이션 */
+/* ------------------- */
 .site-header {
   background-color: var(--header-bg);
   border-bottom: 1px solid var(--border-color);
   padding: 20px 0;
-  margin-bottom: 30px; /* 헤더와 아래 콘텐츠 사이 간격 */
+  margin-bottom: 30px;
 }
 .container {
-  max-width: 1200px; /* 전체 레이아웃 너비와 맞춤 */
+  max-width: 900px; /* 기존의 안정적인 너비로 복원 */
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
@@ -95,64 +95,10 @@ hr.short-rule {
   text-decoration: none; background-color: transparent;
 }
 
-
-/* ==========================================================================
-   [수정/추가] 헤더 아래 2단 레이아웃 (사이드바 + 본문)
-   ========================================================================== */
-.post-container {
-    display: flex;
-    align-items: flex-start;
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* 사이드바 스타일 */
-.sidebar {
-    width: 280px;
-    flex-shrink: 0;
-    position: sticky; /* 스크롤 시 화면에 고정 */
-    top: 30px;       /* 화면 상단에서 30px 떨어진 위치에 고정 */
-}
-.sidebar-nav h4 {
-  font-size: 0.8em; font-weight: 700; color: var(--footer-text);
-  text-transform: uppercase; letter-spacing: 0.5px;
-  padding: 0 12px; margin-top: 25px; margin-bottom: 8px;
-}
-.sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
-.sidebar-nav li a {
-  display: flex; align-items: center; padding: 6px 12px;
-  color: var(--footer-text); border-radius: 4px;
-  transition: background-color 0.2s, color 0.2s;
-  font-size: 0.95em; text-decoration: none;
-}
-.sidebar-nav li a:hover {
-  background-color: var(--header-bg); color: var(--text-color);
-}
-.sidebar-nav li a.active {
-  color: var(--link-hover-color); font-weight: 500;
-  background-color: rgba(137, 178, 246, 0.1);
-}
-.sidebar-nav .toc-level-2 { padding-left: 0px; }
-.sidebar-nav .toc-level-3 { padding-left: 15px; }
-.sidebar-nav .toc-level-4 { padding-left: 30px; }
-.sidebar-nav .toc-level-5 { padding-left: 45px; }
-
-/* 메인 콘텐츠 영역 (본문) */
-.main-content {
-    flex-grow: 1;
-    min-width: 0;
-}
-.content-wrapper {
-  max-width: 1100px;
-  margin: 0 auto 30px;
-  padding: 50px 80px;
-  background-color: var(--content-bg);
-  border-radius: 8px;
-}
-/* 게시물이 아닌 페이지(홈, 카테고리 목록 등)를 위한 content-wrapper */
-.page-wrapper {
+/* ------------------- */
+/* 메인 컨텐츠 영역 */
+/* ------------------- */
+.content-wrapper, .page-wrapper {
   max-width: 900px;
   margin: 0 auto 30px;
   padding: 50px 80px;
@@ -178,15 +124,12 @@ hr.short-rule {
 /* ==========================================================================
    본문 콘텐츠 스타일
    ========================================================================== */
-.post-content p, .post-content ul, .post-content ol, .post-content blockquote, .post-content table {
+.post-content p, .post-content ul, .post-content ol, .post-content blockquote, .post-content table, .post-content .highlight {
   max-width: 800px; margin-left: auto; margin-right: auto;
   margin-bottom: 1.5em;
 }
-.post-content h2, .post-content h3, .post-content h4, .post-content h5, .post-content pre {
+.post-content h2, .post-content h3, .post-content h4, .post-content h5 {
   max-width: 900px; margin-left: auto; margin-right: auto;
-}
-.post-content section {
-  padding-top: 60px; margin-top: -60px;
 }
 
 .post-content h2 {
@@ -241,10 +184,20 @@ hr.short-rule {
   transform: scale(1.5); cursor: zoom-out; position: relative; z-index: 10;
 }
 
-.content-wrapper pre {
-  background-color: var(--code-bg); padding: 15px;
-  white-space: pre-wrap; overflow-wrap: break-word; position: relative;
-  border-radius: 4px; font-size: 0.95em; line-height: 1.6;
+/* --- 코드 블록 (최종 수정본) --- */
+.highlight {
+    background: var(--code-bg);
+    border-radius: 4px;
+    position: relative;
+}
+.content-wrapper pre, .page-wrapper pre {
+  padding: 15px;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  font-size: 0.95em;
+  line-height: 1.6;
+  background: transparent;
 }
 .copy-button {
   position: absolute; top: 10px; right: 10px; background-color: var(--copy-btn-bg);
@@ -252,7 +205,7 @@ hr.short-rule {
   opacity: 0; transition: opacity 0.2s, background-color 0.2s;
 }
 .copy-button.copied { background-color: var(--category-color); }
-.content-wrapper pre:hover .copy-button { opacity: 0.7; }
+.highlight:hover .copy-button { opacity: 0.7; }
 
 .post-content table { width: 100%; border-collapse: collapse; }
 .post-content th, .post-content td {
@@ -328,7 +281,7 @@ hr.short-rule {
 
 .site-footer {
   text-align: center; padding: 20px 0; font-size: 0.9em; color: var(--footer-text);
-  margin-top: 40px; /* 푸터와 위 콘텐츠 사이 간격 */
+  margin-top: 40px;
 }
 .signature-icon {
   height: 1.2em; vertical-align: -0.2em; margin-left: 3px;
@@ -386,20 +339,8 @@ body.modal-open { overflow: hidden; }
 }
 
 /* ==========================================================================
-   [수정/추가] 반응형 디자인
+   반응형 디자인
    ========================================================================== */
-@media (max-width: 1024px) {
-    /* 화면이 1024px 이하일 때, 사이드바를 본문 위로 올립니다. */
-    .post-container {
-        flex-direction: column;
-    }
-    .sidebar {
-        width: 100%;
-        position: static; /* sticky 고정 해제 */
-        margin-bottom: 40px;
-    }
-}
-
 @media (max-width: 768px) {
   body { font-size: 16px; }
   .content-wrapper, .page-wrapper { padding: 40px 25px; }
@@ -408,17 +349,8 @@ body.modal-open { overflow: hidden; }
 }
 
 /* ==========================================================================
-   [추가] 코드 블록 문법 강조(Syntax Highlighting) 스타일
+   코드 블록 문법 강조(Syntax Highlighting) 스타일
    ========================================================================== */
-.highlight {
-  background: #282a2d; /* 코드 블록 배경색과 통일 */
-  color: #e8eaed;
-}
-.highlight pre {
-  padding: 1em;
-  background: transparent;
-  border: none;
-}
 .highlight .c { color: #969896 } /* Comment */
 .highlight .err { color: #f2777a } /* Error */
 .highlight .k { color: #55B4AD } /* Keyword */
