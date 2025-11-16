@@ -1,19 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // =========================================================================
-    // 기능 1: 코드 블록 복사
-    // =========================================================================
-    const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-    const copiedIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+// =========================================================================
+// 기능 1: 코드 블록 복사
+// =========================================================================
+const copyIconSVG = `<svg xmlns="http://www.w.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+const copiedIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+document.querySelectorAll('.highlight').forEach(block => {
+    const button = document.createElement('button');
+    button.className = 'copy-button';
+    button.innerHTML = copyIconSVG;
+    button.title = '코드 복사';
     
-    document.querySelectorAll('.highlight').forEach(block => {
-        const button = document.createElement('button');
-        button.className = 'copy-button';
-        button.innerHTML = copyIconSVG;
-        button.title = '코드 복사';
+    // pre > code 구조가 실제로 존재하는지 먼저 확인
+    const codeElement = block.querySelector('pre > code');
+    
+    // codeElement가 있을 때만 버튼을 추가하고 이벤트를 연결
+    if (codeElement) {
         block.appendChild(button);
         button.addEventListener('click', () => {
-            const code = block.querySelector('pre > code').innerText;
+            const code = codeElement.innerText;
             navigator.clipboard.writeText(code).then(() => {
                 button.innerHTML = copiedIconSVG;
                 button.classList.add('copied');
@@ -25,24 +31,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 2000);
             });
         });
-    });
+    }
+});
 
 // =========================================================================
 // 기능 2: 이미지 확대/축소
 // =========================================================================
-const postContent = document.querySelector('.post-content');
-if (postContent) {
+const postContentForImages = document.querySelector('.post-content');
+if (postContentForImages) {
     if (!document.querySelector('.image-overlay')) {
         const overlay = document.createElement('div');
         overlay.className = 'image-overlay';
         document.body.appendChild(overlay);
     }
 
-    const images = postContent.getElementsByTagName('img');
+    const images = postContentForImages.getElementsByTagName('img');
     const overlay = document.querySelector('.image-overlay');
 
     for (const img of images) {
-        img.addEventListener('click', function() {
+        img.addEventListener('click', function(event) {
+            // 이미지가 링크의 일부일 경우, 링크 이동을 막고 확대만 실행
+            event.preventDefault(); 
+            
             this.classList.toggle('zoomed');
             overlay.classList.toggle('active');
         });
