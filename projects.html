@@ -6,7 +6,7 @@ title: 프로젝트
 <p>그동안 진행했던 프로젝트의 결과물을 정리해두었습니다.</p>
 <hr>
 <ul class="category-list">
-  {% assign project_categories = "owasp-top-10|security-architecture|penetration-test-scenario" | split: "|" %}
+  {% assign project_categories = "owasp-top-10|security-architecture|penetration-test-scenario|att-ck" | split: "|" %}
   {% for cat_id in project_categories %}
     {% assign posts_in_cat = site.categories[cat_id] %}
     {% if posts_in_cat %}
