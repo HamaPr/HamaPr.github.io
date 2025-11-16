@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ page.title | default: site.title }}</title>
   <style>
-    html, body {
-      background-color: #202124;
-    }
+    /* 로딩 깜빡임 방지용 최소 배경색 */
+    html, body { background-color: #202124; }
   </style>
   <meta name="theme-color" content="#202124" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23FFC0CB'/><circle cx='50' cy='65' r='28' fill='%23d4d4d8'/><path d='M35,32 l5,-10 l10,10 l10,-10 l5,10 z' fill='%23FFD700' stroke='%23F7B500' stroke-width='2'/><circle cx='38' cy='58' r='5' fill='white'/><circle cx='62' cy='58' r='5' fill='white'/><circle cx='38' cy='58' r='2' fill='black'/><circle cx='62' cy='58' r='2' fill='black'/><circle cx='35' cy='70' r='3' fill='%23b0a8b9'/><circle cx='65' cy='70' r='3' fill='%23b0a8b9'/></svg>">
@@ -15,11 +14,13 @@
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   {% seo %}
 </head>
-<body>
+<!-- [수정] page.layout 변수를 이용해 body에 클래스를 동적으로 추가합니다. -->
+<body class="layout-{{ page.layout | default: 'page' }}">
 
   {% include header.html %}
 
-  <main class="content-wrapper" aria-label="Content">
+  <!-- [수정] main 태그에서 content-wrapper 클래스를 제거하여 자식 레이아웃에서 구조를 결정하도록 합니다. -->
+  <main aria-label="Content">
     {{ content }}
   </main>
 
@@ -27,54 +28,7 @@
 
   <a id="back-to-top" href="#">↑</a>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // 코드 복사 기능
-      const copyIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-      const copiedIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-      document.querySelectorAll('.content-wrapper pre').forEach(block => {
-        const button = document.createElement('button');
-        button.className = 'copy-button';
-        button.innerHTML = copyIconSVG;
-        button.title = '코드 복사';
-        block.appendChild(button);
-        button.addEventListener('click', () => {
-          const code = block.querySelector('code').innerText;
-          navigator.clipboard.writeText(code).then(() => {
-            button.innerHTML = copiedIconSVG;
-            button.classList.add('copied');
-            button.title = '복사 완료!';
-            setTimeout(() => {
-              button.innerHTML = copyIconSVG;
-              button.classList.remove('copied');
-              button.title = '코드 복사';
-            }, 2000);
-          });
-
-          
-        });
-      });
-
-      // 이미지 확대/축소
-      const postContent = document.querySelector('.post-content');
-      if (postContent) {
-        for (const img of postContent.getElementsByTagName('img')) {
-          img.addEventListener('click', function() {
-            this.classList.toggle('zoomed');
-          });
-        }
-      }
-
-      // Back to top
-      const backToTopBtn = document.getElementById('back-to-top');
-      window.addEventListener('scroll', () => {
-        backToTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
-      });
-      backToTopBtn.addEventListener('click', e => {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-  </script>
+  <!-- [수정] 인라인 스크립트를 제거하고, 통합된 script.js 파일을 맨 아래에서 한 번만 호출합니다. -->
+  <script src="{{ '/assets/js/script.js' | relative_url }}"></script>
 </body>
 </html>
