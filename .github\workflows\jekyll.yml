@@ -1,6 +1,6 @@
 # .github/workflows/jekyll.yml
 
-name: Build and Deploy Jekyll site to GitHub Pages
+name: Build and Deploy Jekyll site to Pages
 
 on:
   push:
@@ -14,15 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      # [수정] Ruby 설치와 Gem 설치 단계를 명확하게 분리합니다.
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.1'
-          # bundler-cache 옵션을 여기서 제거합니다.
 
-      # [추가] Gemfile을 이용해 플러그인을 설치하는 단계를 직접 명시합니다.
-      # 이 방법이 캐시 문제 없이 가장 확실합니다.
       - name: Install dependencies
         run: bundle install
 
