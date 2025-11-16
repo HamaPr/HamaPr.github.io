@@ -31,7 +31,7 @@ jekyll-archives:
   permalinks:
     category: '/category/:name/'
 
-    # Category Display Names (카테고리 보여주는 이름 설정)
+# Category Display Names (카테고리 보여주는 이름 설정)
 category_names:
   owasp-top-10: "OWASP Top 10"
   security-architecture: "보안 아키텍처"
@@ -44,4 +44,4 @@ category_names:
   hacking-tools: "해킹 툴"
   ngfw: "NGFW"
   bandit: "Bandit"
-  att&ck: "ATT&CK"
+  att-ck: "ATT&CK"
