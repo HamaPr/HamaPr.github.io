@@ -415,3 +415,13 @@ body.modal-open { overflow: hidden; }
 .highlight .vg { color: #f2777a } /* Name.Variable.Global */
 .highlight .vi { color: #f2777a } /* Name.Variable.Instance */
 .highlight .il { color: #D99362 } /* Literal.Number.Integer.Long */
+
+/* ==========================================================================
+   페이지 설명 문구 스타일
+   ========================================================================== */
+.page-description {
+  color: var(--footer-text); /* 푸터 및 메타 정보와 동일한 회색 톤으로 변경 */
+  font-size: 1.1em;          /* 기본 글씨보다 살짝 크게 */
+  text-align: center;        /* 가운데 정렬로 강조 */
+  margin-bottom: 2.5em;      /* 아래 구분선(hr)과의 간격 추가 */
+}
