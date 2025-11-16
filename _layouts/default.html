@@ -12,16 +12,12 @@
   {% seo %}
 </head>
 <body>
-
   {% include header.html %}
-  <main aria-label="Content">
+  <main class="page-wrapper" aria-label="Content">
     {{ content }}
   </main>
-
   {% include footer.html %}
-
   <a id="back-to-top" href="#">↑</a>
-
   <script src="{{ '/assets/js/script.js' | relative_url }}"></script>
 </body>
 </html>
