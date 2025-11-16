@@ -2,7 +2,7 @@
 layout: post
 title: "PEASS-ng 공부"
 date: 2025-09-04 17:00:00 +0900
-categories: [system-hacking]hacking]
+categories: [system-hacking]
 ---
 
 ### 1. 개요
@@ -90,5 +90,6 @@ root
 *   **`whoami`** 명령어 역시 `root`를 반환한다.
 
 이 과정을 통해 `linpeas.sh`로 수집한 정보를 바탕으로 분석하여 실제 `root` 권한을 획득하는 데 성공했다.
+
 
 <hr class="short-rule">
