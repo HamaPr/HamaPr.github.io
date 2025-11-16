@@ -27,18 +27,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // =========================================================================
-    // 기능 2: 이미지 확대/축소
-    // =========================================================================
-    const postContent = document.querySelector('.post-content');
-    if (postContent) {
-        const images = postContent.getElementsByTagName('img');
-        for (const img of images) {
-            img.addEventListener('click', function() {
-                this.classList.toggle('zoomed');
-            });
-        }
+// =========================================================================
+// 기능 2: 이미지 확대/축소
+// =========================================================================
+const postContent = document.querySelector('.post-content');
+if (postContent) {
+    if (!document.querySelector('.image-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'image-overlay';
+        document.body.appendChild(overlay);
     }
+
+    const images = postContent.getElementsByTagName('img');
+    const overlay = document.querySelector('.image-overlay');
+
+    for (const img of images) {
+        img.addEventListener('click', function() {
+            this.classList.toggle('zoomed');
+            overlay.classList.toggle('active');
+        });
+    }
+    
+    // 오버레이 클릭 시 이미지 축소
+    overlay.addEventListener('click', function() {
+        const zoomedImage = document.querySelector('img.zoomed');
+        if (zoomedImage) {
+            zoomedImage.classList.remove('zoomed');
+            this.classList.remove('active');
+        }
+    });
+}
 
     // =========================================================================
     // 기능 3: 맨 위로 가기 버튼
@@ -57,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================================
     // 기능 4: PDF 팝업 모달
     // =========================================================================
-    const reportLinks = document.querySelectorAll('.report-container a.download-button');
+    const reportLinks = document.querySelectorAll('.report-container a');
     if (reportLinks.length > 0 && !document.getElementById('pdf-modal')) {
         const modalHTML = `<div id="pdf-modal" class="modal"><div class="modal-content"><span class="close-button">&times;</span><iframe id="pdf-viewer" frameborder="0"></iframe></div></div>`;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
