@@ -1,0 +1,22 @@
+---
+layout: default
+title: Categories
+permalink: /categories/
+---
+
+<h1>모든 카테고리</h1>
+<hr>
+
+<ul class="category-list">
+  {% for category in site.categories %}
+    <li class="category-list-item">
+      <!-- 바로 이 부분! 링크 주소를 새 규칙에 맞게 수정합니다. -->
+      <a href="/category/{{ category | first | slugify }}/">
+        <span class="category-title-text">{{ category | first }}</span>
+      </a>
+      <span class="post-date-range">
+        [{{ category | last | size }} 개의 포스트]
+      </span>
+    </li>
+  {% endfor %}
+</ul>
