@@ -4,7 +4,6 @@ title: "A06:2021 - Vulnerable and Outdated Components (취약하고 오래된 �
 date: 2025-08-30 17:00:00 +0900
 categories: [owasp-top-10]
 ---
----
 
 ### ***프로젝트 6. A06:2021 - Vulnerable and Outdated Components (취약하고 오래된 구성 요소) 분석 보고서***
 

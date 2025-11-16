@@ -4,7 +4,6 @@ title: "A08:2021 - Software and Data Integrity Failures (소프트웨어 및 데
 date: 2025-09-01 17:00:00 +0900
 categories: [owasp-top-10]
 ---
----
 
 ### ***프로젝트 8. A08:2021 - Software and Data Integrity Failures (소프트웨어 및 데이터 무결성 실패) 분석 보고서***
 

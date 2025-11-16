@@ -4,7 +4,6 @@ title: "A07:2021 - Identification and Authentication Failures (식별 및 인증
 date: 2025-08-31 17:00:00 +0900
 categories: [owasp-top-10]
 ---
----
 
 ### ***프로젝트 7. A07:2021 - Identification and Authentication Failures (식별 및 인증 실패) 분석 보고서***
 

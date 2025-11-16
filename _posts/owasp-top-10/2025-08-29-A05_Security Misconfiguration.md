@@ -4,7 +4,6 @@ title: "A05:2021 - Security Misconfiguration (보안 설정 오류) 분석 보�
 date: 2025-08-29 17:00:00 +0900
 categories: [owasp-top-10]
 ---
----
 
 ### ***프로젝트 5. A05:2021 - Security Misconfiguration (보안 설정 오류) 분석 보고서***
 

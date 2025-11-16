@@ -4,7 +4,6 @@ title: "A01:2021 - Broken Access Control (접근 통제 실패) 분석 보고서
 date: 2025-08-25 17:00:00 +0900
 categories: [owasp-top-10]
 ---
----
 
 ### ***프로젝트 1. A01:2021 - Broken Access Control (접근 통제 실패) 분석 보고서***
 

@@ -4,7 +4,6 @@ title: "A04:2021 - Insecure Design (안전하지 않은 설계) 분석 보고서
 date: 2025-08-28 17:00:00 +0900
 categories: [owasp-top-10]
 ---
----
 
 ### ***프로젝트 4. A04:2021 - Insecure Design (안전하지 않은 설계) 분석 보고서***
 
