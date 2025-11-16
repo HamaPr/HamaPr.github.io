@@ -2,7 +2,7 @@ title: HamaP의 블로그
 description: 해킹과 보안, 클라우드 공부 기록
 author: HamaP
 baseurl: ""
-url: "https://hamap0.github.io"
+url: "https://hamapr.github.io"
 
 markdown: kramdown
 highlighter: rouge
@@ -22,7 +22,6 @@ defaults:
     values:
       primary_category: "uncategorized"
 
-# Settings for jekyll-archives
 jekyll-archives:
   enabled:
     - categories
@@ -31,7 +30,6 @@ jekyll-archives:
   permalinks:
     category: '/category/:name/'
 
-# Category Display Names (카테고리 보여주는 이름 설정)
 category_names:
   owasp-top-10: "OWASP Top 10"
   security-architecture: "보안 아키텍처"
