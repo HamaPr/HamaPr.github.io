@@ -149,7 +149,8 @@ print(f"Add result: {result_add}, Subtract result: {result_sub}")
 grades = {'Alice': 85, 'Bob': 92, 'Charlie': 78}
 for name, score in grades.items():
     print(f"{name}'s score is {score}")
-``````
+```
+```python
 # 출력:
 # Squares: [4, 16, 36, 64, 100]
 # Add result: 15, Subtract result: 5
@@ -157,5 +158,6 @@ for name, score in grades.items():
 # Bob's score is 92
 # Charlie's score is 78
 ```
+
 
 필기에서 학습한 개념이 실제 코드에서 어떻게 동작하는지 C, Java, Python 각 언어의 핵심 철학을 통해 복습하며 실무 역량을 다질 수 있었습니다. 이로써 정보처리기사 자격 취득 여정을 성공적으로 마무리합니다.
