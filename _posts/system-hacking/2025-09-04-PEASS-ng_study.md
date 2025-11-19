@@ -91,5 +91,4 @@ root
 
 이 과정을 통해 `linpeas.sh`로 수집한 정보를 바탕으로 분석하여 실제 `root` 권한을 획득하는 데 성공했다.
 
-
 <hr class="short-rule">
