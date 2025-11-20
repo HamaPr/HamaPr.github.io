@@ -11,7 +11,7 @@ exclude_from_nav: true
 {% for cat_id in tech_categories %}
   {% assign posts_in_cat = site.categories[cat_id] %}
   {% if posts_in_cat %}
-    <h3><a href="/category/{{ cat_id | slugify }}/">{{ site.category_names[cat_id] | default: cat_id }}</a></h3>
+    <h3 style="text-align: left;"><a href="/category/{{ cat_id | slugify }}/">{{ site.category_names[cat_id] | default: cat_id }}</a></h3>
     <ul class="post-list">
       {% assign sorted_posts = posts_in_cat | sort: 'date' %}
       {% for post in sorted_posts %}
