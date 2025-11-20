@@ -17,27 +17,12 @@ title: 홈
 
 <hr>
 
-<!-- Recent Posts Grid -->
 <h2>최근 게시물</h2>
-<ul class="post-grid">
+<ul class="post-list">
   {% for post in site.posts limit:9 %}
-  <li class="post-card">
-    <a href="{{ post.url | relative_url }}" class="post-card-link">
-      <!-- 썸네일 이미지가 있다면 표시, 없으면 기본 색상 -->
-      <div class="post-card-image" style="background-color: {% cycle '#2d2d30', '#3e3e42', '#252526' %};">
-        <!-- 추후 포스트에 thumbnail: /path/to/image.jpg 가 있다면 여기에 img 태그 추가 가능 -->
-      </div>
-      <div class="post-card-content">
-        <h3 class="post-card-title">{{ post.title | escape }}</h3>
-        <div class="post-card-excerpt">
-          {{ post.excerpt | strip_html | truncatewords: 20 }}
-        </div>
-        <div class="post-card-meta">
-          <span>{{ post.date | date: "%Y-%m-%d" }}</span>
-          <span>{{ post.categories | first }}</span>
-        </div>
-      </div>
-    </a>
+  <li>
+    <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+    <span class="post-meta">{{ post.date | date: "%Y-%m-%d" }}</span>
   </li>
   {% endfor %}
 </ul>
