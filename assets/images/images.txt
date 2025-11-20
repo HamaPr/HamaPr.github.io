@@ -1,7 +1,0 @@
-![PuTTY appearance 화면]({{ "/assets/images/putty-appearance-screenshot.png" | relative_url }})
-
-![PuTTY selection 화면]({{ "/assets/images/putty-selection-screenshot.png" | relative_url }})
-
-![PuTTY session 화면]({{ "/assets/images/putty-session-screenshot.png" | relative_url }})
-
-![PuTTY save 화면]({{ "/assets/images/putty-save-screenshot.png" | relative_url }})
