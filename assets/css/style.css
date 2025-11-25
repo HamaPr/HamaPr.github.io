@@ -801,25 +801,8 @@ body.modal-open {
   color: #e8eaed
 }
 
-/* ==========================================================================
-  Callout (강조 박스) 스타일
-  ========================================================================== */
-.callout {
-  padding: 15px;
-  border-left: 5px solid;
-  margin: 20px 0;
-  border-radius: 4px;
-  color: var(--text-color);
-}
-
-.callout-info {
-  background: #2a3b4d;
-  border-color: #0078D4;
-}
-
-.callout-warn {
-  background: #3b2d10;
-  border-color: #ffaa00;
+.highlight .nn {
+  color: #F0C674
 }
 
 .highlight .nx {
