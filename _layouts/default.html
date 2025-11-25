@@ -10,7 +10,7 @@
   </style>
   <meta name="theme-color" content="#202124" media="(prefers-color-scheme: dark)">
 
-  <!-- 1. 파비콘 오류 완벽 해결 (특수문자 제거 버전) -->
+  <!-- 파비콘 (오류 없음) -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23FFC0CB'/%3E%3Ccircle cx='50' cy='65' r='28' fill='%23d4d4d8'/%3E%3Cpath d='M35,32 l5,-10 l10,10 l10,-10 l5,10 z' fill='%23FFD700' stroke='%23F7B500' stroke-width='2'/%3E%3Ccircle cx='38' cy='58' r='5' fill='white'/%3E%3Ccircle cx='62' cy='58' r='5' fill='white'/%3E%3Ccircle cx='38' cy='58' r='2' fill='black'/%3E%3Ccircle cx='62' cy='58' r='2' fill='black'/%3E%3Ccircle cx='35' cy='70' r='3' fill='%23b0a8b9'/%3E%3Ccircle cx='65' cy='70' r='3' fill='%23b0a8b9'/%3E%3C/svg%3E">
 
   <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -22,6 +22,7 @@
 <body>
   {% include header.html %}
   
+  <!-- 본문 영역: 이곳이 비어있으면 안 됩니다 -->
   <main class="page-wrapper" aria-label="Content">
     {{ content }}
   </main>
@@ -31,41 +32,57 @@
   <a id="back-to-top" href="#">↑</a>
   <script src="/assets/js/script.js"></script>
 
-  <!-- 2. Mermaid 스크립트: 호환성 높은 버전으로 교체 -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // 초기화
-      mermaid.initialize({ 
-        startOnLoad: false, 
-        theme: 'dark'
-      });
+  <!-- Mermaid 차트 스크립트 (보안 오류 수정판) -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 
-      // Jekyll 코드 블록 찾기 (pre > code 구조)
-      var codeBlocks = document.querySelectorAll('pre code.language-mermaid');
+    // 1. 초기화 설정 (보안 차단 방지)
+    const config = {
+      startOnLoad: false,
+      theme: 'dark',
+      securityLevel: 'loose', // 브라우저 보안 경고 방지
+      fontFamily: 'Pretendard'
+    };
+    mermaid.initialize(config);
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 2. Mermaid 코드 블록 찾기
+      const elements = document.querySelectorAll('pre code.language-mermaid');
       
-      codeBlocks.forEach(function (codeBlock) {
-        var pre = codeBlock.parentElement; // <pre> 태그
-        var container = pre.parentElement; // div.highlighter-rouge 등
-        
-        // 그래프 코드 가져오기
-        var graphDefinition = codeBlock.textContent;
-        
-        // 새로운 div 만들기
-        var newDiv = document.createElement('div');
+      // 변환할 대상들을 담을 배열
+      const nodesToProcess = [];
+
+      // 3. HTML 구조 변경 (pre > code -> div.mermaid)
+      for (const el of elements) {
+        const pre = el.closest('pre'); // 부모 pre 태그 찾기
+        const parent = pre.parentElement; // 그 위의 부모 (보통 div.highlighter-rouge)
+
+        // 그래프 코드 추출
+        const graphDef = el.textContent;
+
+        // 새로운 div 생성
+        const newDiv = document.createElement('div');
         newDiv.className = 'mermaid';
-        newDiv.textContent = graphDefinition;
+        newDiv.textContent = graphDef;
 
-        // 기존 코드 블록을 새 div로 교체
-        if (container && container.parentNode) {
-          container.parentNode.replaceChild(newDiv, container);
-        } else if (pre && pre.parentNode) {
-            pre.parentNode.replaceChild(newDiv, pre);
+        // 기존 요소를 새 div로 교체
+        if (parent && parent.classList.contains('highlighter-rouge')) {
+             parent.replaceWith(newDiv);
+        } else if (pre) {
+             pre.replaceWith(newDiv);
         }
-      });
+        
+        nodesToProcess.push(newDiv);
+      }
 
-      // 렌더링 실행
-      mermaid.run();
+      // 4. 렌더링 실행 (에러 발생 시 콘솔에만 출력하고 멈추지 않음)
+      if (nodesToProcess.length > 0) {
+        try {
+          await mermaid.run({ nodes: nodesToProcess });
+        } catch (error) {
+          console.error("Mermaid 렌더링 중 오류 발생 (본문은 유지됩니다):", error);
+        }
+      }
     });
   </script>
 </body>
