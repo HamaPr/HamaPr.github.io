@@ -48,9 +48,7 @@ docker run -d --privileged --name vulnerable-container ubuntu sleep 3600
     ```
 4.  이제 `/mnt/host` 경로를 통해 호스트의 모든 파일(`/etc/shadow`, `/root/.ssh` 등)을 읽고 쓸 수 있습니다.
 
-> **[사진 요청]**
-> 컨테이너 내부에서 `mount` 명령어를 통해 호스트의 파티션을 마운트하고, 호스트의 파일(예: `/mnt/host/etc/passwd`)을 조회하는 화면을 캡처해주세요.
-> (파일명: `Docker_Breakout.png`)
+   ![Docker_Breakout](/assets/images/system-hacking/Docker_Breakout.png)
 
 ---
 

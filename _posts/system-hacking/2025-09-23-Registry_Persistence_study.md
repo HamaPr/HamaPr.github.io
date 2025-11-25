@@ -53,7 +53,6 @@ reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
 아래는 실제 공격 시나리오에서 공격자가 레지스트리 Run 키에 백도어를 등록하고, 이를 확인하는 과정입니다.
 
 ![Registry Persistence](/assets/images/att-ck/5.1.1.wper.png)
-*그림 1: 레지스트리 Run 키에 등록된 악성 프로그램 확인*
 
 ## 5. 보안 대책
 

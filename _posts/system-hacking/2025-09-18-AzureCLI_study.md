@@ -44,9 +44,7 @@ az storage account keys list -g MyResourceGroup -n MyStorageAccount
 az storage blob download-batch -d . -s MyContainer --account-name MyStorageAccount --account-key [Key]
 ```
 
-> **[사진 요청]**
-> 터미널에서 `az vm list -d --output table` 명령어를 실행하여 VM 목록이 출력되는 화면을 캡처해주세요.
-> (파일명: `AzureCLI_VM.png`)
+   ![AzureCLI_VM](/assets/images/system-hacking/AzureCLI_VM.png)
 
 ---
 
