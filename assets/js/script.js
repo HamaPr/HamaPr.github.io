@@ -1,78 +1,75 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-// =========================================================================
-// 기능 1: 코드 블록 복사
-// =========================================================================
-const copyIconSVG = `<svg xmlns="http://www.w.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-const copiedIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    // =========================================================================
+    // 1: 코드 블록 복사
+    // =========================================================================
+    const copyIconSVG = `<svg xmlns="http://www.w.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+    const copiedIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
-document.querySelectorAll('.highlight').forEach(block => {
-    const button = document.createElement('button');
-    button.className = 'copy-button';
-    button.innerHTML = copyIconSVG;
-    button.title = '코드 복사';
-    
-    // pre > code 구조가 실제로 존재하는지 먼저 확인
-    const codeElement = block.querySelector('pre > code');
-    
-    // codeElement가 있을 때만 버튼을 추가하고 이벤트를 연결
-    if (codeElement) {
-        block.appendChild(button);
-        button.addEventListener('click', () => {
-            const code = codeElement.innerText;
-            navigator.clipboard.writeText(code).then(() => {
-                button.innerHTML = copiedIconSVG;
-                button.classList.add('copied');
-                button.title = '복사 완료!';
-                setTimeout(() => {
-                    button.innerHTML = copyIconSVG;
-                    button.classList.remove('copied');
-                    button.title = '코드 복사';
-                }, 2000);
+    document.querySelectorAll('.highlight').forEach(block => {
+        const button = document.createElement('button');
+        button.className = 'copy-button';
+        button.innerHTML = copyIconSVG;
+        button.title = '코드 복사';
+
+        const codeElement = block.querySelector('pre > code');
+
+        if (codeElement) {
+            block.appendChild(button);
+            button.addEventListener('click', () => {
+                const code = codeElement.innerText;
+                navigator.clipboard.writeText(code).then(() => {
+                    button.innerHTML = copiedIconSVG;
+                    button.classList.add('copied');
+                    button.title = '복사 완료!';
+                    setTimeout(() => {
+                        button.innerHTML = copyIconSVG;
+                        button.classList.remove('copied');
+                        button.title = '코드 복사';
+                    }, 2000);
+                });
             });
-        });
-    }
-});
-
-// =========================================================================
-// 기능 2: 이미지 확대/축소
-// =========================================================================
-const postContentForImages = document.querySelector('.post-content');
-if (postContentForImages) {
-    if (!document.querySelector('.image-overlay')) {
-        const overlay = document.createElement('div');
-        overlay.className = 'image-overlay';
-        document.body.appendChild(overlay);
-    }
-
-    const images = postContentForImages.getElementsByTagName('img');
-    const overlay = document.querySelector('.image-overlay');
-
-    for (const img of images) {
-        img.addEventListener('click', function(event) {
-            if (this.closest('.report-container a')) {
-                return; 
-            }
-            
-            event.preventDefault(); 
-            
-            this.classList.toggle('zoomed');
-            overlay.classList.toggle('active');
-        });
-    }
-    
-    // 오버레이 클릭 시 이미지 축소
-    overlay.addEventListener('click', function() {
-        const zoomedImage = document.querySelector('img.zoomed');
-        if (zoomedImage) {
-            zoomedImage.classList.remove('zoomed');
-            this.classList.remove('active');
         }
     });
-}
 
     // =========================================================================
-    // 기능 3: 맨 위로 가기 버튼
+    // 2: 이미지 확대/축소
+    // =========================================================================
+    const postContentForImages = document.querySelector('.post-content');
+    if (postContentForImages) {
+        if (!document.querySelector('.image-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'image-overlay';
+            document.body.appendChild(overlay);
+        }
+
+        const images = postContentForImages.getElementsByTagName('img');
+        const overlay = document.querySelector('.image-overlay');
+
+        for (const img of images) {
+            img.addEventListener('click', function (event) {
+                if (this.closest('.report-container a')) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                this.classList.toggle('zoomed');
+                overlay.classList.toggle('active');
+            });
+        }
+
+        overlay.addEventListener('click', function () {
+            const zoomedImage = document.querySelector('img.zoomed');
+            if (zoomedImage) {
+                zoomedImage.classList.remove('zoomed');
+                this.classList.remove('active');
+            }
+        });
+    }
+
+    // =========================================================================
+    // 3: 맨 위로 가기 버튼
     // =========================================================================
     const backToTopBtn = document.getElementById('back-to-top');
     if (backToTopBtn) {
@@ -86,7 +83,7 @@ if (postContentForImages) {
     }
 
     // =========================================================================
-    // 기능 4: PDF 팝업 모달
+    // 4: PDF 팝업 모달
     // =========================================================================
     const reportLinks = document.querySelectorAll('.report-container a');
     if (reportLinks.length > 0 && !document.getElementById('pdf-modal')) {
@@ -109,7 +106,7 @@ if (postContentForImages) {
         };
 
         reportLinks.forEach(link => {
-            link.addEventListener('click', function(event) {
+            link.addEventListener('click', function (event) {
                 event.preventDefault();
                 openModal(this.getAttribute('href'));
             });
