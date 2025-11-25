@@ -265,15 +265,15 @@ hr.short-rule {
   font-style: italic;
 }
 
-/* --- 이미지 스타일 수정본 (아이보리 테두리 + 안전한 확대) --- */
+/* --- 이미지 스타일 수정본 (1px 아이보리 테두리 + 안전한 확대) --- */
 .post-content img {
   max-width: 100%;
   height: auto;
   display: block;
   margin: 1.5em auto;
   border-radius: 8px;
-  /* 아이보리색 테두리 상시 적용 (#E6E2D3) */
-  border: 3px solid #E6E2D3;
+  /* 테두리 1px로 얇게 수정 (#E6E2D3) */
+  border: 1px solid #E6E2D3;
   box-sizing: border-box;
   cursor: zoom-in;
   transition: transform 0.2s ease-in-out, border-color 0.2s;
@@ -291,7 +291,7 @@ hr.short-rule {
   height: auto;
   object-fit: contain;
   z-index: 9999;
-  border: 3px solid #E6E2D3; /* 테두리 유지 */
+  border: 1px solid #E6E2D3; /* 확대 시에도 1px 테두리 유지 */
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
   background-color: var(--bg-color);
   cursor: zoom-out;
@@ -785,3 +785,4 @@ body.modal-open {
     padding-left: 1.2em;
   }
 }
+
