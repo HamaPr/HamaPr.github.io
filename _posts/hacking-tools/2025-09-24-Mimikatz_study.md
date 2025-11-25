@@ -32,7 +32,6 @@ sekurlsa::pth /user:Administrator /domain:target.local /ntlm:<NTLM_Hash>
 아래는 침투에 성공한 시스템에서 Mimikatz를 실행하여 메모리에 저장된 자격 증명 정보를 덤프한 결과입니다.
 
 ![Mimikatz Credential Dump](/assets/images/att-ck/8.1.2.cre.png)
-*그림 1: Mimikatz를 이용한 자격 증명 추출 결과*
 
 ## 4. 보안 대책
 
