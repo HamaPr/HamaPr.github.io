@@ -8,7 +8,7 @@ title: Study
 
 <ul class="category-list">
   <li class="category-group-link">
-    {% assign tech_categories = "web-technology|web-hacking|app-hacking|system-hacking|hacking-tools|ngfw" | split: "|" %}
+    {% assign tech_categories = "web-technology|web-hacking|app-hacking|system-hacking|hacking-tools|bluemax-ngf" | split: "|" %}
     {% assign active_tech_count = 0 %}
     {% for cat_id in tech_categories %}
       {% if site.categories[cat_id] %}{% assign active_tech_count = active_tech_count | plus: 1 %}{% endif %}
@@ -44,4 +44,5 @@ title: Study
       </li>
     {% endif %}
   {% endfor %}
+
 </ul>
