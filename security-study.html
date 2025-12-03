@@ -7,7 +7,7 @@ exclude_from_nav: true
 <p class="page-description">보안 공부 목록입니다.</p>
 <hr>
 
-{% assign tech_categories = "ngfw|hacking-tools|system-hacking|web-hacking|web-technology|app-hacking" | split: "|" %}
+{% assign tech_categories = "bluemax-ngf|hacking-tools|system-hacking|web-hacking|web-technology|app-hacking" | split: "|" %}
 {% for cat_id in tech_categories %}
   {% assign posts_in_cat = site.categories[cat_id] %}
   {% if posts_in_cat %}
