@@ -1,5 +1,9 @@
-# Terraform 기반 Azure 보안 아키텍처 구축 결과 보고서
-**(Azure Security Architecture Implementation Report)**
+---
+layout: post
+title: "Terraform 기반 Azure 보안 아키텍처 구축"
+date: 2025-12-01 09:00:00 +0900
+categories: [security-architecture]
+---
 
 ## 목차
 
@@ -171,6 +175,8 @@ graph TD
     classDef net fill:#0078D4,stroke:#fff,color:#fff;
     classDef compute fill:#005BA1,stroke:#fff,color:#fff;
     classDef user fill:#000,stroke:#fff,color:#fff;
+
+    %% --- Nodes ---
     User(("👤 User")):::user
     subgraph Edge ["🌍 Global Edge Layer"]
         direction LR
@@ -239,46 +245,59 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 
 ### 3.4 데이터 플랫폼
 ```mermaid
-flowchart LR
+graph LR
     %% --- Style Definitions ---
+    classDef hub fill:#201F1E,stroke:#E34F26,stroke-width:2px,color:#fff;
+    classDef spoke fill:#201F1E,stroke:#0078D4,stroke-width:2px,color:#fff;
+    classDef zone fill:#2d2d2d,stroke:#5C2D91,stroke-width:2px,stroke-dasharray: 5 5,color:#fff;
+    
     classDef bastion fill:#E34F26,stroke:#fff,color:#fff;
     classDef vm fill:#005BA1,stroke:#fff,color:#fff;
     classDef data fill:#5C2D91,stroke:#fff,color:#fff;
     classDef endpoint fill:#0078D4,stroke:#fff,color:#fff,shape:rect;
+    classDef user fill:#000,stroke:#fff,color:#fff;
 
-    Admin(("👨‍💻 Admin"))
-    
-    %% Hub 영역
+    %% --- External ---
+    Admin(("👨‍💻 Admin")):::user
+
+    %% --- Hub VNet (Left Side) ---
     subgraph Hub ["🛡️ Hub VNet"]
         BAS["🏰 Azure Bastion"]:::bastion
     end
 
-    %% Spoke 영역
+    %% --- Spoke VNet (Right Side) ---
     subgraph Spoke ["⚙️ Spoke VNet"]
-        direction LR
+        direction TB
+
+        %% 1. Compute Layer (Top)
         WAS["⚙️ WAS VMSS<br/>(Managed Identity)"]:::vm
+        
+        %% 2. Data Layer (Bottom)
         subgraph Private_Zone ["🔒 Private Link Zone"]
-            direction TB
+            direction LR
             PE["⚡ Private Endpoint"]:::endpoint
-            subgraph Data_Res ["Data Resources"]
+            
+            subgraph Targets ["Resources"]
                 direction TB
                 DB[("🐬 MySQL")]:::data
                 KV["🔑 Key Vault"]:::data
             end
+            
+            PE ==> Targets
         end
     end
 
-    %% --- Flows ---
+    %% --- Wiring ---
     Admin -->|"Portal"| BAS
-    BAS -.->|"SSH"| WAS
-    WAS ==>|"Token"| PE
-    PE ==> DB & KV
-
-    %% --- Styling ---
-    style Hub fill:#201F1E,stroke:#E34F26
-    style Spoke fill:#201F1E,stroke:#0078D4
-    style Private_Zone fill:#111,stroke:#5C2D91,stroke-width:2px,stroke-dasharray: 5 5
-    style Data_Res fill:#transparent,stroke:none
+    BAS -.->|"Peering (SSH)"| WAS
+    WAS ==>|"Token Auth"| PE
+    
+    %% --- Subgraph Styles ---
+    class Hub hub;
+    class Spoke spoke;
+    class Private_Zone zone;
+    class Targets zone;
+    style Targets stroke:none,fill:transparent
 ```
 
 #### 3.4.1 MySQL Flexible Server
@@ -533,9 +552,6 @@ Terraform을 통해 Azure Policy를 배포하여 거버넌스를 강제합니다
 ---
 
 ## 8. 부록 A: 주요 Terraform 코드
-
-본 프로젝트의 규모와 기술적 깊이를 보여주는 핵심 Terraform 모듈 코드입니다.
-
 ### A.1 Azure Firewall Application Rules (`modules/Hub/02_firewall.tf`)
 L7 계층에서 FQDN 기반으로 아웃바운드 트래픽을 제어하는 방화벽 정책 코드입니다.
 
@@ -655,7 +671,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
 Sentinel 탐지 규칙에 사용된 실제 Kusto Query Language(KQL) 코드 모음입니다.
 
 ### B.1 SSH Brute Force Detection
-```kusto
+```csharp
 // SSH Brute Force Attack
 // 5분 내에 3회 이상의 로그인 실패가 발생한 출발지 IP를 식별합니다.
 Syslog
@@ -674,7 +690,7 @@ Syslog
 ```
 
 ### B.2 Break Glass Account Protection
-```kusto
+```csharp
 // Emergency Account Login Detection
 // 비상용 계정(Break Glass Account)이 사용되었을 때 즉시 알림을 발생시킵니다.
 SigninLogs
@@ -684,7 +700,7 @@ SigninLogs
 ```
 
 ### B.3 WAF SQL Injection Detection
-```kusto
+```csharp
 // AzureDiagnostics Table에서 WAF 로그 분석
 AzureDiagnostics
 | where ResourceType == "APPLICATIONGATEWAYS"
