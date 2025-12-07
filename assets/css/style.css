@@ -976,3 +976,18 @@ body.modal-open {
     padding-left: 1.2em;
   }
 }
+
+/* ==========================================================================
+  Mermaid 다이어그램 스타일
+  ========================================================================== */
+.mermaid {
+  overflow-x: auto;
+  margin-bottom: 2em;
+  text-align: center;
+}
+
+.mermaid svg {
+  max-width: none !important;
+  min-width: 100%;
+  height: auto;
+}
