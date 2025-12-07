@@ -144,12 +144,14 @@ graph TD
         subgraph Spoke_VNet ["⚙️ Spoke VNet (Workload)"]
             AppGW["🛡️ App Gateway"]:::net
             VMSS["💻 Web/WAS VMSS"]:::comp
+            Mail["📧 Mail Server"]:::comp
             Data[("🛢️ Data Platform")]:::comp
         end
     end
 
     %% --- Connections ---
     User -->|"HTTPS (443)"| AppGW
+    User -->|"HTTPS (443)"| Mail
     Admin -->|"HTTPS (443)"| BAS
     
     %% VNet Peering
@@ -158,8 +160,11 @@ graph TD
     %% Internal Flows
     AppGW --> VMSS
     BAS -.->|"SSH (22)"| VMSS
+    BAS -.->|"SSH (22)"| Mail
     VMSS -->|"Private Link"| Data
+    Mail -->|"Private Link"| Data
     VMSS -.->|"Outbound Filter"| FW
+    Mail -.->|"Outbound Filter"| FW
 
     %% Apply Styles
     class Hub_VNet hub;
@@ -242,6 +247,14 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 애플리케이션 배포 시 서비스 중단을 방지하기 위해 롤링 업데이트 방식을 적용했습니다.
 *   **Batch Size:** 전체 인스턴스의 20%씩 순차적으로 업데이트합니다.
 *   **Health Check:** 업데이트된 인스턴스가 헬스 체크를 통과해야만 다음 배치를 진행합니다.
+
+#### 3.3.3 Mail Server (Postfix & Dovecot)
+독자적인 메일 서비스 구축을 위해 별도의 VM을 배치했습니다.
+*   **보안 구성:**
+    *   **HTTPS (Let's Encrypt):** Certbot을 사용하여 무료 공인 인증서를 발급받고, 90일마다 자동 갱신되도록 설정하여 '안전하지 않음' 경고를 제거했습니다.
+    *   **스팸 방지:** SPF (Sender Policy Framework) 레코드를 DNS에 등록하여 발신자 위조를 방지합니다.
+    *   **접근 제어:** NSG를 통해 SMTP(25), IMAP(143), POP3(110), HTTPS(443) 포트만 제한적으로 허용했습니다. SSH(22)는 Bastion에서만 접근 가능합니다.
+*   **소프트웨어 스택:** Postfix (SMTP), Dovecot (IMAP/POP3), Roundcube (Webmail), MySQL (사용자 계정 관리).
 
 ### 3.4 데이터 플랫폼
 ```mermaid
@@ -329,8 +342,8 @@ graph TD
 과거에는 애플리케이션 서버가 DB에 접속하기 위해 `password=1234`와 같은 정보를 설정 파일(`config.php`)에 저장했습니다. 이는 소스 코드가 유출되면 DB까지 털리는 치명적인 약점입니다.
 우리는 **Managed Identity (관리 ID)**를 도입하여 이 문제를 해결했습니다.
 
-1.  Web/WAS VMSS 리소스 생성 시, Azure가 자동으로 관리하는 **System Assigned Identity** 또는 **User Assigned Identity**를 할당합니다.
-2.  이 Identity에 대해 Key Vault나 Storage Account에서 "읽기 권한"만 부여합니다 (RBAC).
+1.  Web/WAS VMSS 리소스 생성 시, Azure가 자동으로 관리하는 **User Assigned Identity**를 할당합니다.
+2.  이 Identity에 대해 Key Vault에서 **Key Vault Secrets User** 역할을 부여하여, 정확히 필요한 비밀 값만 읽을 수 있도록 제한합니다 (RBAC).
 3.  애플리케이션은 Azure Instance Metadata Service(IMDS) 로컬 엔드포인트를 호출하여 Access Token을 발급받습니다.
 4.  이 토큰을 사용하여 Key Vault에서 DB 패스워드를 안전하게 가져옵니다. **소스 코드에는 아무런 비밀 정보도 남지 않습니다.**
 
@@ -350,7 +363,8 @@ graph TD
 
 #### Encryption in Transit (전송 중 암호화)
 모든 통신 채널에 TLS 1.2 이상을 강제합니다.
-*   **Web/WAS:** HTTP(80) 요청은 App Gateway에서 HTTPS(443)로 자동 리다이렉트됩니다.
+*   **Web/WAS:** App Gateway에서 HTTP 요청을 HTTPS로 강제 리다이렉트하며, 종단 간 암호화를 수행합니다.
+*   **Mail Server:** Let's Encrypt를 통해 신뢰할 수 있는 SSL 인증서를 발급받아, 웹메일 접속 시 완벽한 HTTPS 암호화를 제공합니다.
 *   **DB 연결:** MySQL 서버 설정에서 `require_secure_transport = ON`을 적용하여 암호화되지 않은 연결 시도를 거부합니다.
 
 #### Encryption at Rest (저장 중 암호화)
