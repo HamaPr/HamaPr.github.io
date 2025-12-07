@@ -76,6 +76,12 @@ categories: [security-architecture]
 | **느린 대응 속도** | 보안 사고 발생 시, 로그를 분석하고 대응하는 데 수 시간에서 수 일이 소요됨 | **Sentinel SIEM & SOAR:** 사전 정의된 탐지 규칙과 자동화된 대응(Action Group)으로 평균 대응 시간을 분 단위로 단축 |
 | **권한 관리 실패** | 운영 편의성을 위해 과도한 권한(Owner 등)을 부여하여 내부자 위협 증가 | **Custom RBAC Roles:** 직무별로 세분화된 커스텀 역할을 정의하고 리소스 잠금(Lock)을 적용 |
 
+
+> [!NOTE]
+> **Source Code Availability**<br>
+> 본 프로젝트의 전체 Terraform 소스 코드와 설정 파일은 아래 GitHub 리포지토리에서 확인하실 수 있습니다.<br>
+> 👉 **[GitHub Repository: Azure-Security-Architecture-Terraform 바로가기](https://github.com/HamaPr/Terraform_SecurityArchitecture)**
+
 ---
 
 ## 2. 아키텍처 설계 철학 및 원칙
