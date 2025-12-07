@@ -1,9 +1,5 @@
----
-layout: post
-title: "Terraform 기반 Azure 보안 아키텍처 구축"
-date: 2025-12-01 09:00:00 +0900
-categories: [security-architecture]
----
+# Terraform 기반 Azure 보안 아키텍처 구축 결과 보고서
+**(Azure Security Architecture Implementation Report)**
 
 ## 목차
 
@@ -169,44 +165,41 @@ graph TD
 
 ### 3.2 네트워크 인프라 (Hub & Spoke)
 ```mermaid
-flowchart TD
+graph TD
     %% --- Style Definitions ---
-    classDef edge fill:#333,stroke:#9df,stroke-width:2px,color:#fff;
+    classDef edge fill:#2d2d2d,stroke:#9df,stroke-width:2px,color:#fff;
     classDef net fill:#0078D4,stroke:#fff,color:#fff;
     classDef compute fill:#005BA1,stroke:#fff,color:#fff;
     classDef user fill:#000,stroke:#fff,color:#fff;
-
-    %% --- Nodes ---
     User(("👤 User")):::user
-    
     subgraph Edge ["🌍 Global Edge Layer"]
-        TM["🚦 Traffic Manager<br/>(DNS Routing)"]:::edge
-        FD["🛡️ Front Door<br/>(DDoS Protection)"]:::edge
+        direction LR
+        TM["🚦 Traffic Manager"]:::edge
+        FD["🛡️ Front Door"]:::edge
+        TM -.-> FD
     end
-    
     subgraph Spoke ["🔷 Spoke VNet (Service Zone)"]
         direction TB
-        AppGW["🛡️ App Gateway (WAF v2)<br/>SSL Termination"]:::net
+        AppGW["🛡️ App Gateway<br/>(WAF v2)"]:::net
         LB["⚖️ L4 Load Balancer"]:::net
-        
-        subgraph VMSS_Group ["Scaling Group"]
-            Web["💻 Web VMSS (Nginx)"]:::compute
-            WAS["⚙️ WAS VMSS (App)"]:::compute
+        subgraph Scale ["Scaling Group"]
+            direction LR
+            Web["💻 Web VMSS"]:::compute
+            WAS["⚙️ WAS VMSS"]:::compute
         end
     end
 
     %% --- Flows ---
-    User ==> TM
-    TM ==> FD
-    FD ==>|"HTTPS (443)"| AppGW
+    User ==> Edge
+    Edge ==>|"HTTPS (443)"| AppGW
     AppGW ==>|"HTTP (80)"| LB
-    LB --> Web
+    LB --> Scale
     Web --> WAS
 
-    %% --- Styling the Subgraphs ---
-    style Edge fill:#2d2d2d,stroke:#9df
+    %% --- Styling ---
+    style Edge fill:#transparent,stroke:#9df,stroke-dasharray: 5 5
     style Spoke fill:#201F1E,stroke:#0078D4,stroke-width:2px
-    style VMSS_Group fill:#transparent,stroke:#fff,stroke-dasharray: 5 5
+    style Scale fill:#333,stroke:#fff,stroke-dasharray: 5 5
 ```
 
 네트워크 인프라는 모듈화된 Terraform 코드(`modules/Network`, `modules/Hub`)를 통해 배포됩니다. 각 서브넷은 철저하게 용도에 따라 분리되어 NSG(네트워크 보안 그룹)로 보호받습니다.
@@ -255,17 +248,20 @@ flowchart LR
 
     Admin(("👨‍💻 Admin"))
     
+    %% Hub 영역
     subgraph Hub ["🛡️ Hub VNet"]
         BAS["🏰 Azure Bastion"]:::bastion
     end
 
+    %% Spoke 영역
     subgraph Spoke ["⚙️ Spoke VNet"]
+        direction LR
         WAS["⚙️ WAS VMSS<br/>(Managed Identity)"]:::vm
-        
         subgraph Private_Zone ["🔒 Private Link Zone"]
+            direction TB
             PE["⚡ Private Endpoint"]:::endpoint
-            
             subgraph Data_Res ["Data Resources"]
+                direction TB
                 DB[("🐬 MySQL")]:::data
                 KV["🔑 Key Vault"]:::data
             end
@@ -273,9 +269,9 @@ flowchart LR
     end
 
     %% --- Flows ---
-    Admin -->|"Portal HTTPS"| BAS
-    BAS -.->|"Peering (SSH)"| WAS
-    WAS ==>|Token Auth| PE
+    Admin -->|"Portal"| BAS
+    BAS -.->|"SSH"| WAS
+    WAS ==>|"Token"| PE
     PE ==> DB & KV
 
     %% --- Styling ---
@@ -537,6 +533,9 @@ Terraform을 통해 Azure Policy를 배포하여 거버넌스를 강제합니다
 ---
 
 ## 8. 부록 A: 주요 Terraform 코드
+
+본 프로젝트의 규모와 기술적 깊이를 보여주는 핵심 Terraform 모듈 코드입니다.
+
 ### A.1 Azure Firewall Application Rules (`modules/Hub/02_firewall.tf`)
 L7 계층에서 FQDN 기반으로 아웃바운드 트래픽을 제어하는 방화벽 정책 코드입니다.
 
@@ -656,7 +655,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
 Sentinel 탐지 규칙에 사용된 실제 Kusto Query Language(KQL) 코드 모음입니다.
 
 ### B.1 SSH Brute Force Detection
-```csharp
+```kusto
 // SSH Brute Force Attack
 // 5분 내에 3회 이상의 로그인 실패가 발생한 출발지 IP를 식별합니다.
 Syslog
@@ -675,7 +674,7 @@ Syslog
 ```
 
 ### B.2 Break Glass Account Protection
-```csharp
+```kusto
 // Emergency Account Login Detection
 // 비상용 계정(Break Glass Account)이 사용되었을 때 즉시 알림을 발생시킵니다.
 SigninLogs
@@ -685,7 +684,7 @@ SigninLogs
 ```
 
 ### B.3 WAF SQL Injection Detection
-```csharp
+```kusto
 // AzureDiagnostics Table에서 WAF 로그 분석
 AzureDiagnostics
 | where ResourceType == "APPLICATIONGATEWAYS"
