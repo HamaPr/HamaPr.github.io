@@ -169,6 +169,7 @@ graph TD
 
 ### 3.2 네트워크 인프라 (Hub & Spoke)
 ```mermaid
+%%{init: {'theme': 'dark', 'flowchart': {'width': 600}}}%%
 flowchart TD
     %% --- Style Definitions ---
     classDef edge fill:#333,stroke:#9df,stroke-width:2px,color:#fff;
@@ -537,9 +538,6 @@ Terraform을 통해 Azure Policy를 배포하여 거버넌스를 강제합니다
 ---
 
 ## 8. 부록 A: 주요 Terraform 코드
-
-본 프로젝트의 규모와 기술적 깊이를 보여주는 핵심 Terraform 모듈 코드입니다.
-
 ### A.1 Azure Firewall Application Rules (`modules/Hub/02_firewall.tf`)
 L7 계층에서 FQDN 기반으로 아웃바운드 트래픽을 제어하는 방화벽 정책 코드입니다.
 
