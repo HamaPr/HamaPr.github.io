@@ -80,7 +80,7 @@ categories: [security-architecture]
 > [!NOTE]
 > **Source Code Availability**<br>
 > 본 프로젝트의 전체 Terraform 소스 코드와 설정 파일은 아래 GitHub 리포지토리에서 확인하실 수 있습니다.<br>
-> 👉 **[GitHub Repository: Azure-Security-Architecture-Terraform 바로가기](https://github.com/HamaPr/Terraform_SecurityArchitecture)**
+> 👉 **[GitHub Repository: Terraform Security Architecture](https://github.com/HamaPr/Terraform_SecurityArchitecture)**
 
 ---
 
@@ -631,3 +631,4 @@ AzureDiagnostics
 ```
 
 ---
+
