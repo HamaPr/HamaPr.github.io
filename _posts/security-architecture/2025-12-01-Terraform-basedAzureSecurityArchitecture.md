@@ -8,32 +8,32 @@ categories: [security-architecture]
 ## 목차
 
 1.  [서론](#1-서론)
-    *   1.1 프로젝트 배경 및 필요성
-    *   1.2 프로젝트 목표 및 범위
-    *   1.3 해결하고자 하는 주요 보안 과제
+    *   [1.1 프로젝트 배경 및 필요성](#11-프로젝트-배경-및-필요성)
+    *   [1.2 프로젝트 목표 및 범위](#12-프로젝트-목표-및-범위)
+    *   [1.3 해결하고자 하는 주요 보안 과제](#13-해결하고자-하는-주요-보안-과제)
 2.  [아키텍처 설계 철학 및 원칙](#2-아키텍처-설계-철학-및-원칙)
-    *   2.1 Zero Trust Security Model
-    *   2.2 Immutable Infrastructure (Pets vs Cattle)
-    *   2.3 Hub-Spoke Network Topology
+    *   [2.1 Zero Trust Security Model](#21-zero-trust-security-model)
+    *   [2.2 Immutable Infrastructure (Pets vs Cattle)](#22-immutable-infrastructure-pets-vs-cattle)
+    *   [2.3 Hub-Spoke Network Topology](#23-hub-spoke-network-topology)
 3.  [인프라 아키텍처 상세 구현](#3-인프라-아키텍처-상세-구현)
-    *   3.1 전체 아키텍처 조감도
-    *   3.2 네트워크 인프라
-    *   3.3 컴퓨팅 리소스
-    *   3.4 데이터 플랫폼
-    *   3.5 로드 밸런싱 및 가속화
+    *   [3.1 전체 아키텍처 조감도](#31-전체-아키텍처-조감도)
+    *   [3.2 네트워크 인프라 (Hub & Spoke)](#32-네트워크-인프라-hub--spoke)
+    *   [3.3 컴퓨팅 리소스 (VMSS & HA)](#33-컴퓨팅-리소스-vmss--ha)
+    *   [3.4 데이터 플랫폼](#34-데이터-플랫폼)
+    *   [3.5 로드 밸런싱 및 가속화](#35-로드-밸런싱-및-가속화)
 4.  [보안 엔지니어링 심층 분석](#4-보안-엔지니어링-심층-분석)
-    *   4.1 Identity & Access Management (IAM)
-    *   4.2 Defense-in-Depth (심층 방어 전략)
-    *   4.3 Data Protection (암호화 및 키 관리)
-    *   4.4 Threat Detection & Response (SIEM/SOAR)
+    *   [4.1 Identity & Access Management (IAM)](#41-identity--access-management-iam)
+    *   [4.2 Defense-in-Depth (심층 방어 전략)](#42-defense-in-depth-심층-방어-전략)
+    *   [4.3 Data Protection (암호화 및 키 관리)](#43-data-protection-암호화-및-키-관리)
+    *   [4.4 Threat Detection & Response (SIEM/SOAR)](#44-threat-detection--response-siemsoar)
 5.  [보안 관제 및 운영 상세](#5-보안-관제-및-운영-상세)
-    *   5.1 Microsoft Sentinel 탐지 규칙
-    *   5.2 자동화된 사고 대응 (SOAR Automation)
-    *   5.3 모니터링 및 로깅 아키텍처
+    *   [5.1 Microsoft Sentinel 탐지 규칙](#51-microsoft-sentinel-탐지-규칙)
+    *   [5.2 자동화된 사고 대응 (SOAR Automation)](#52-자동화된-사고-대응-soar-automation)
+    *   [5.3 모니터링 및 로깅 아키텍처](#53-모니터링-및-로깅-아키텍처)
 6.  [거버넌스 및 재해 복구](#6-거버넌스-및-재해-복구)
-    *   6.1 RBAC 기반 권한 관리 매트릭스
-    *   6.2 재해 복구(DR) 및 비즈니스 연속성 계획(BCP)
-    *   6.3 Azure Policy 및 규정 준수
+    *   [6.1 RBAC 기반 권한 관리 매트릭스](#61-rbac-기반-권한-관리-매트릭스)
+    *   [6.2 재해 복구(DR) 및 비즈니스 연속성 계획(BCP)](#62-재해-복구dr-및-비즈니스-연속성-계획bcp)
+    *   [6.3 Azure Policy 및 규정 준수](#63-azure-policy-및-규정-준수)
 7.  [결론 및 향후 로드맵](#7-결론-및-향후-로드맵)
 8.  [부록 A: 주요 Terraform 코드](#8-부록-a-주요-terraform-코드)
 9.  [부록 B: Sentinel KQL 라이브러리](#9-부록-b-sentinel-kql-라이브러리)
@@ -44,22 +44,22 @@ categories: [security-architecture]
 
 ### 1.1 프로젝트 배경 및 필요성
 
-디지털 전환(Digital Transformation)이 가속화됨에 따라 기업의 IT 환경은 전통적인 온프레미스 데이터센터에서 유연하고 확장 가능한 클라우드 환경으로 급격히 이동하고 있습니다. 그러나 이러한 클라우드로의 전환은 기존의 경계 중심 보안 모델(Perimeter-based Security)을 무력화시키며 새로운 보안 위협을 야기하고 있습니다.
+디지털 전환이 가속화됨에 따라 기업의 IT 환경은 전통적인 온프레미스 데이터센터에서 유연하고 확장 가능한 클라우드 환경으로 급격히 이동하고 있습니다. 그러나 이러한 클라우드로의 전환은 기존의 경계 중심 보안 모델을 무력화시키며 새로운 보안 위협을 야기하고 있습니다.
 
-특히 가트너(Gartner)와 같은 주요 IT 리서치 기관에서는 "클라우드 보안 사고의 99%는 고객의 과실, 특히 구성 오류(Misconfiguration)에서 기인한다"고 경고하고 있습니다. 개발자의 실수로 인한 스토리지의 퍼블릭 노출, 불필요하게 개방된 RDP/SSH 포트, 그리고 과도한 권한 부여는 데이터 유출의 주된 원인이 됩니다.
+특히 가트너(Gartner)와 같은 주요 IT 리서치 기관에서는 '클라우드 보안 사고의 99%는 고객의 과실, 특히 구성 오류에서 기인한다'고 경고하고 있습니다. 개발자의 실수로 인한 스토리지의 퍼블릭 노출, 불필요하게 개방된 RDP/SSH 포트, 그리고 과도한 권한 부여는 데이터 유출의 주된 원인이 됩니다.
 
-이에 본 프로젝트 **"Terraform 기반 Azure 보안 아키텍처 구축"**은 이러한 인적 오류를 근본적으로 차단하고, 시스템 설계 단계에서부터 보안을 내재화하는 **Security-by-Design** 원칙을 실현하기 위해 시작되었습니다. 우리는 **IaC (Infrastructure as Code)** 도구인 Terraform을 사용하여 인프라의 배포부터 운영까지 전 과정을 코드로 정의하고 자동화함으로써, 일관되고 검증 가능한 보안 수준을 유지하고자 합니다.
+이에 본 프로젝트 **Terraform 기반 Azure 보안 아키텍처 구축**은 이러한 인적 오류를 근본적으로 차단하고, 시스템 설계 단계에서부터 보안을 내재화하는 **Security-by-Design** 원칙을 실현하기 위해 시작되었습니다. 우리는 **IaC (Infrastructure as Code)** 도구인 Terraform을 사용하여 인프라의 배포부터 운영까지 전 과정을 코드로 정의하고 자동화함으로써, 일관되고 검증 가능한 보안 수준을 유지하고자 합니다.
 
 ### 1.2 프로젝트 목표 및 범위
 
-본 프로젝트의 궁극적인 목표는 **"제로 트러스트(Zero Trust) 기반의 안전하고 탄력적인 클라우드 애플리케이션 플랫폼"**을 구축하는 것입니다. 이를 달성하기 위한 세부 목표는 다음과 같습니다.
+본 프로젝트의 궁극적인 목표는 **제로 트러스트(Zero Trust) 기반의 안전하고 탄력적인 클라우드 애플리케이션 플랫폼**을 구축하는 것입니다. 이를 달성하기 위한 세부 목표는 다음과 같습니다.
 
-1.  **완전한 자동화 (Full Automation):** 네트워크, 컴퓨팅, 보안 설정 등 140개 이상의 모든 Azure 리소스에 대한 배포 과정을 Terraform으로 100% 자동화합니다.
-2.  **제로 트러스트 구현 (Zero Trust Implementation):** "아무도 신뢰하지 않는다"는 가정하에, 모든 접근 요청을 명시적으로 검증하고, 최소 권한을 부여하며, 데이터 위치를 격리합니다.
-3.  **지능형 위협 대응 (Intelligent SecOps):** Microsoft Sentinel을 도입하여 실시간으로 보안 위협을 탐지하고, 자동화된 워크플로우를 통해 신속하게 대응(SOAR)합니다.
-4.  **고가용성 확보 (High Availability):** Multi-AZ(Availability Zone) 아키텍처를 통해 단일 데이터센터 장애 시에도 서비스의 연속성을 보장합니다.
+1.  **완전한 자동화:** 네트워크, 컴퓨팅, 보안 설정 등 140개 이상의 모든 Azure 리소스에 대한 배포 과정을 Terraform으로 100% 자동화합니다.
+2.  **제로 트러스트 구현:** '아무도 신뢰하지 않는다'는 가정하에, 모든 접근 요청을 명시적으로 검증하고, 최소 권한을 부여하며, 데이터 위치를 격리합니다.
+3.  **지능형 위협 대응:** Microsoft Sentinel을 도입하여 실시간으로 보안 위협을 탐지하고, 자동화된 워크플로우를 통해 신속하게 대응(SOAR)합니다.
+4.  **고가용성 확보:** Multi-AZ(Availability Zone) 아키텍처를 통해 단일 데이터센터 장애 시에도 서비스의 연속성을 보장합니다.
 
-**구축 범위 (Scope):**
+**구축 범위:**
 *   **리전:** Azure Korea Central (Zone 1, Zone 2 활용)
 *   **대상 서비스:** Azure Firewall, Application Gateway, VMSS, MySQL Flexible Server, Redis Cache, Key Vault, Sentinel, Bastion 등
 *   **인프라 규모:** 총 11개 Terraform 모듈, 140개 리소스, 3,000라인 이상의 코드
@@ -68,7 +68,7 @@ categories: [security-architecture]
 
 현대 클라우드 환경에서 발생하는 5가지 핵심 보안 과제를 정의하고, 본 프로젝트를 통해 이를 어떻게 해결했는지 기술합니다.
 
-| 분류 | 직면 과제 (Pain Points) | 본 프로젝트의 해결 솔루션 |
+| 분류 | 직면 과제 | 본 프로젝트의 해결 솔루션 |
 |:---|:---|:---|
 | **가시성 부족** | 인프라가 복잡해짐에 따라 누가, 언제, 무엇을 변경했는지 추적하기 어려움 (Shadow IT) | **100% IaC 도입:** 모든 인프라 변경 사항을 Git 버전 관리 시스템을 통해 추적하고 코드 리뷰를 거쳐 승인 |
 | **경계의 소멸** | 모바일, 재택근무 등으로 인해 내부/외부 네트워크망의 경계가 모호해짐 | **Zero Trust 모델:** Private Endpoint를 통해 중요 데이터를 인터넷으로부터 완전히 격리(공인 IP 제거) |
@@ -90,7 +90,7 @@ categories: [security-architecture]
 
 ### 2.1 Zero Trust Security Model
 
-전통적인 보안 모델은 "성벽과 해자(Castle-and-Moat)" 개념이었습니다. 즉, 외부의 침입은 철저히 막되, 일단 내부에 들어온 트래픽은 신뢰했습니다. 그러나 이러한 모델은 내부자 위협이나 횡적 이동(Lateral Movement)에 취약합니다. 우리는 **"Never Trust, Always Verify (절대 신뢰하지 말고 항상 검증하라)"**는 제로 트러스트 원칙을 적용했습니다.
+전통적인 보안 모델은 '성벽과 해자(Castle-and-Moat)' 개념이었습니다. 즉, 외부의 침입은 철저히 막되, 일단 내부에 들어온 트래픽은 신뢰했습니다. 그러나 이러한 모델은 내부자 위협이나 횡적 이동(Lateral Movement)에 취약합니다. 우리는 **Never Trust, Always Verify (절대 신뢰하지 말고 항상 검증하라)**는 제로 트러스트 원칙을 적용했습니다.
 
 *   **Verify Explicitly (명시적 검증):** 모든 인증은 사용자 ID뿐만 아니라 위치, 디바이스 상태, 서비스 분류 등 가능한 모든 데이터 포인트를 기반으로 검증합니다.
 *   **Least Privilege Access (최소 권한 액세스):** 사용자에게는 업무 수행에 필요한 딱 그만큼의 시간(JIT)과 권한(JEA)만을 부여합니다.
@@ -218,8 +218,8 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 ### 3.4 데이터 플랫폼
 
 #### 3.4.1 MySQL Flexible Server
-*   **Zone Redundant HA:** Primary 서버는 Zone 1에, Standby 서버는 Zone 2에 배치했습니다. 동기식 복제(Synchronous Replication)를 통해 데이터 손실(RPO) 없이 자동 절체(Failover)가 가능합니다.
-*   **TDE (Transparent Data Encryption):** 저장되는 모든 데이터는 휴지(At Rest) 상태에서 자동으로 암호화됩니다.
+*   **Zone Redundant HA:** Primary 서버는 Zone 1에, Standby 서버는 Zone 2에 배치했습니다. 동기식 복제(Synchronous Replication)를 통해 데이터 손실(RPO) 없이 자동 장애 조치가 가능합니다.
+*   **TDE (Transparent Data Encryption):** 저장되는 모든 데이터는 저장 상태에서 자동으로 암호화됩니다.
 
 #### 3.4.2 Key Vault
 *   **중앙 집중식 비밀 관리:** DB 비밀번호, SSL 인증서, API Key 등 모든 민감 정보는 Key Vault에 저장됩니다. 애플리케이션이나 테라폼 코드는 직접 비밀값을 가지지 않으며, 필요할 때 Key Vault 참조를 통해 값을 가져옵니다.
@@ -227,7 +227,7 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 ### 3.5 로드 밸런싱 및 가속화
 
 *   **Azure Front Door:** 글로벌 CDN 및 GSLB(Global Server Load Balancing) 역할을 수행합니다. 사용자는 가장 가까운 엣지(Edge)로 접속하여 빠른 응답 속도를 경험하며, DDoS 공격은 엣지 단계에서 차단됩니다.
-*   **Application Gateway (WAF v2):** 리전 레벨의 L7 로드 밸런서입니다. URL 경로 기반 라우팅(Path-based Routing)과 SSL 종료(Termination)를 처리하며, 탑재된 WAF가 SQL Injection 등 웹 공격을 방어합니다.
+*   **Application Gateway (WAF v2):** 리전 레벨의 L7 로드 밸런서입니다. URL 경로 기반 라우팅과 SSL 종료를 처리하며, 탑재된 WAF가 SQL Injection 등 웹 공격을 방어합니다.
 
 ---
 
@@ -235,7 +235,7 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 
 ### 4.1 Identity & Access Management (IAM)
 
-클라우드 시대에는 "IP 주소"가 아닌 "ID(Identity)"가 새로운 보안 경계입니다. 본 프로젝트는 Azure AD (Entra ID)를 중심으로 강력한 인증 체계를 구축했습니다.
+클라우드 시대에는 'IP 주소'가 아닌 'ID(Identity)'가 새로운 보안 경계입니다. 본 프로젝트는 Azure AD (Entra ID)를 중심으로 강력한 인증 체계를 구축했습니다.
 
 #### Managed Identity를 활용한 Keyless 인증
 과거에는 애플리케이션 서버가 DB에 접속하기 위해 `password=1234`와 같은 정보를 설정 파일(`config.php`)에 저장했습니다. 이는 소스 코드가 유출되면 DB까지 털리는 치명적인 약점입니다.
@@ -267,7 +267,7 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 
 #### Encryption at Rest (저장 중 암호화)
 *   **VM Disk:** ADE(Azure Disk Encryption)를 사용하여 OS 영역과 데이터 영역을 모두 암호화했습니다. 물리적 디스크가 탈취되어도 복호화 키 없이는 데이터를 읽을 수 없습니다.
-*   **Platform Managed Keys:** Storage Access Key 등 플랫폼 관리 키는 Microsoft가 관리하며 주기적으로 자동 순환(Rotation)됩니다.
+*   **Platform Managed Keys:** Storage Access Key 등 플랫폼 관리 키는 Microsoft가 관리하며 주기적으로 자동 순환됩니다.
 
 ### 4.4 Threat Detection & Response (SIEM/SOAR)
 
@@ -391,7 +391,7 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 *   **상황:** Azure Korea Central 리전 전체 불능.
 *   **복구 전략:** **Terraform Re-deployment (Infrastructure as Code)**
 *   **절차:**
-    1.  Terraform 변수 파일(`terraform.tfvars`)에서 `location`을 "Korea South"로 변경.
+    1.  Terraform 변수 파일(`terraform.tfvars`)에서 `location`을 'Korea South'로 변경.
     2.  `terraform apply` 실행하여 전체 인프라를 타 리전에 신규 배포.
     3.  Geo-Redundant 백업 스토리지에서 데이터 복원 (단, GRS 옵션 활성화 전제).
 
@@ -456,9 +456,9 @@ Terraform을 통해 Azure Policy를 배포하여 거버넌스를 강제합니다
 
 ## 7. 결론 및 향후 로드맵
 
-본 백서는 **"Terraform 기반 Azure 보안 아키텍처"** 프로젝트의 기술적 성과를 집대성한 문서입니다. 우리는 140개 이상의 Azure 리소스를 코드로 정의하며, **Zero Trust**와 **Defense-in-Depth** 철학을 실제 운영 가능한 수준으로 구현했습니다.
+본 백서는 **Terraform 기반 Azure 보안 아키텍처** 프로젝트의 기술적 성과를 집대성한 문서입니다. 우리는 140개 이상의 Azure 리소스를 코드로 정의하며, **Zero Trust**와 **Defense-in-Depth** 철학을 실제 운영 가능한 수준으로 구현했습니다.
 
-본 프로젝트의 가장 큰 의의는 **"보안이 비즈니스의 걸림돌이 아닌, 안전한 가속 페달"**이 될 수 있음을 증명한 것입니다. 자동화된 보안 검사, 자가 치유되는 인프라, 그리고 빈틈없는 모니터링 체계는 비즈니스 로직이 안전한 환경 위에서 빠르게 혁신할 수 있도록 지원합니다.
+본 프로젝트의 가장 큰 의의는 **보안이 비즈니스의 걸림돌이 아닌, 안전한 가속 페달**이 될 수 있음을 증명한 것입니다. 자동화된 보안 검사, 자가 치유되는 인프라, 그리고 빈틈없는 모니터링 체계는 비즈니스 로직이 안전한 환경 위에서 빠르게 혁신할 수 있도록 지원합니다.
 
 ### 향후 로드맵
 
@@ -631,4 +631,3 @@ AzureDiagnostics
 ```
 
 ---
-
