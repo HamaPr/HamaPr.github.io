@@ -115,70 +115,99 @@ categories: [security-architecture]
 ## 3. 인프라 아키텍처 상세 구현
 
 ### 3.1 전체 아키텍처 조감도
-
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 'darkMode': true, 'background': '#202124', 'primaryColor': '#55B4AD', 'primaryTextColor': '#fff', 'primaryBorderColor': '#55B4AD', 'lineColor': '#89B2F6'}}}%%
-flowchart TB
-    subgraph Internet ["🌐 인터넷 (Public Internet)"]
-        User["👤 사용자 (HTTPS/443)"]
-        Admin["👨‍💻 관리자 (SSH-over-HTTPS)"]
-        Attacker["❌ 공격자 (Blocked)"]
+graph TD
+    %% --- Azure Style Class Definitions ---
+    classDef hub fill:#201F1E,stroke:#E34F26,stroke-width:4px,color:#fff;
+    classDef spoke fill:#201F1E,stroke:#0078D4,stroke-width:4px,color:#fff;
+    classDef ext fill:#1b1b1b,stroke:#888,stroke-width:2px,color:#fff,stroke-dasharray: 5 5;
+    classDef comp fill:#005BA1,stroke:#fff,stroke-width:1px,color:#fff;
+    classDef sec fill:#E34F26,stroke:#fff,stroke-width:1px,color:#fff;
+    classDef net fill:#0078D4,stroke:#fff,stroke-width:1px,color:#fff;
+
+    %% --- External ---
+    subgraph External ["☁️ External World"]
+        User(("👤 User"))
+        Admin(("👨‍💻 Admin"))
     end
 
-    subgraph Global ["🌍 Azure Global Edge"]
-        TM["🚦 Traffic Manager (DNS LB)"]
-        FD["🛡️ Front Door (CDN & WAF)"]
-    end
-
-    subgraph Hub ["🛡️ Hub VNet (10.0.0.0/16) - Central Security"]
-        direction TB
-        Firewall["🔥 Azure Firewall (L3/L7 Inspection)"]
-        Bastion["🏰 Azure Bastion (Secure Access)"]
-        Mon["📊 Log Analytics & Sentinel"]
-    end
-
-    subgraph Spoke ["⚙️ Spoke VNet (192.168.0.0/16) - Workload"]
-        direction TB
+    %% --- Azure Region ---
+    subgraph Azure ["🔷 Azure Korea Central"]
         
-        subgraph DMZ ["Zone 1: Perimeter"]
-            AppGW["🛡️ App Gateway (WAF v2)"]
-            NAT["🌐 NAT Gateway"]
+        %% Hub VNet
+        subgraph Hub_VNet ["🛡️ Hub VNet (Security Center)"]
+            FW["🔥 Azure Firewall"]:::sec
+            BAS["🏰 Azure Bastion"]:::sec
         end
-        
-        subgraph App ["Zone 2: Application"]
-            LB["⚖️ L4 Load Balancer"]
-            Web["💻 Web VMSS (Frontend)"]
-            WAS["⚙️ WAS VMSS (Backend)"]
-        end
-        
-        subgraph Data ["Zone 3: Data (Private Only)"]
-            MySQL["🐬 MySQL Flexible (Zone HA)"]
-            Redis["🚀 Redis Cache"]
-            KV["🔑 Key Vault"]
-            SA["💾 Storage Account"]
+
+        %% Spoke VNet
+        subgraph Spoke_VNet ["⚙️ Spoke VNet (Workload)"]
+            AppGW["🛡️ App Gateway"]:::net
+            VMSS["💻 Web/WAS VMSS"]:::comp
+            Data[("🛢️ Data Platform")]:::comp
         end
     end
 
-    User --> TM --> FD --> AppGW
-    AppGW --> LB --> Web --> WAS
-    WAS -- "Private Link (10.x)" --> MySQL & Redis & KV & SA
+    %% --- Connections ---
+    User -->|"HTTPS (443)"| AppGW
+    Admin -->|"HTTPS (443)"| BAS
     
-    Admin -- "HTTPS Portal" --> Bastion
-    Bastion -- "Internal SSH" --> Web & WAS & MySQL
+    %% VNet Peering
+    Hub_VNet <==>|"⚡ VNet Peering ⚡"| Spoke_VNet
     
-    Web & WAS -- "Outbound (Updates)" --> Firewall --> Internet
-    
-    Attacker -.->|"DDoS/WAF 차단"| FD
-    Attacker -.->|"Firewall 차단"| Firewall
+    %% Internal Flows
+    AppGW --> VMSS
+    BAS -.->|"SSH (22)"| VMSS
+    VMSS -->|"Private Link"| Data
+    VMSS -.->|"Outbound Filter"| FW
 
-    style Hub fill:#2d2e30,stroke:#55B4AD,stroke-width:3px
-    style Spoke fill:#2d2e30,stroke:#70C19A,stroke-width:3px
-    style Internet fill:#202124,stroke:#fff,color:#fff
-    style DMZ fill:#37474F,stroke:#CFD8DC,stroke-dasharray: 5 5
-    style Data fill:#1a1a1a,stroke:#D99362,stroke-width:2px
+    %% Apply Styles
+    class Hub_VNet hub;
+    class Spoke_VNet spoke;
+    class External ext;
 ```
 
 ### 3.2 네트워크 인프라 (Hub & Spoke)
+```mermaid
+flowchart TD
+    %% --- Style Definitions ---
+    classDef edge fill:#333,stroke:#9df,stroke-width:2px,color:#fff;
+    classDef net fill:#0078D4,stroke:#fff,color:#fff;
+    classDef compute fill:#005BA1,stroke:#fff,color:#fff;
+    classDef user fill:#000,stroke:#fff,color:#fff;
+
+    %% --- Nodes ---
+    User(("👤 User")):::user
+    
+    subgraph Edge ["🌍 Global Edge Layer"]
+        TM["🚦 Traffic Manager<br/>(DNS Routing)"]:::edge
+        FD["🛡️ Front Door<br/>(DDoS Protection)"]:::edge
+    end
+    
+    subgraph Spoke ["🔷 Spoke VNet (Service Zone)"]
+        direction TB
+        AppGW["🛡️ App Gateway (WAF v2)<br/>SSL Termination"]:::net
+        LB["⚖️ L4 Load Balancer"]:::net
+        
+        subgraph VMSS_Group ["Scaling Group"]
+            Web["💻 Web VMSS (Nginx)"]:::compute
+            WAS["⚙️ WAS VMSS (App)"]:::compute
+        end
+    end
+
+    %% --- Flows ---
+    User ==> TM
+    TM ==> FD
+    FD ==>|"HTTPS (443)"| AppGW
+    AppGW ==>|"HTTP (80)"| LB
+    LB --> Web
+    Web --> WAS
+
+    %% --- Styling the Subgraphs ---
+    style Edge fill:#2d2d2d,stroke:#9df
+    style Spoke fill:#201F1E,stroke:#0078D4,stroke-width:2px
+    style VMSS_Group fill:#transparent,stroke:#fff,stroke-dasharray: 5 5
+```
 
 네트워크 인프라는 모듈화된 Terraform 코드(`modules/Network`, `modules/Hub`)를 통해 배포됩니다. 각 서브넷은 철저하게 용도에 따라 분리되어 NSG(네트워크 보안 그룹)로 보호받습니다.
 
@@ -216,6 +245,45 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 *   **Health Check:** 업데이트된 인스턴스가 헬스 체크를 통과해야만 다음 배치를 진행합니다.
 
 ### 3.4 데이터 플랫폼
+```mermaid
+flowchart LR
+    %% --- Style Definitions ---
+    classDef bastion fill:#E34F26,stroke:#fff,color:#fff;
+    classDef vm fill:#005BA1,stroke:#fff,color:#fff;
+    classDef data fill:#5C2D91,stroke:#fff,color:#fff;
+    classDef endpoint fill:#0078D4,stroke:#fff,color:#fff,shape:rect;
+
+    Admin(("👨‍💻 Admin"))
+    
+    subgraph Hub ["🛡️ Hub VNet"]
+        BAS["🏰 Azure Bastion"]:::bastion
+    end
+
+    subgraph Spoke ["⚙️ Spoke VNet"]
+        WAS["⚙️ WAS VMSS<br/>(Managed Identity)"]:::vm
+        
+        subgraph Private_Zone ["🔒 Private Link Zone"]
+            PE["⚡ Private Endpoint"]:::endpoint
+            
+            subgraph Data_Res ["Data Resources"]
+                DB[("🐬 MySQL")]:::data
+                KV["🔑 Key Vault"]:::data
+            end
+        end
+    end
+
+    %% --- Flows ---
+    Admin -->|"Portal HTTPS"| BAS
+    BAS -.->|"Peering (SSH)"| WAS
+    WAS ==>|Token Auth| PE
+    PE ==> DB & KV
+
+    %% --- Styling ---
+    style Hub fill:#201F1E,stroke:#E34F26
+    style Spoke fill:#201F1E,stroke:#0078D4
+    style Private_Zone fill:#111,stroke:#5C2D91,stroke-width:2px,stroke-dasharray: 5 5
+    style Data_Res fill:#transparent,stroke:none
+```
 
 #### 3.4.1 MySQL Flexible Server
 *   **Zone Redundant HA:** Primary 서버는 Zone 1에, Standby 서버는 Zone 2에 배치했습니다. 동기식 복제(Synchronous Replication)를 통해 데이터 손실(RPO) 없이 자동 장애 조치가 가능합니다.
@@ -276,7 +344,7 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 *   **SIEM (Security Information and Event Management):** Syslog, Azure Activity Log, Sign-in Log, Firewall Log 등 파편화된 로그를 Log Analytics Workspace로 통합 수집합니다.
 *   **SOAR (Security Orchestration, Automation, and Response):** 위협이 탐지되면, 사전 정의된 'Playbook' 또는 'Automation Rule'이 실행되어 보안 담당자에게 이메일을 보내거나 티켓을 생성합니다.
 
----
+
 
 ## 5. 보안 관제 및 운영 상세
 
