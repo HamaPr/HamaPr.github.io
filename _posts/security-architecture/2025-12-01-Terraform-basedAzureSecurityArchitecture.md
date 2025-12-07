@@ -168,8 +168,9 @@ graph TD
 ```
 
 ### 3.2 네트워크 인프라 (Hub & Spoke)
+<div style="max-width: 450px; margin: 0 auto;">
+
 ```mermaid
-%%{init: {'theme': 'dark', 'flowchart': {'width': 600}}}%%
 flowchart TD
     %% --- Style Definitions ---
     classDef edge fill:#333,stroke:#9df,stroke-width:2px,color:#fff;
@@ -210,6 +211,8 @@ flowchart TD
     style VMSS_Group fill:#transparent,stroke:#fff,stroke-dasharray: 5 5
 ```
 
+</div>
+
 네트워크 인프라는 모듈화된 Terraform 코드(`modules/Network`, `modules/Hub`)를 통해 배포됩니다. 각 서브넷은 철저하게 용도에 따라 분리되어 NSG(네트워크 보안 그룹)로 보호받습니다.
 
 #### 3.2.1 Hub VNet 구성 (10.0.0.0/16)
@@ -246,6 +249,8 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 *   **Health Check:** 업데이트된 인스턴스가 헬스 체크를 통과해야만 다음 배치를 진행합니다.
 
 ### 3.4 데이터 플랫폼
+<div style="width: 100%; overflow-x: auto;">
+
 ```mermaid
 flowchart LR
     %% --- Style Definitions ---
@@ -285,6 +290,8 @@ flowchart LR
     style Private_Zone fill:#111,stroke:#5C2D91,stroke-width:2px,stroke-dasharray: 5 5
     style Data_Res fill:#transparent,stroke:none
 ```
+
+</div>
 
 #### 3.4.1 MySQL Flexible Server
 *   **Zone Redundant HA:** Primary 서버는 Zone 1에, Standby 서버는 Zone 2에 배치했습니다. 동기식 복제(Synchronous Replication)를 통해 데이터 손실(RPO) 없이 자동 장애 조치가 가능합니다.
