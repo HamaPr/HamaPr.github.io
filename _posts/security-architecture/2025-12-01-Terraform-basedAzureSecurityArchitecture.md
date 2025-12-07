@@ -245,7 +245,7 @@ Spoke VNet은 3-Tier 아키텍처(Web-App-Data)를 수용하기 위해 세분화
 
 ### 3.4 데이터 플랫폼
 ```mermaid
-graph LR
+graph TD
     %% --- Style Definitions ---
     classDef hub fill:#201F1E,stroke:#E34F26,stroke-width:2px,color:#fff;
     classDef spoke fill:#201F1E,stroke:#0078D4,stroke-width:2px,color:#fff;
@@ -257,47 +257,52 @@ graph LR
     classDef endpoint fill:#0078D4,stroke:#fff,color:#fff,shape:rect;
     classDef user fill:#000,stroke:#fff,color:#fff;
 
-    %% --- External ---
-    Admin(("👨‍💻 Admin")):::user
+    %% --- 1. Top Layer: Access & Security ---
+    subgraph Access_Layer ["🔐 Access Management"]
+        direction LR
+        style Access_Layer fill:transparent,stroke:none
 
-    %% --- Hub VNet (Left Side) ---
-    subgraph Hub ["🛡️ Hub VNet"]
-        BAS["🏰 Azure Bastion"]:::bastion
+        Admin(("👨‍💻 Admin")):::user
+        
+        subgraph Hub ["🛡️ Hub VNet"]
+            BAS["🏰 Azure Bastion"]:::bastion
+        end
+        
+        Admin -->|"Portal HTTPS"| BAS
     end
 
-    %% --- Spoke VNet (Right Side) ---
+    %% --- 2. Bottom Layer: Workload & Data ---
     subgraph Spoke ["⚙️ Spoke VNet"]
-        direction TB
-
-        %% 1. Compute Layer (Top)
+        direction LR
+        %% 내부 흐름을 좌->우로 설정하여 하단을 꽉 채움
+        
         WAS["⚙️ WAS VMSS<br/>(Managed Identity)"]:::vm
         
-        %% 2. Data Layer (Bottom)
         subgraph Private_Zone ["🔒 Private Link Zone"]
             direction LR
             PE["⚡ Private Endpoint"]:::endpoint
             
-            subgraph Targets ["Resources"]
+            subgraph Data_Res ["Data Resources"]
                 direction TB
                 DB[("🐬 MySQL")]:::data
                 KV["🔑 Key Vault"]:::data
             end
             
-            PE ==> Targets
+            PE ==> Data_Res
         end
+        
+        WAS ==>|"Token Auth"| PE
     end
 
-    %% --- Wiring ---
-    Admin -->|"Portal"| BAS
+    %% --- Vertical Connection ---
     BAS -.->|"Peering (SSH)"| WAS
-    WAS ==>|"Token Auth"| PE
-    
-    %% --- Subgraph Styles ---
+
+    %% --- Class Application ---
     class Hub hub;
     class Spoke spoke;
     class Private_Zone zone;
-    class Targets zone;
-    style Targets stroke:none,fill:transparent
+    class Data_Res zone;
+    style Data_Res stroke:none,fill:transparent
 ```
 
 #### 3.4.1 MySQL Flexible Server
