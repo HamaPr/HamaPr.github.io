@@ -659,7 +659,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
 Sentinel 탐지 규칙에 사용된 실제 Kusto Query Language(KQL) 코드 모음입니다.
 
 ### B.1 SSH Brute Force Detection
-```kusto
+```csharp
 // SSH Brute Force Attack
 // 5분 내에 3회 이상의 로그인 실패가 발생한 출발지 IP를 식별합니다.
 Syslog
@@ -678,7 +678,7 @@ Syslog
 ```
 
 ### B.2 Break Glass Account Protection
-```kusto
+```csharp
 // Emergency Account Login Detection
 // 비상용 계정(Break Glass Account)이 사용되었을 때 즉시 알림을 발생시킵니다.
 SigninLogs
@@ -688,7 +688,7 @@ SigninLogs
 ```
 
 ### B.3 WAF SQL Injection Detection
-```kusto
+```csharp
 // AzureDiagnostics Table에서 WAF 로그 분석
 AzureDiagnostics
 | where ResourceType == "APPLICATIONGATEWAYS"
@@ -699,4 +699,3 @@ AzureDiagnostics
 ```
 
 ---
-
