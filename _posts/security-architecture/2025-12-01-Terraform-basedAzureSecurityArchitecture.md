@@ -435,11 +435,11 @@ graph TD
 
 | 사용자 (User Principal) | 역할 (Role) | 적용 리소스 (Scope) | 권한 상세 설명 (Allowed Actions) | 제한 사항 (Denied) |
 |:---|:---|:---|:---|:---|
-| `student421` (이두경, PM) | **Owner** | All (RG Level) | 리소스 생성/삭제, 권한 부여, 정책 설정 포함 모든 권한 | 없음 |
-| `student424` (이하연, 아키텍처검증) | **Reader** | All (RG Level) | 모든 리소스 구성 및 상태 조회, 아키텍처 검토 | 설정 변경 불가, 리소스 생성/삭제 불가 |
-| `student411` (배하영, 외부 보안) | **Sentinel Contributor** | Sentinel | 탐지 규칙 생성/수정, 인시던트 상태 변경, 헌팅 쿼리 작성, 위협 분석 | Sentinel 외 리소스 수정 불가 |
-| `student420` (이기훈, 내부 보안) | **Security Admin** | All (RG Level) | 보안 정책 관리, Defender 설정, NSG 규칙 검토, 취약점 관리 | 리소스 삭제 불가, 권한 부여 불가 |
-| `student415` (신윤철, 내부 보안) | **Log Analytics Reader** | Log Analytics | 로그 검색/분석, 쿼리 작성, 대시보드 조회, 모니터링 데이터 확인 | 로그 설정 변경 불가, 데이터 삭제 불가 |
+| `student421` (PM) | **Owner** | All (RG Level) | 리소스 생성/삭제, 권한 부여, 정책 설정 포함 모든 권한 | 없음 |
+| `student424` (아키텍처검증) | **Reader** | All (RG Level) | 모든 리소스 구성 및 상태 조회, 아키텍처 검토 | 설정 변경 불가, 리소스 생성/삭제 불가 |
+| `student411` (외부 보안) | **Sentinel Contributor** | Sentinel | 탐지 규칙 생성/수정, 인시던트 상태 변경, 헌팅 쿼리 작성, 위협 분석 | Sentinel 외 리소스 수정 불가 |
+| `student420` (내부 보안) | **Security Admin** | All (RG Level) | 보안 정책 관리, Defender 설정, NSG 규칙 검토, 취약점 관리 | 리소스 삭제 불가, 권한 부여 불가 |
+| `student415` (내부 보안) | **Log Analytics Reader** | Log Analytics | 로그 검색/분석, 쿼리 작성, 대시보드 조회, 모니터링 데이터 확인 | 로그 설정 변경 불가, 데이터 삭제 불가 |
 
 #### 리소스별 접근 권한 상세
 
@@ -731,3 +731,4 @@ AzureDiagnostics
 ```
 
 ---
+
