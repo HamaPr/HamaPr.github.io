@@ -376,7 +376,7 @@ graph TD
 우리는 **Microsoft Sentinel**을 도입하여 단순한 로그 수집을 넘어선 지능형 위협 대응 체계를 구축했습니다.
 
 *   **SIEM (Security Information and Event Management):** Syslog, Azure Activity Log, Sign-in Log, Firewall Log 등 파편화된 로그를 Log Analytics Workspace로 통합 수집합니다.
-*   **SOAR (Security Orchestration, Automation, and Response):** 위협이 탐지되면, 사전 정의된 'Playbook' 또는 'Automation Rule'이 실행되어 보안 담당자에게 이메일을 보내거나 티켓을 생성합니다.
+*   **SOAR (Security Orchestration, Automation, and Response):** 위협이 탐지되면, Azure Monitor Action Group을 통해 보안 담당자에게 즉시 이메일 알림을 발송하여 신속한 대응을 지원합니다.
 
 
 
@@ -406,13 +406,13 @@ graph TD
 | 14 | **Malicious IP** | High | Microsoft Threat Intelligence가 정의한 악성 IP와의 통신 | 즉시 차단 |
 | 15 | **Break Glass Account** | High | 비상용 계정(Break Glass)의 로그인 성공 이벤트 | 전사 비상 알림 |
 
-### 5.2 자동화된 사고 대응 (SOAR Automation)
+### 5.2 실시간 보안 위협 알림 (Real-time Alerting)
 
-수동 대응의 지연 시간을 없애기 위해 Sentinel의 **Automation Rule**과 **Playbook (Logic App)** 기능을 활용했습니다.
+통합된 Azure Monitor Action Group을 통해 보안 사고 발생 시 담당자에게 즉시 전파합니다.
 
-1.  **트리거 조건:** 심각도 'High' 이상의 인시던트(Incident) 생성 시
-2.  **실행 동작:** `sentinel-incident-email` **Logic App**을 자동 실행
-3.  **결과:** Logic App이 보안 관제 팀(Security Operations Center) 공용 메일함으로 즉시 알림 메일을 발송하고, 인시던트 상태를 'Active'로 자동 전환하여 담당자에게 할당됨을 표시합니다.
+1.  **트리거 조건:** 심각도 'High/Critical' 인시던트 또는 'Security Alert' 발생 시
+2.  **실행 동작:** `sentinel-alert-email` **Action Group** 동작
+3.  **결과:** 보안 관제 팀(Security Operations Center) 공용 메일함 및 담당자에게 상세 위협 내용이 포함된 이메일 발송.
 
 ### 5.3 모니터링 및 로깅 아키텍처
 
@@ -437,10 +437,11 @@ graph TD
 |:---|:---|:---|:---|:---|
 | `student421` (PM) | **Owner** | All (RG Level) | 리소스 생성/삭제, 권한 부여, 정책 설정 포함 모든 권한 | 없음 |
 | `student424` (아키텍처검증) | **Reader** | All (RG Level) | 모든 리소스 구성 및 상태 조회, 아키텍처 검토 | 설정 변경 불가, 리소스 생성/삭제 불가 |
-| `student420` (내부 보안) | **Security Admin** | All (RG Level) | 보안 정책 관리, Defender 설정, NSG 규칙 검토, 취약점 관리 | 리소스 삭제 불가, 권한 부여 불가 |
-| `student415` (내부 보안) | **Log Analytics Reader** | Log Analytics | 로그 검색/분석, 쿼리 작성, 대시보드 조회, 모니터링 데이터 확인 | 로그 설정 변경 불가, 데이터 삭제 불가 |
 | `student411` (외부 보안) | **Sentinel Contributor** | Sentinel | 탐지 규칙 생성/수정, 인시던트 상태 변경, 헌팅 쿼리 작성, 위협 분석 | Sentinel 외 리소스 수정 불가 |
 | `student426` (외부 보안) | **Sentinel Contributor** | Sentinel | 탐지 규칙 생성/수정, 인시던트 상태 변경, 헌팅 쿼리 작성, 위협 분석 | Sentinel 외 리소스 수정 불가 |
+| `student420` (내부 보안) | **Security Admin** | All (RG Level) | 보안 정책 관리, Defender 설정, NSG 규칙 검토, 취약점 관리 | 리소스 삭제 불가, 권한 부여 불가 |
+| `student415` (내부 보안) | **Log Analytics Reader** | Log Analytics | 로그 검색/분석, 쿼리 작성, 대시보드 조회, 모니터링 데이터 확인 | 로그 설정 변경 불가, 데이터 삭제 불가 |
+
 
 #### 리소스별 접근 권한 상세
 
