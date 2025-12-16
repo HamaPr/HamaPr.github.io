@@ -1,3 +1,10 @@
+---
+layout: post
+title: "Terraform 기반 Azure 보안 아키텍처 구축 결과 보고서"
+date: 2025-12-01 17:00:00 +0900
+categories: [security-architecture]
+---
+
 # Terraform 기반 Azure 보안 아키텍처 구축 결과 보고서
 
 ## 목차
