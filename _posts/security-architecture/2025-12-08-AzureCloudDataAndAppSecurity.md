@@ -5,8 +5,6 @@ date: 2025-12-08 17:00:00 +0900
 categories: [security-architecture]
 ---
 
-# 03. Azure 클라우드 데이터 및 App 보안 보고서
-
 ## 목차
 
 1. [개요](#1-개요)
