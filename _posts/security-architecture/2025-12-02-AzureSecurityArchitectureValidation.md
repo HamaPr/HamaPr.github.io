@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Azure 보안 아키텍처 기능 및 안정성 검증 보고서"
+title: "02. Azure 보안 아키텍처 기능 및 안정성 검증 보고서"
 date: 2025-12-02 17:00:00 +0900
 categories: [security-architecture]
 ---
