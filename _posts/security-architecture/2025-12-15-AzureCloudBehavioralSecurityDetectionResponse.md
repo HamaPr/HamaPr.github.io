@@ -8,7 +8,7 @@ categories: [security-architecture]
 ## 목차
 
 1. [개요](#1-개요)
-2. [Microsoft Defender XDR 사용하여 위협 완화](#2-microsoft-defender-xdr-사용하여-위협-완화)
+2. [Microsoft Defender XDR 사용하여 위협 탐지 및 대응](#2-microsoft-defender-xdr-사용하여-위협-탐지-및-대응)
     *   [2.1 통합 보안 플랫폼](#21-통합-보안-플랫폼)
     *   [2.2 클라우드용 Microsoft Defender](#22-클라우드용-microsoft-defender)
     *   [2.3 Defender for Servers (호스트 행위 탐지)](#23-defender-for-servers-호스트-행위-탐지)
@@ -40,7 +40,7 @@ categories: [security-architecture]
 
 ## 1. 개요
 
-본 문서는 **"뚫으려는 시도를 어떻게 탐지하고(Detection), 대응했는가?(Response)"**를 검증하는 **행위기반 보안탐지 및 대응** 보고서입니다.
+본 문서는 **"뚫으려는 시도를 어떻게 탐지하고, 대응했는가?"**를 검증하는 **행위기반 보안탐지 및 대응** 보고서입니다.
 
 
 - **Microsoft Defender XDR**: 통합 위협 관리 플랫폼
@@ -48,11 +48,9 @@ categories: [security-architecture]
 - **Microsoft Sentinel**: 위협 탐지, 헌팅, 인시던트 관리
 - **SOAR**: 보안 오케스트레이션 및 자동 대응
 
-2025년 7월부터 Microsoft Sentinel과 Defender XDR이 **Unified Security Operations Platform**으로 통합되었습니다. (통합 포털: `security.microsoft.com`)
-
 ---
 
-## 2. Microsoft Defender XDR 사용하여 위협 완화
+## 2. Microsoft Defender XDR 사용하여 위협 탐지 및 대응
 
 ### 2.1 통합 보안 플랫폼
 
