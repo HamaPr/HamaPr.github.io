@@ -129,7 +129,7 @@ graph TD
     classDef net fill:#0078D4,stroke:#fff,stroke-width:1px,color:#fff;
 
     %% --- External ---
-    subgraph External ["☁️ External World"]
+    subgraph External ["☁️ 외부 인터넷망"]
         User(("👤 User"))
         Admin(("👨‍💻 Admin"))
     end
@@ -146,7 +146,8 @@ graph TD
         %% Spoke VNet
         subgraph Spoke_VNet ["⚙️ Spoke VNet (Workload)"]
             AppGW["🛡️ App Gateway"]:::net
-            VMSS["💻 Web/WAS VMSS"]:::comp
+            Web["💻 Web VMSS"]:::comp
+            WAS["⚙️ WAS VMSS"]:::comp
             Mail["📧 Mail Server"]:::comp
             Data[("🛢️ Data Platform")]:::comp
         end
@@ -158,12 +159,18 @@ graph TD
     Admin -->|"HTTPS (443)"| BAS
     
     %% Internal Flows
-    AppGW --> VMSS
-    BAS -.->|"SSH (22)"| VMSS
-    BAS -.->|"SSH (22)"| Mail
-    VMSS -->|"Private Link"| Data
-    Mail -->|"Private Link"| Data
-    VMSS -.->|"Outbound Filter"| FW
+    AppGW -->|"HTTP (80)"| Web
+    Web -->|"Internal API (80)"| WAS
+    WAS -->|"Private Link (3306/6380)"| Data
+    
+    %% Management Access
+    BAS -.->|"SSH Tunnel (22)"| Web
+    BAS -.->|"SSH Tunnel (22)"| Mail
+    Web -.->|"Jump Host (22)"| WAS
+
+    %% Outbound Flows
+    Web -.->|"Outbound Filter"| FW
+    WAS -.->|"Outbound Filter"| FW
     Mail -.->|"Outbound Filter"| FW
 
     %% VNet Peering (Visualized via Nodes)
