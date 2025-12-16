@@ -202,6 +202,7 @@ graph TD
 *   **시나리오:** 내부 서버가 악성 사이트나 허용되지 않은 외부 도메인으로 통신을 시도.
 *   **정책:** `Allow-Windows-Update`, `Allow-Azure-Services`, `Allow-Package-Repos` 등 **승인된 FQDN만 Allow**, 나머지는 **Default Deny**.
 *   **검증:** Spoke VM에서 허용되지 않은 사이트로 curl 시도.
+
     ```bash
     # 허용되지 않은 도메인 (google.com)
     curl -I https://www.google.com
@@ -219,6 +220,7 @@ graph TD
 *   **검증:**
     1.  **허용된 포트(DNS):** 외부 도메인 질의 테스트.
     2.  **비허용 포트(8080):** 외부 IP로의 비인가 연결 시도.
+
     ```bash
     # 1. 허용된 트래픽 (DNS 53)
     nslookup google.com
@@ -368,12 +370,6 @@ VM의 OS 및 데이터 디스크를 암호화하여 오프라인 공격으로부
 *   **결과:**
     *   `az vm encryption show` 명령 결과 **`"Encryption is enabled on disk"`** 상태 확인.
     *   **Key Vault 연동 확인:** `secretUrl` 필드에서 `diskkey251208` 주소가 명시됨을 확인.
-
-> [!NOTE] 스크린샷 가이드: VM 디스크 암호화(ADE)
-> *   **Image 1 (KV 생성):** `diskKey251208` 생성 결과 화면.
-> *   **Image 2 (암호화 상태):** `az vm encryption show` 결과 JSON 화면.
->     *   **강조 포인트 1:** `"secretUrl"`에 `https://diskkey251208...`가 포함된 부분 (전용 키 볼트 사용 증명).
->     *   **강조 포인트 2:** `"displayStatus": "Encryption is enabled on disk"` 및 `"code": "EncryptionState/encrypted"` 부분.
 
 ### 4.4 Storage SAS 만료 정책
 

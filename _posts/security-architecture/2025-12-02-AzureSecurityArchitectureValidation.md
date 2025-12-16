@@ -95,7 +95,7 @@ graph LR
         direction LR
         
         subgraph Hub ["🛡️ Hub VNet"]
-            Bas["🏰 Azure Bastion\n(Public IP)"]:::jump
+            Bas["🏰 Azure Bastion<br/>(Public IP)"]:::jump
         end
         
         subgraph Spoke ["⚙️ Spoke (Private)"]
@@ -113,7 +113,7 @@ graph LR
     WAS -->|"MySQL Client"| DB
 
     %% Blocked Paths
-    Attacker -.->x|"No Public IP"| Web
+    Attacker -.->|"No Public IP"| Web
     Attacker -.->|"Firewall Block"| DB
 ```
 
