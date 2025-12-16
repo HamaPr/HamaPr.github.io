@@ -649,11 +649,13 @@ function verifySecureToken($token) {
 
 이번 모의해킹 실습을 통해 **Azure WAF(Application Gateway)가 애플리케이션 보안의 핵심 방어막 역할**을 수행함을 입증했습니다.
 
+
 | 공격 유형 | 애플리케이션 코드 상태 | WAF 적용 상태 | 최종 결과 | 비고 |
 |:---:|:---:|:---:|:---:|:---|
 | **SQL Injection** | **Vulnerable** (보호 없음) | **Enabled** (OWASP CRS 3.2) | **✅ 차단 (Blocked)** | 403 Forbidden |
 | **Command Injection** | **Vulnerable** (보호 없음) | **Enabled** (OWASP CRS 3.2) | **✅ 차단 (Blocked)** | 403 Forbidden |
 | **SSRF** | **Vulnerable** (보호 없음) | **Enabled** (OWASP CRS 3.2) | **✅ 차단 (Blocked)** | 403 Forbidden |
+
 ![secu65](/assets/images/security-architecture/03/secu65.png)
 **결론:** 시큐어 코딩이 미흡한 레거시 애플리케이션이라도, **WAF를 적용함으로써 즉각적인 보안 효과(Virtual Patching)를 확보**할 수 있음을 확인했습니다. 이는 실제 운영 환경에서 소스 코드 수정이 어려운 긴급 상황 시 매우 유효한 대응 전략이 됩니다.
 
@@ -674,3 +676,4 @@ function verifySecureToken($token) {
 이는 **NSG/방화벽 IP 제한**과 **Security Defaults**로 대체하거나, **현황 분석(Status Check)**을 통해 미지원 항목을 정확히 식별하고 문서화하여 관리 가능성을 확보했습니다.
 
 ---
+
