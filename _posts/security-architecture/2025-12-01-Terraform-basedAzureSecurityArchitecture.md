@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "01.Terraform 기반 Azure 보안 아키텍처 구축 결과 보고서"
+title: "01. Terraform 기반 Azure 보안 아키텍처 구축 결과 보고서"
 date: 2025-12-01 17:00:00 +0900
 categories: [security-architecture]
 ---
@@ -858,5 +858,6 @@ AzureDiagnostics
 | summarize AttackCount = count() by clientIp_s, requestUri_s, ruleId_s // 공격자 IP, 대상 URI, 규칙 ID별 카운트
 | top 10 by AttackCount // 상위 10개 공격 트래픽 추출
 ```
+
 
 ---
