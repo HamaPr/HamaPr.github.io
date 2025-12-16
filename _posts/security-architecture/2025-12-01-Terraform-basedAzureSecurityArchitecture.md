@@ -123,11 +123,14 @@ categories: [security-architecture]
 | | | | **합계** | **$2,697~/월** |
 
 > **비용 설계 의도**
+
 > 본 프로젝트는 **다양한 Azure PaaS 서비스를 직접 경험하고 학습**하는 것을 목적으로 Premium 티어를 적극 활용했습니다. 실제 운영 환경에서는 다음과 같이 비용을 절감할 수 있습니다:
 > - **Azure Firewall** ($912) → NAT Gateway + NSG 조합으로 대체 (약 $30)
 > - **Redis Premium** ($185) → Standard 티어 또는 VM에 Redis 직접 설치 (Self-managed, 약 $30)
 > - **Front Door Premium** ($330) → Standard 티어 또는 Application Gateway 단독 사용
 > - **MySQL Zone-Redundant HA** ($520) → 단일 인스턴스 + 백업 전략으로 대체 (약 $80)
+>
+> **최적화 적용 시 총 예상 비용: 약 $900/월 (기존 $2,697 대비 약 66% 절감)**
 
 ---
 
