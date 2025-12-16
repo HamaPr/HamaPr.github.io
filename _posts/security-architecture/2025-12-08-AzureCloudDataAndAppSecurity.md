@@ -676,4 +676,3 @@ function verifySecureToken($token) {
 이는 **NSG/방화벽 IP 제한**과 **Security Defaults**로 대체하거나, **현황 분석(Status Check)**을 통해 미지원 항목을 정확히 식별하고 문서화하여 관리 가능성을 확보했습니다.
 
 ---
-
