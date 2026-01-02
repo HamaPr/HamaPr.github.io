@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tocList && postContent) {
         // h2, h3 헤딩 스캔하여 TOC 생성
         const headings = postContent.querySelectorAll('h2, h3');
-        
+
         if (headings.length > 0) {
             headings.forEach((heading, index) => {
                 // ID가 없으면 생성
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    
+
                     // 모바일에서 TOC 닫기
                     if (window.innerWidth <= 1200) {
                         tocSidebar.classList.remove('open');
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Scroll Spy: IntersectionObserver로 현재 섹션 추적
             const tocLinks = tocList.querySelectorAll('.toc-link');
-            
+
             const observerOptions = {
                 rootMargin: '-80px 0px -60% 0px',
                 threshold: 0
@@ -221,11 +221,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (entry.isIntersecting) {
                         // 모든 링크에서 active 제거
                         tocLinks.forEach(link => link.classList.remove('active'));
-                        
+
                         // 현재 헤딩에 해당하는 링크에 active 추가
                         const activeLink = tocList.querySelector(`a[href="#${entry.target.id}"]`);
                         if (activeLink) {
                             activeLink.classList.add('active');
+
+                            // 사이드바 내에서 활성 링크가 보이도록 자동 스크롤
+                            const tocNav = document.getElementById('toc-nav');
+                            if (tocNav) {
+                                const linkRect = activeLink.getBoundingClientRect();
+                                const navRect = tocNav.getBoundingClientRect();
+
+                                // 활성 링크가 사이드바 뷰포트 밖에 있으면 스크롤
+                                if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
+                                    activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }
                         }
                     }
                 });
@@ -249,8 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 사이드바 외부 클릭 시 닫기
         document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 1200 && 
-                !tocSidebar.contains(e.target) && 
+            if (window.innerWidth <= 1200 &&
+                !tocSidebar.contains(e.target) &&
                 !tocToggle.contains(e.target) &&
                 tocSidebar.classList.contains('open')) {
                 tocSidebar.classList.remove('open');
