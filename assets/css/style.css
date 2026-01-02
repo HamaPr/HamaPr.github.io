@@ -1040,12 +1040,19 @@ blockquote.callout-block {
 
 /* ==========================================================================
   TOC 사이드바 네비게이션
+  
+  반응형 3단계:
+  - 1400px 초과: 전체 TOC 항상 표시
+  - 768px ~ 1400px: Notion 스타일 (인디케이터 바 + hover 확장)
+  - 768px 이하: 모바일 토글 버튼
   ========================================================================== */
+
+/* 기본 스타일 (넓은 화면 - 전체 TOC 표시) */
 .toc-sidebar {
   position: fixed;
   left: 20px;
   top: 100px;
-  width: 280px;
+  width: 260px;
   z-index: 100;
 }
 
@@ -1068,13 +1075,13 @@ blockquote.callout-block {
 }
 
 .toc-title {
-  font-size: 0.9em;
+  font-size: 0.85em;
   font-weight: 700;
   color: var(--footer-text);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -1085,14 +1092,14 @@ blockquote.callout-block {
 }
 
 .toc-list li {
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .toc-link {
   display: block;
-  font-size: 0.9em;
+  font-size: 0.85em;
   color: var(--footer-text);
-  padding: 6px 10px;
+  padding: 5px 10px;
   border-radius: 4px;
   border-left: 2px solid transparent;
   transition: all 0.2s ease;
@@ -1113,14 +1120,19 @@ blockquote.callout-block {
 /* h3 항목 들여쓰기 */
 .toc-h3 {
   padding-left: 16px;
-  font-size: 0.85em;
+  font-size: 0.8em;
 }
 
-/* TOC 토글 버튼 (데스크톱에서 숨김) */
+/* 인디케이터 바 - 기본적으로 숨김 */
+.toc-link::before {
+  display: none;
+}
+
+/* TOC 토글 버튼 (기본 숨김) */
 .toc-toggle {
   display: none;
   position: fixed;
-  left: 20px;
+  left: 15px;
   bottom: 80px;
   width: 44px;
   height: 44px;
@@ -1140,8 +1152,100 @@ blockquote.callout-block {
   background-color: var(--border-color);
 }
 
-/* 반응형: 1400px 이하에서 사이드바 숨김 (노트북 대응) */
-@media (max-width: 1400px) {
+/* ========================================
+   중간 화면: Notion 스타일 (768px ~ 1400px)
+   ======================================== */
+@media (max-width: 1400px) and (min-width: 769px) {
+  .toc-sidebar {
+    left: 12px;
+    width: 24px;
+    transition: width 0.3s ease;
+  }
+
+  .toc-sidebar:hover {
+    width: 280px;
+  }
+
+  /* 축소 상태: 배경 없음 */
+  .toc-nav {
+    padding: 12px 4px;
+    background-color: transparent;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  /* hover시 배경 표시 */
+  .toc-sidebar:hover .toc-nav {
+    padding: 16px;
+    background-color: var(--content-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 제목: 축소시 숨김, hover시 표시 */
+  .toc-title {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.2s ease 0.1s;
+    white-space: nowrap;
+  }
+
+  .toc-sidebar:hover .toc-title {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* 링크: 축소시 인디케이터 바만, hover시 텍스트 */
+  .toc-link {
+    font-size: 0;
+    padding: 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* 인디케이터 바 표시 */
+  .toc-link::before {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 2px;
+    background-color: var(--border-color);
+    border-radius: 1px;
+    transition: all 0.2s ease;
+  }
+
+  .toc-link.active::before {
+    background-color: var(--link-color);
+    width: 20px;
+    height: 3px;
+  }
+
+  /* h3 인디케이터 들여쓰기 */
+  .toc-h3::before {
+    margin-left: 8px;
+    width: 12px;
+  }
+
+  /* hover시 텍스트 표시 */
+  .toc-sidebar:hover .toc-link {
+    font-size: 0.85em;
+    padding: 5px 10px;
+  }
+
+  .toc-sidebar:hover .toc-link::before {
+    display: none;
+  }
+
+  .toc-sidebar:hover .toc-h3 {
+    padding-left: 16px;
+    font-size: 0.8em;
+  }
+}
+
+/* ========================================
+   작은 화면: 모바일 토글 (768px 이하)
+   ======================================== */
+@media (max-width: 768px) {
   .toc-sidebar {
     position: fixed;
     left: 0;
@@ -1157,9 +1261,17 @@ blockquote.callout-block {
   }
 
   .toc-nav {
+    padding: 20px;
+    background-color: var(--content-bg);
+    border: 1px solid var(--border-color);
     max-height: 50vh;
     border-radius: 16px 16px 0 0;
     border-bottom: none;
+  }
+
+  .toc-link {
+    font-size: 0.9em;
+    padding: 6px 10px;
   }
 
   .toc-toggle {
@@ -1169,12 +1281,5 @@ blockquote.callout-block {
   .toc-toggle.active {
     background-color: var(--link-color);
     color: var(--bg-color);
-  }
-}
-
-@media (max-width: 768px) {
-  .toc-toggle {
-    left: 15px;
-    bottom: 70px;
   }
 }
