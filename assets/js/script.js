@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                     // 모바일에서 TOC 닫기
-                    if (window.innerWidth <= 1200) {
+                    if (window.innerWidth <= 1400) {
                         tocSidebar.classList.remove('open');
                         tocToggle.classList.remove('active');
                     }
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 사이드바 외부 클릭 시 닫기
         document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 1200 &&
+            if (window.innerWidth <= 1400 &&
                 !tocSidebar.contains(e.target) &&
                 !tocToggle.contains(e.target) &&
                 tocSidebar.classList.contains('open')) {

@@ -1140,8 +1140,8 @@ blockquote.callout-block {
   background-color: var(--border-color);
 }
 
-/* 반응형: 1200px 이하에서 사이드바 숨김 */
-@media (max-width: 1200px) {
+/* 반응형: 1400px 이하에서 사이드바 숨김 (노트북 대응) */
+@media (max-width: 1400px) {
   .toc-sidebar {
     position: fixed;
     left: 0;
