@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "CKC: 프로젝트 개요 및 인프라 구성"
+title: "00. CKC: 프로젝트 개요 및 인프라 구성"
 date: 2025-12-27 17:00:00 +0900
 categories: [cyberkillchain]
 ---
