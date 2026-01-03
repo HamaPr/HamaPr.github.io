@@ -79,36 +79,49 @@ categories: [cyberkillchain]
 
 ```mermaid
 flowchart LR
-    classDef attacker fill:#8B0000,stroke:#ff0000,stroke-width:2px,color:white;
-    classDef target fill:#006400,stroke:#00ff00,stroke-width:2px,color:white;
-    classDef infra fill:#333,stroke:#fff,stroke-width:2px,color:white;
+    A(("🕵️")) -->|1. Scan| GH["🐙 GitHub"]
+    A -->|2. SSH| J["🖥️ Jumpbox"]
+    J -->|3. Pivot| W["🕸️ Web"]
+    J -->|4. Pivot| D[("🗄️ DB")]
 
-    subgraph External_Zone ["🔴 External Zone (Internet)"]
-        Operator(("🕵️ Red Team<br>Operator")):::attacker
-        IaCRepo["📂 IaC Git Repo<br>(Leaked SSH Key)"]:::infra
+    style A fill:#E34F26,stroke:#fff,color:#fff
+    style GH fill:#333,stroke:#fff,color:#fff
+    style J fill:#005BA1,stroke:#fff,color:#fff
+    style W fill:#005BA1,stroke:#fff,color:#fff
+    style D fill:#5C2D91,stroke:#fff,color:#fff
+```
+
+> **범례:** 🟠 공격자 · 🔵 경유 시스템 · 🟣 최종 타겟
+
+**그림 0-3-2: 상세 공격 시퀀스 (Sequence Diagram)**
+
+```mermaid
+sequenceDiagram
+    actor A as 🕵️ Attacker
+    participant G as 🐙 GitHub
+    participant J as 🖥️ Jumpbox
+    participant I as 🏢 Internal
+    participant C as 📡 C2
+
+    rect rgb(60, 30, 30)
+        Note over A,J: 1️⃣ Initial Access
+        A->>G: TruffleHog 스캔 (SSH Key 발견)
+        A->>J: Leaked Key로 SSH 접속
     end
 
-    subgraph Cloud_Zone ["☁️ Azure Cloud Infrastructure"]
-        subgraph Bastion_Tier ["🛂 Public Subnet (10.42.1.0/24)"]
-            JumpboxVM("🖥️ Jumpbox VM<br>(Initial Foothold)"):::target
-        end
-        subgraph Internal_Zone ["🔒 Internal Subnets"]
-            WebVMSS["🕸️ Web Server VMSS<br>(10.42.2.x)"]:::target
-            DBVM["🗄️ DB Server<br>(10.42.3.x)"]:::target
-        end
+    rect rgb(30, 30, 60)
+        Note over J: 2️⃣ Privilege Escalation
+        A->>J: Docker Escape → Root 획득
+        J->>J: Systemd 백도어 설치
+        J-->>C: C2 Session 수립
     end
 
-    Operator -- "1. Recon (Leaked Key)" --> IaCRepo
-    Operator -- "2. Initial Access (SSH)" --> JumpboxVM
-    JumpboxVM -- "3. PrivEsc (Docker)" --> JumpboxVM
-    JumpboxVM -- "4. Lateral Move<br>(SSH Key Re-use)" --> WebVMSS
-    JumpboxVM -- "5. Lateral Move<br>(SSH Key Re-use)" --> DBVM
-
-    linkStyle 0 stroke:#aaa,stroke-width:2px,stroke-dasharray: 5 5;
-    linkStyle 1 stroke:#ff0000,stroke-width:3px;
-    linkStyle 2 stroke:#B22222,stroke-width:2px,stroke-dasharray: 5 5;
-    linkStyle 3 stroke:#ff8c00,stroke-width:3px;
-    linkStyle 4 stroke:#ff8c00,stroke-width:3px;
+    rect rgb(50, 20, 50)
+        Note over J,I: 3️⃣ Lateral Movement & Exfil
+        J->>I: 동일 SSH Key로 내부망 접근
+        I-->>J: 데이터 수집
+        J-->>C: 데이터 유출
+    end
 ```
 
 ### **0.4. 핵심 발견사항 및 비즈니스 영향**
@@ -668,6 +681,5 @@ jobs:
 ```
 
 ### **8.5. 결론**
-
 
 Credential Abuse 시나리오는 **"가장 강력한 방화벽도 유출된 자격 증명 앞에서는 무용지물"**이라는 보안의 격언을 상기시킨다. 공격은 기술적 해킹이 아닌, 관리의 허점을 파고드는 **'신원 공격'**이었다. 이제 보안의 패러다임은 네트워크 경계 방어에서 **'모든 신원을 의심하고 검증하는(Zero Trust)'** 방향으로 전환되어야 하며, 특히 인프라 코드와 개발 파이프라인 단계에서부터 보안을 내재화하는 **Shift-Left Security**의 도입이 시급하다.

@@ -79,31 +79,15 @@ categories: [cyberkillchain]
 
 ```mermaid
 flowchart LR
-    classDef attacker fill:#8B0000,stroke:#ff0000,stroke-width:2px,color:white;
-    classDef webhost fill:#006400,stroke:#00ff00,stroke-width:2px,color:white;
-    classDef dbhost fill:#B22222,stroke:#ff0000,stroke-width:2px,color:white;
-    classDef infra fill:#333,stroke:#fff,stroke-width:2px,color:white;
+    A(("🕵️")) -->|1. Exploit| W["🖥️ JBoss"]
+    W -->|2. Pivot| D[("🗄️ DB")]
 
-    subgraph External_Zone ["🔴 External Zone (Internet)"]
-        Operator(("🕵️ Red Team")):::attacker
-    end
-
-    subgraph Azure_VNet ["☁️ Azure Virtual Network"]
-        subgraph DMZ_Zone ["🛡️ DMZ (10.42.2.0/24)"]
-            LB("⚖️ Load Balancer"):::infra
-            WebVM["🖥️ Web Server Host"]:::webhost
-        end
-
-        subgraph Internal_Zone ["🔒 Private Network (10.42.3.0/24)"]
-            DBVM["🗄️ DB Server"]:::dbhost
-        end
-        
-        WebVM -- "Allowed Port (6379)" --> DBVM
-    end
-
-    Operator -- "Public Access (8082)" --> LB
-    LB --> WebVM
+    style A fill:#E34F26,stroke:#fff,color:#fff
+    style W fill:#005BA1,stroke:#fff,color:#fff
+    style D fill:#5C2D91,stroke:#fff,color:#fff
 ```
+
+> **범례:** � 공격자 · � 감염 시스템 (DMZ) · � 최종 타겟 (내부망)
 
 위 아키텍처에서 공격자는 아래와 같은 구체적인 공격 경로를 통해 레거시 미들웨어 취약점을 시작으로 내부망의 설정 오류를 연쇄적으로 악용하여 최종 목표를 달성했다.
 
@@ -111,24 +95,29 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    actor Operator as 🕵️ Red Team
-    participant LB as ⚖️ Load Balancer
-    participant JBoss as 📦 JBoss Container (DMZ)
-    participant DBVM as 🗄️ DB Host (Private)
-    participant Redis as ⚙️ Redis Service (root)
+    actor A as 🕵️ Attacker
+    participant W as 📦 JBoss (DMZ)
+    participant R as ⚙️ Redis
+    participant D as 🗄️ DB Server
 
-    Operator->>+LB: 1. [Recon & Exploit] JBoss RCE (CVE-2017-12149)
-    LB->>JBoss: (Forwarding)
-    JBoss-->>-Operator: 2. [C2] Reverse Shell (jboss user)
-    
-    JBoss->>+DBVM: 3. [Internal Recon] Scan Port 6379
-    DBVM-->>-JBoss: (Port Open)
-    
-    JBoss->>+Redis: 4. [Lateral Movement] Abuse Unauth Redis<br>Inject SSH Key via CONFIG SET
-    Redis-->>-Redis: (Overwrite authorized_keys)
-    
-    JBoss->>+DBVM: 5. [Privilege Escalation] SSH as Root
-    DBVM-->>-Operator: 6. [Impact] DB Server Compromised
+    rect rgb(60, 30, 30)
+        Note over A,W: 1️⃣ Initial Access
+        A->>W: JBoss RCE (CVE-2017-12149)
+        W-->>A: Reverse Shell (jboss user)
+    end
+
+    rect rgb(30, 30, 60)
+        Note over W,R: 2️⃣ Lateral Movement
+        W->>D: 내부망 스캔 (6379 Open)
+        W->>R: Redis 인증 없이 접근
+        Note over R: SSH Key 주입 (CONFIG SET)
+    end
+
+    rect rgb(50, 20, 50)
+        Note over W,D: 3️⃣ Privilege Escalation
+        W->>D: Root SSH 접속 성공
+        D-->>A: DB 서버 장악 완료
+    end
 ```
 
 ### **0.4. 핵심 발견사항 및 비즈니스 영향**

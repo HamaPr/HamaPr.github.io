@@ -75,36 +75,47 @@ categories: [cyberkillchain]
 
 ```mermaid
 flowchart LR
-    %% 클래스 정의
-    classDef attacker fill:#8B0000,stroke:#ff0000,stroke-width:2px,color:white;
-    classDef target fill:#006400,stroke:#00ff00,stroke-width:2px,color:white;
-    classDef container fill:#004080,stroke:#00BFFF,stroke-width:2px,color:white;
-    classDef infra fill:#333,stroke:#fff,stroke-width:2px,color:white;
+    A(("🕵️")) -->|1. Exploit| LB
+    LB --> C1["📦 Struts2"]
+    LB --> C2["📦 Log4j"]
+    C1 -->|2. Callback| C2S[("📡 C2")]
 
-    subgraph External_Zone ["🔴 외부 영역 (인터넷)"]
-        Operator(("🕵️ 레드팀<br/>오퍼레이터")):::attacker
-        C2[("📡 C2 서버<br/>(hamap.shop)")]:::attacker
+    style A fill:#E34F26,stroke:#fff,color:#fff
+    style LB fill:#333,stroke:#fff,color:#fff
+    style C1 fill:#005BA1,stroke:#fff,color:#fff
+    style C2 fill:#005BA1,stroke:#fff,color:#fff
+    style C2S fill:#5C2D91,stroke:#fff,color:#fff
+```
+
+> **범례:** 🟠 공격자 · 🔵 취약 컨테이너 · 🟣 C2 서버
+
+**그림 0-3-2: 상세 공격 시퀀스 (Sequence Diagram)**
+
+```mermaid
+sequenceDiagram
+    actor A as 🕵️ Attacker
+    participant W as 🖥️ Web
+    participant C as 📡 C2
+    participant D as 🗄️ DB
+
+    rect rgb(60, 30, 30)
+        Note over A,W: 1️⃣ Initial Access
+        A->>W: RCE Exploit (OGNL/JNDI)
+        W-->>C: Reverse Shell 연결
     end
 
-    subgraph DMZ_Zone ["🛡️ 타겟 네트워크 경계"]
-        LB("⚖️ 부하 분산기<br/>공인 IP"):::infra
-        
-        subgraph WebVMSS ["🖥️ 웹 서버 호스트 (10.42.2.x)"]
-            direction TB
-            Container1["컨테이너: struts2-rce (8081)"]:::container
-            Container2["컨테이너: log4shell-app (8083)"]:::container
-        end
+    rect rgb(30, 30, 60)
+        Note over W,D: 2️⃣ Post-Exploitation
+        C->>W: C2 Session 수립
+        W->>W: Persistence (Systemd)
+        W->>D: 내부망 스캔 및 접근
     end
 
-    %% 연결 관계
-    Operator -- "1. 정찰 및 취약점 공격" --> LB
-    LB -- "2. 트래픽 전달" --> Container1
-    Container1 -- "3. 리버스 쉘 연결" --> C2
-
-    %% 링크 스타일링
-    linkStyle 0 stroke:#ff0000,stroke-width:3px;
-    linkStyle 1 stroke:#aaa,stroke-width:2px,stroke-dasharray: 5 5;
-    linkStyle 2 stroke:#ff8c00,stroke-width:3px;
+    rect rgb(50, 20, 50)
+        Note over W,C: 3️⃣ Exfiltration
+        D-->>W: 데이터 수집
+        W-->>C: 데이터 유출 (mTLS)
+    end
 ```
 
 ### 0.4. 핵심 발견사항 및 비즈니스 영향
