@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "CKC: 레거시 서비스 피봇 공격"
-date: 2025-11-23 16:00:00 +0900
+date: 2025-11-30 17:00:00 +0900
 categories: [cyberkillchain]
 ---
 

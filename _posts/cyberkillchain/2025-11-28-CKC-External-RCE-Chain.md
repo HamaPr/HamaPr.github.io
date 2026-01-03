@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "CKC: 외부 RCE 연쇄 공격"
-date: 2025-11-21 11:00:00 +0900
+date: 2025-11-28 17:00:00 +0900
 categories: [cyberkillchain]
 ---
 
@@ -450,7 +450,11 @@ c7a2b1d4e3f8  # <-- Docker Container ID
 
 #### 5.2. Systemd 서비스를 이용한 영구 지속성 확보 (Persistence via Systemd)
 
-`crontab`은 고전적이고 로그가 남기 쉬워 EDR에 쉽게 탐지된다. 반면, `systemd` 서비스는 정상적인 서비스와 구분하기 어렵다. 다음과 같이 악성 `systemd` 서비스를 생성했다.
+`crontab`은 고전적이고 로그가 남기 쉬워 EDR에 쉽게 탐지된다.
+
+![Crontab 지속성 설정 예시](/assets/images/ckc/a/ckc.a.5.2.crontab.png)
+
+반면, `systemd` 서비스는 정상적인 서비스와 구분하기 어렵다. 다음과 같이 악성 `systemd` 서비스를 생성했다.
 
 ```bash
 cat > /etc/systemd/system/azure-network-observer.service << EOF

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "CKC: 자격증명 탈취 및 컨테이너 탈출"
-date: 2025-11-22 14:00:00 +0900
+date: 2025-11-29 17:00:00 +0900
 categories: [cyberkillchain]
 ---
 
@@ -144,6 +144,8 @@ flowchart LR
 최신 클라우드 환경은 Terraform, Ansible 등 IaC로 관리되는 경우가 많다. 이 코드들은 인프라의 '설계도'이자, 종종 민감 정보를 포함하는 '보물 지도'이기도 하다. 공격팀은 `TruffleHog`와 같은 자동화된 시크릿 스캐닝 도구를 사용하여 대상 조직의 공개 GitHub 저장소를 스캔했으며, 특히 과거 커밋 히스토리까지 전수 조사하는 심층 분석을 수행했다.
 
 **결과:** 스캔 결과, 개발자가 테스트 목적으로 생성 후 삭제하는 것을 잊은 SSH Private Key가 과거 커밋 이력에서 발견되었다. 이 키는 `terraform/main.tf`의 `local_file` 리소스에 의해 생성된 `leaked_id_rsa` 파일과 정확히 일치했다.
+
+![TruffleHog를 통한 키 유출 스캔 결과](/assets/images/ckc/b/ckc.b.1.1.trufflehog.png)
 
 #### **1.2. 유출된 자격 증명 분석 (Leaked Credential Analysis)**
 
