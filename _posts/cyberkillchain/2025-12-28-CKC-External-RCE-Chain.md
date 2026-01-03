@@ -87,7 +87,7 @@ flowchart LR
     style C2S fill:#5C2D91,stroke:#fff,color:#fff
 ```
 
-> **범례:** 🟠 공격자 · 🔵 취약 컨테이너 · 🟣 C2 서버
+> 🟠 공격자 · 🔵 취약 컨테이너 · 🟣 C2 서버
 
 **그림 0-3-2: 상세 공격 시퀀스 (Sequence Diagram)**
 

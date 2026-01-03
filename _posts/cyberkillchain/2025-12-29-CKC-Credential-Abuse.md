@@ -91,7 +91,7 @@ flowchart LR
     style D fill:#5C2D91,stroke:#fff,color:#fff
 ```
 
-> **범례:** 🟠 공격자 · 🔵 경유 시스템 · 🟣 최종 타겟
+> 🟠 공격자 · 🔵 경유 시스템 · 🟣 최종 타겟
 
 **그림 0-3-2: 상세 공격 시퀀스 (Sequence Diagram)**
 

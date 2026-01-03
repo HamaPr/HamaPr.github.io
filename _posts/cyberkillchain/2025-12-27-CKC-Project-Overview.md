@@ -134,7 +134,7 @@ flowchart LR
     style CLOUD fill:#1e1e1e,stroke:#0078D4
 ```
 
-> **범례:** 🟠 공격자 · 🟣 C2 인프라 · 🔵 정찰 도구
+> 🟠 공격자 · 🟣 C2 인프라 · 🔵 정찰 도구
 
 ### 3.2 C2 Server
 
@@ -256,7 +256,7 @@ flowchart TB
     style VNET fill:#1e1e1e,stroke:#0078D4
 ```
 
-> **범례:** 🟠 관리망 (Public) · 🔵 서비스망 (DMZ) · 🟣 내부망 (Private)
+> 🟠 관리망 (Public) · 🔵 서비스망 (DMZ) · 🟣 내부망 (Private)
 
 **서브넷 용도**
 
