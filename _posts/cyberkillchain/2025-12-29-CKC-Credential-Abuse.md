@@ -104,20 +104,20 @@ sequenceDiagram
     participant C as 📡 C2
 
     rect rgb(60, 30, 30)
-        Note over A,J: 1️⃣ Initial Access
+        Note over A,J: Initial Access
         A->>G: TruffleHog 스캔 (SSH Key 발견)
         A->>J: Leaked Key로 SSH 접속
     end
 
     rect rgb(30, 30, 60)
-        Note over J: 2️⃣ Privilege Escalation
+        Note over J: Privilege Escalation
         A->>J: Docker Escape → Root 획득
         J->>J: Systemd 백도어 설치
         J-->>C: C2 Session 수립
     end
 
     rect rgb(50, 20, 50)
-        Note over J,I: 3️⃣ Lateral Movement & Exfil
+        Note over J,I: Lateral Movement & Exfil
         J->>I: 동일 SSH Key로 내부망 접근
         I-->>J: 데이터 수집
         J-->>C: 데이터 유출

@@ -79,11 +79,15 @@ categories: [cyberkillchain]
 
 ```mermaid
 flowchart LR
-    A(("🕵️")) -->|1. Exploit| W["🖥️ JBoss"]
-    W -->|2. Pivot| D[("🗄️ DB")]
+    A(("🕵️")) -->|Exploit| LB["⚖️ LB"]
+    LB --> W["🖥️ JBoss"]
+    W -->|Scan| R["⚙️ Redis"]
+    R -->|SSH Key| D[("🗄️ DB")]
 
     style A fill:#E34F26,stroke:#fff,color:#fff
+    style LB fill:#333,stroke:#fff,color:#fff
     style W fill:#005BA1,stroke:#fff,color:#fff
+    style R fill:#005BA1,stroke:#fff,color:#fff
     style D fill:#5C2D91,stroke:#fff,color:#fff
 ```
 
@@ -101,20 +105,20 @@ sequenceDiagram
     participant D as 🗄️ DB Server
 
     rect rgb(60, 30, 30)
-        Note over A,W: 1️⃣ Initial Access
+        Note over A,W: Initial Access
         A->>W: JBoss RCE (CVE-2017-12149)
         W-->>A: Reverse Shell (jboss user)
     end
 
     rect rgb(30, 30, 60)
-        Note over W,R: 2️⃣ Lateral Movement
+        Note over W,R: Lateral Movement
         W->>D: 내부망 스캔 (6379 Open)
         W->>R: Redis 인증 없이 접근
         Note over R: SSH Key 주입 (CONFIG SET)
     end
 
     rect rgb(50, 20, 50)
-        Note over W,D: 3️⃣ Privilege Escalation
+        Note over W,D: Privilege Escalation
         W->>D: Root SSH 접속 성공
         D-->>A: DB 서버 장악 완료
     end

@@ -99,20 +99,20 @@ sequenceDiagram
     participant D as 🗄️ DB
 
     rect rgb(60, 30, 30)
-        Note over A,W: 1️⃣ Initial Access
+        Note over A,W: Initial Access
         A->>W: RCE Exploit (OGNL/JNDI)
         W-->>C: Reverse Shell 연결
     end
 
     rect rgb(30, 30, 60)
-        Note over W,D: 2️⃣ Post-Exploitation
+        Note over W,D: Post-Exploitation
         C->>W: C2 Session 수립
         W->>W: Persistence (Systemd)
         W->>D: 내부망 스캔 및 접근
     end
 
     rect rgb(50, 20, 50)
-        Note over W,C: 3️⃣ Exfiltration
+        Note over W,C: Exfiltration
         D-->>W: 데이터 수집
         W-->>C: 데이터 유출 (mTLS)
     end
