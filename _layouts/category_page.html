@@ -1,0 +1,16 @@
+---
+layout: default
+---
+<h1>카테고리: {{ site.category_names[page.title] | default: page.title }}</h1>
+<hr>
+<ul class="post-list">
+  {% assign sorted_posts = page.posts | sort: 'date' %}
+  {% for post in sorted_posts %}
+    <li>
+      <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+      <span class="post-meta">{{ post.date | date: "%Y-%m-%d" }}</span>
+    </li>
+  {% else %}
+    <li>이 카테고리에는 아직 게시글이 없습니다.</li>
+  {% endfor %}
+</ul>

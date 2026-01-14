@@ -1,0 +1,53 @@
+---
+layout: default
+title: Study
+---
+<h1>{{ page.title }}</h1>
+<p class="page-description">공부한 지식을 체계적으로 정리해나가는 저장소입니다.</p>
+<hr>
+
+<ul class="category-list">
+  <li class="category-group-link">
+    {% assign tech_categories =
+    "linux|windows-ad|iac|container|network|cloud-azure|web-technology|web-hacking|app-hacking|system-hacking|hacking-tools|bluemax-ngf|security-solutions|secure-coding"
+    |
+    split: "|" %}
+    {% assign active_tech_count = 0 %}
+    {% for cat_id in tech_categories %}
+    {% if site.categories[cat_id] %}{% assign active_tech_count = active_tech_count | plus: 1 %}{% endif %}
+    {% endfor %}
+    <a class="post-link" href="{{ '/security-study.html' | relative_url }}">
+      <span class="category-title-text">보안 공부</span><span class="category-count-bracket">[{{ active_tech_count
+        }}]</span>
+    </a>
+  </li>
+  <li class="category-group-link">
+    {% assign ctf_categories = "bandit" | split: "|" %}
+    {% assign active_ctf_count = 0 %}
+    {% for cat_id in ctf_categories %}
+    {% if site.categories[cat_id] %}{% assign active_ctf_count = active_ctf_count | plus: 1 %}{% endif %}
+    {% endfor %}
+    <a class="post-link" href="{{ '/ctf-wargame.html' | relative_url }}">
+      <span class="category-title-text">CTF/Wargame</span><span class="category-count-bracket">[{{ active_ctf_count
+        }}]</span>
+    </a>
+  </li>
+  {% assign independent_categories = "certificates" | split: "|" %}
+  {% for cat_id in independent_categories %}
+  {% assign posts_in_cat = site.categories[cat_id] %}
+  {% if posts_in_cat %}
+  {% assign sorted_posts = posts_in_cat | sort: 'date' %}
+  {% assign oldest_post = sorted_posts | first %}
+  {% assign newest_post = sorted_posts | last %}
+  <li>
+    <a class="post-link" href="/category/{{ cat_id | slugify }}/">
+      <span class="category-title-text">{{ site.category_names[cat_id] | default: cat_id }}</span> <span
+        class="post-count">({{ posts_in_cat | size }})</span>
+    </a>
+    <span class="post-date-range">
+      {{ oldest_post.date | date: "%y-%m-%d" }} ~ {{ newest_post.date | date: "%y-%m-%d" }}
+    </span>
+  </li>
+  {% endif %}
+  {% endfor %}
+</ul>

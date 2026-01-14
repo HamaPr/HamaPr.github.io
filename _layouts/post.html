@@ -1,0 +1,68 @@
+---
+layout: default
+---
+<aside class="toc-sidebar" id="toc-sidebar">
+  <button class="toc-toggle" id="toc-toggle" aria-label="목차 토글">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="12" x2="15" y2="12"></line>
+      <line x1="3" y1="18" x2="9" y2="18"></line>
+    </svg>
+  </button>
+  <nav class="toc-nav" id="toc-nav">
+    <div class="toc-title">목차</div>
+    <ul class="toc-list" id="toc-list">
+      <!-- JS로 동적 생성 -->
+    </ul>
+  </nav>
+</aside>
+
+<div class="content-wrapper">
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">{{ page.title }}</h1>
+      <p class="post-date">{{ page.date | date: "%Y년 %m월 %d일" }}</p>
+    </header>
+    <div class="post-content">
+      {{ content }}
+    </div>
+
+    {%- comment -%} 이전 글 / 다음 글 네비게이션 {%- endcomment -%}
+    {%- assign current_category = page.categories.first -%}
+    {%- if current_category -%}
+    {%- assign posts_in_category = site.categories[current_category] | sort: 'date' -%}
+    {%- for p in posts_in_category -%}
+    {%- if p.url == page.url -%}
+    {%- assign idx = forloop.index0 -%}
+    {%- endif -%}
+    {%- endfor -%}
+
+    {%- assign prev_idx = idx | minus: 1 -%}
+    {%- assign next_idx = idx | plus: 1 -%}
+
+    {% if prev_idx >= 0 or next_idx < posts_in_category.size %} <hr>
+      <nav class="post-nav">
+        {% if prev_idx >= 0 %}
+        {% assign prev_post = posts_in_category[prev_idx] %}
+        <a class="post-nav-item post-nav-prev" href="{{ prev_post.url | relative_url }}">
+          <div class="nav-arrow">« 이전 글</div>
+          <span class="post-title">{{ prev_post.title }}</span>
+        </a>
+        {% else %}
+        <div class="post-nav-item-placeholder"></div>
+        {% endif %}
+
+        {% if next_idx < posts_in_category.size %} {% assign next_post=posts_in_category[next_idx] %} <a
+          class="post-nav-item post-nav-next" href="{{ next_post.url | relative_url }}">
+          <div class="nav-arrow">다음 글 »</div>
+          <span class="post-title">{{ next_post.title }}</span>
+          </a>
+          {% else %}
+          <div class="post-nav-item-placeholder"></div>
+          {% endif %}
+      </nav>
+      {% endif %}
+      {% endif %}
+  </article>
+</div>

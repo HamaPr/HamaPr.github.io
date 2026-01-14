@@ -1,0 +1,54 @@
+title: HamaP의 블로그
+description: 해킹과 보안, 클라우드 공부 기록
+author: HamaP
+baseurl: ""
+url: "https://hamapr.github.io"
+
+markdown: kramdown
+highlighter: rouge
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-archives
+
+future: false
+
+defaults:
+  -
+    scope:
+      path: ""
+      type: "posts"
+    values:
+      primary_category: "uncategorized"
+
+jekyll-archives:
+  enabled:
+    - categories
+  layouts:
+    category: category_page
+  permalinks:
+    category: '/category/:name/'
+
+category_names:
+  owasp-top-10: "OWASP Top 10"
+  security-architecture: "보안 아키텍처"
+  security-solutions: "보안 솔루션"
+  penetration-test-scenario: "모의침투 시나리오"
+  system-hacking: "시스템 해킹"
+  web-technology: "웹 기술"
+  web-hacking: "웹 해킹"
+  app-hacking: "앱 해킹"
+  certificates: "자격증"
+  hacking-tools: "해킹 툴"
+  bluemax-ngf: "BLUEMAX NGF"
+  bandit: "Bandit"
+  att-ck: "ATT&CK"
+  cyberkillchain: "CyberKillChain"
+  linux: "Linux 기초"
+  windows-ad: "Windows AD"
+  iac: "IaC"
+  container: "컨테이너"
+  network: "네트워크"
+  cloud-azure: "Azure 클라우드"
+  secure-coding: "시큐어 코딩"

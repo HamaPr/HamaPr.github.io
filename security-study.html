@@ -1,0 +1,28 @@
+---
+layout: default
+title: 보안 공부
+exclude_from_nav: true
+---
+<h1>{{ page.title }}</h1>
+<p class="page-description">보안 공부 목록입니다.</p>
+<hr>
+
+{% assign tech_categories = "bluemax-ngf|hacking-tools|system-hacking|web-hacking|web-technology|app-hacking" | split:
+"|" %}
+{% for cat_id in tech_categories %}
+{% assign posts_in_cat = site.categories[cat_id] %}
+{% if posts_in_cat %}
+<h3 style="text-align: left;"><a href="/category/{{ cat_id | slugify }}/">{{ site.category_names[cat_id] | default:
+    cat_id }}</a></h3>
+<ul class="post-list">
+  {% assign sorted_posts = posts_in_cat | sort: 'date' %}
+  {% for post in sorted_posts %}
+  <li>
+    <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+    <span class="post-meta">{{ post.date | date: "%Y-%m-%d" }}</span>
+  </li>
+  {% endfor %}
+</ul>
+<hr class="short-rule">
+{% endif %}
+{% endfor %}
