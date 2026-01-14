@@ -12,6 +12,8 @@ tags: [overthewire, bandit, ssh, cat, ls]
 > 
 > The password for the next level is stored in a file called `readme` located in the home directory.
 
+**리눅스 사용의 첫걸음**입니다. GUI 환경이 아닌 터미널에서 `ls`와 `cat` 명령어를 이용해 직접 파일을 찾고 내용을 읽어내는 기초적인 능력을 테스트합니다.
+
 ---
 
 ## 2. 사용 명령어

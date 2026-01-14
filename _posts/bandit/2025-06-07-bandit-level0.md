@@ -25,7 +25,7 @@ tags: [overthewire, bandit, ssh, intro, putty]
 
 ## 3. 풀이 과정
 
-### 1. 리눅스/맥 사용자 (터미널)
+### 1. 리눅스 (터미널)
 터미널을 열고 다음 명령어를 입력합니다. `-p` 옵션으로 포트 번호 2220을 지정해야 합니다.
 
 ```bash
@@ -33,7 +33,7 @@ ssh bandit0@bandit.labs.overthewire.org -p 2220
 ```
 비밀번호를 물어보면 `bandit0`을 입력합니다. (보안상 화면에는 아무것도 표시되지 않습니다)
 
-### 2. 윈도우 사용자 (PuTTY)
+### 2. 윈도우 사용자
 1. PuTTY를 실행하고 접속 정보를 입력합니다.
    - **Host Name:** `bandit.labs.overthewire.org`
    - **Port:** `2220`
@@ -48,7 +48,7 @@ ssh bandit0@bandit.labs.overthewire.org -p 2220
 
 ## 4. 추가 팁
 
-### 꿀팁 (PuTTY 설정)
+### PuTTY 설정
 ![PuTTY appearance 화면]({{ "/assets/images/bandit/putty-appearance-screenshot.png" | relative_url }})
 글씨체가 너무 작다면 'Appearance' 탭에서 폰트와 크기를 조절할 수 있습니다.
 

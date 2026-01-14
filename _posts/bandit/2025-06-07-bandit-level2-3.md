@@ -12,6 +12,9 @@ tags: [overthewire, bandit, linux, spaces]
 > 
 > The password for the next level is stored in a file called `spaces in this filename` located in the home directory.
 
+
+파일명에 **공백**이 포함된 경우를 다룹니다. 쉘은 띄어쓰기를 **'명령어와 인자의 구분'**으로 처리하므로, 공백이 포함된 파일 이름을 온전히 하나로 인식시키는 것이 핵심입니다.
+
 ---
 
 ## 2. 사용 명령어
@@ -34,7 +37,7 @@ ssh bandit2@bandit.labs.overthewire.org -p 2220
 bandit2@bandit:~$ ls
 spaces in this filename
 ```
-파일명에 공백(Space)이 포함되어 있습니다. 이를 `cat spaces in this filename` 처럼 그냥 입력하면, 리눅스는 `spaces`, `in`, `this`, `filename`이라는 4개의 파일을 각각 찾는 것으로 오해합니다.
+파일명에 **공백**이 포함되어 있습니다. 이를 `cat spaces in this filename` 처럼 그냥 입력하면, 리눅스는 `spaces`, `in`, `this`, `filename`이라는 4개의 파일을 각각 찾는 것으로 오해합니다.
 
 ### 2. 해결 방법 1: 따옴표 사용
 파일 전체 이름을 따옴표(`"`)로 감싸서 하나의 덩어리임을 알려줍니다.
@@ -43,8 +46,8 @@ spaces in this filename
 bandit2@bandit:~$ cat "spaces in this filename"
 ```
 
-### 3. 해결 방법 2: 탭(Tab) 자동완성
-가장 실용적인 방법입니다. 파일명의 앞글자 `spa` 정도만 치고 `Tab` 키를 누르면 쉘이 알아서 이스케이프 처리를 해줍니다.
+### 3. 해결 방법 2: 탭 키 자동완성
+가장 실용적인 방법입니다. 파일명의 앞글자 `spa` 정도만 치고 **Tab** 키를 누르면 쉘이 알아서 이스케이프 처리를 해줍니다.
 
 ```bash
 bandit2@bandit:~$ cat spa[Tab]

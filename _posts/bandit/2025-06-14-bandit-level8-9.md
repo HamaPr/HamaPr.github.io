@@ -23,7 +23,7 @@ tags: [overthewire, bandit, linux, pipes, sort, uniq]
 | `sort` | 텍스트 내용을 알파벳/숫자 순서로 정렬 |
 | `uniq` | 중복된 줄을 제거하거나 표시 (단, **인접한** 중복만 처리 가능) |
 | `-u` | 중복되지 않은(Unique) 유일한 줄만 출력하는 `uniq`의 옵션 |
-| `\|` (파이프) | 앞 명령어의 출력 결과를 뒤 명령어의 입력으로 연결 |
+| `|` | 앞 명령어의 **표준 출력**을 뒤 명령어의 **표준 입력**으로 연결 |
 
 ---
 
@@ -81,7 +81,7 @@ UsvVyFSfZZWbi6wgC7dAFyFuR6jQQUhR
 <summary>비밀번호 확인</summary>
 
 ```
-4CKMh1JI91bUIZZPXDqGanal4xvAg0JM
+UsvVyFSfZZWbi6wgC7dAFyFuR6jQQUhR
 ```
 
 </details>
@@ -98,7 +98,7 @@ UsvVyFSfZZWbi6wgC7dAFyFuR6jQQUhR
 
 ## 6. 보안 관점
 
-- **이상 징후(Anomaly) 탐지**: 보안 관제 시스템에서 "정상적인 트래픽"은 패턴화되어 반복적으로 나타납니다. 반면, "공격"이나 "해킹 시도"는 평소와 다른 유일한(Unique) 패턴으로 나타나는 경우가 많습니다.
+- **이상 징후 탐지**: 보안 관제 시스템에서 "정상적인 트래픽"은 패턴화되어 반복적으로 나타납니다. 반면, "공격"이나 "해킹 시도"는 평소와 다른 **유일한 패턴**으로 나타나는 경우가 많습니다.
 - 이 문제처럼 수많은 중복 속에서 **튀는 하나**를 찾아내는 기술은 침해 위협을 탐지하는 기본 원리입니다.
 
 <hr class="short-rule">

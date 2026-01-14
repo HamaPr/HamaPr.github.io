@@ -10,7 +10,10 @@ tags: [overthewire, bandit, linux, grep]
 
 > **Level Goal**
 > 
-> The password for the next level is stored in the file `data.txt` next to the word **millionth** (백만 번째).
+> The password for the next level is stored in the file `data.txt` next to the word **millionth**.
+
+
+파일 용량이 매우 커서(`4MB`) 직접 열어보는 것은 불가능합니다. 수만 줄의 데이터 속에서 `millionth`라는 특정 키워드를 찾아내고, 그 옆에 숨겨진 비밀번호를 효율적으로 추출해야 합니다.
 
 ---
 
@@ -40,7 +43,7 @@ bandit7@bandit:~$ ls -lh data.txt
 
 파일 크기가 4MB나 됩니다. 텍스트 파일치고는 매우 큽니다. `cat data.txt`를 실행하면 수만 줄의 데이터가 화면을 가득 채워 터미널이 마비될 수도 있습니다.
 
-### 2. 검색 (grep)
+### 2. 검색
 힌트인 `millionth`라는 단어를 `grep`으로 검색합니다.
 
 ```bash
@@ -67,14 +70,14 @@ dfwvzFQi4mU0wfNbFOe9RoWskMLg7eEc
 
 ## 5. 배운 점
 
-1. **`grep` (Global Regular Expression Print)**: 리눅스에서 텍스트 검색을 할 때 가장 기본적이면서도 강력한 도구입니다.
+1. **`grep`**: 리눅스에서 텍스트 검색을 할 때 가장 기본적이면서도 강력한 도구입니다.
 2. **효율적인 데이터 탐색**: 대용량 파일은 전체를 열어보는 것(`cat`, `vim`)보다 필요한 정보만 필터링(`grep`)하는 것이 훨씬 빠르고 효율적입니다.
 
 ---
 
 ## 6. 보안 관점
 
-- **로그 분석과 침해 대응**: 보안 담당자는 매일 기가바이트(GB) 단위의 로그 파일을 분석해야 합니다. 이때 눈으로 로그를 읽는 것은 불가능합니다.
+- **로그 분석과 침해 대응**: 보안 담당자는 매일 GB 단위의 로그 파일을 분석해야 합니다. 이때 눈으로 로그를 읽는 것은 불가능합니다.
 - `grep`을 사용하여 `Failed password`, `Error`, `Attack` 같은 키워드를 검색하거나 정규표현식으로 특정 공격 패턴(예: SQL Injection 시도)을 탐지합니다.
   ```bash
   # 예시: 실패한 로그인 시도 검색
