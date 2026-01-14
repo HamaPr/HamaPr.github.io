@@ -10,6 +10,7 @@ categories: [cloud-azure]
 **Azure CLI**는 Azure 리소스를 명령줄에서 관리하는 크로스 플랫폼 도구.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 명령어 | `az` |
@@ -17,6 +18,7 @@ categories: [cloud-azure]
 | 인증 | az login |
 
 ### 관리 도구 비교
+
 | 도구 | 장점 | 단점 |
 |------|------|------|
 | Azure Portal | 직관적 GUI | 반복 작업 비효율 |
@@ -163,6 +165,7 @@ az vm list -g MyRG --query "[].{Name:name, Size:hardwareProfile.vmSize}"
 ## 5. 팁 & 트러블슈팅
 
 ### 자주 쓰는 옵션
+
 | 옵션 | 설명 |
 |------|------|
 | `-g, --resource-group` | 리소스 그룹 |

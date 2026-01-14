@@ -10,6 +10,7 @@ categories: [network]
 **VLAN (Virtual LAN)**은 물리적 네트워크를 논리적으로 분리하는 기술.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 계층 | L2 (데이터링크) |
@@ -79,6 +80,7 @@ flowchart TB
 - 프레임에 VLAN ID 태그 부착 (802.1Q)
 
 ### 프레임 태깅 (Frame Tagging)
+
 | 표준 | 설명 |
 |------|------|
 | IEEE 802.1Q (dot1q) | 업계 표준, 12비트 VLAN ID (4096개) |
@@ -152,6 +154,7 @@ Switch(config-if)# switchport trunk native vlan 99
 Cisco 전용. 스위치 간 VLAN 정보 자동 동기화.
 
 ### VTP 모드
+
 | 모드 | VLAN 관리 | 동기화 | 전달 |
 |------|-----------|--------|------|
 | Server | 생성/삭제/변경 ✅ | ✅ | ✅ |
@@ -178,6 +181,7 @@ Switch# show vtp status
 ## 6. Inter-VLAN 라우팅
 
 ### 방식 비교
+
 | 방식 | 설명 | 장단점 |
 |------|------|--------|
 | Router-on-a-Stick | 하나의 트렁크로 여러 VLAN 라우팅 | 저렴, 대역폭 제한 |

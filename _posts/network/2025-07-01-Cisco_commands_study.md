@@ -11,11 +11,14 @@ categories: [network]
 CLI (Command Line Interface) 환경에서 다양한 모드를 통해 장비를 설정하고 모니터링합니다.
 
 ### CLI 모드
+
 | 모드 | 프롬프트 | 설명 |
 |------|----------|------|
 | User EXEC | `Router>` | 기본 모드, 제한된 명령 |
 | Privileged EXEC | `Router#` | 관리 명령 (show, debug) |
+
 | Global Config | `Router(config)#` | 전역 설정 |
+
 | Interface Config | `Router(config-if)#` | 인터페이스 설정 |
 
 ### 모드 전환
@@ -83,6 +86,7 @@ Router# write memory
 ```
 
 ### 설정 파일 개념
+
 | 파일 | 저장소 | 설명 |
 |------|--------|------|
 | running-config | RAM | 현재 동작 중인 설정 |
@@ -140,6 +144,7 @@ GigabitEthernet0/1  unassigned    YES  unset   admin down down
 ```
 
 ### 상태 의미
+
 | Status | Protocol | 의미 |
 |--------|----------|------|
 | up | up | 정상 동작 |

@@ -11,6 +11,7 @@ categories: [cloud-azure]
 URL 경로 기반 라우팅, SSL 오프로딩, 그리고 웹 애플리케이션 방화벽(WAF) 기능을 통합 제공합니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 계층 | L7 (HTTP/HTTPS) |
@@ -18,6 +19,7 @@ URL 경로 기반 라우팅, SSL 오프로딩, 그리고 웹 애플리케이션 
 | 라우팅 | URL 경로, 호스트 기반 |
 
 ### Azure 로드밸런서 비교
+
 | 서비스 | 계층 | 범위 | 용도 |
 |--------|------|------|------|
 | Azure LB | L4 | Regional | TCP/UDP 분산 |
@@ -134,6 +136,7 @@ az network application-gateway waf-policy managed-rule rule-set add \
 ```
 
 ### WAF 모드
+
 | 모드 | 동작 |
 |------|------|
 | Detection | 탐지만 (로깅) |

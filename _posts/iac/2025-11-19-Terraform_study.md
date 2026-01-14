@@ -15,6 +15,7 @@ categories: [iac]
 - Git으로 **버전 관리** 가능
 
 ### Terraform vs Ansible
+
 | 구분 | Terraform | Ansible |
 |------|-----------|---------|
 | 목적 | 인프라 **생성/삭제** | 서버 **구성 관리** |
@@ -23,6 +24,7 @@ categories: [iac]
 | 예시 | VM, VNet, LB 생성 | 패키지 설치, 설정 변경 |
 
 ### 특징
+
 | 항목 | 설명 |
 |------|------|
 | 자동화 | 수동 작업 제거 |
@@ -31,6 +33,7 @@ categories: [iac]
 | 플랫폼 독립 | AWS, Azure, GCP 모두 지원 |
 
 ### 핵심 용어
+
 | 용어 | 설명 |
 |------|------|
 | Provider | 클라우드 연결 플러그인 (azurerm, aws, google) |

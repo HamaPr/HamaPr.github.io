@@ -11,6 +11,7 @@ categories: [cloud-azure]
 고가용성과 무제한 클라우드 확장성을 갖춘 Stateful 방화벽으로, L3-L7 계층의 트래픽을 제어합니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 유형 | Stateful Firewall |
@@ -18,6 +19,7 @@ categories: [cloud-azure]
 | 확장성 | 자동 스케일링 |
 
 ### Azure Firewall vs NSG
+
 | 항목 | Azure Firewall | NSG |
 |------|----------------|-----|
 | 계층 | L3-L7 | L4 |
@@ -27,6 +29,7 @@ categories: [cloud-azure]
 | 비용 | 유료 | 무료 |
 
 ### SKU 비교
+
 | SKU | 기능 | 처리량 |
 |-----|------|--------|
 | Standard | 기본 기능 | ~30 Gbps |

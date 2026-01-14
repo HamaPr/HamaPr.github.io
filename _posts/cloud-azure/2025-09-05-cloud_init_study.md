@@ -10,6 +10,7 @@ categories: [cloud-azure]
 **cloud-init**은 클라우드 인스턴스의 초기 설정을 자동화하는 업계 표준 도구.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 지원 | AWS, Azure, GCP, OpenStack 등 |

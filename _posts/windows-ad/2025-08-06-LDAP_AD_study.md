@@ -11,6 +11,7 @@ categories: [windows-ad]
 사용자, 시스템, 네트워크, 서비스 등의 정보를 계층적 구조로 구성하여 중앙에서 효율적으로 관리할 수 있게 합니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 포트 | 389 (LDAP), 636 (LDAPS) |
@@ -54,6 +55,7 @@ cn=john.doe,ou=Users,dc=company,dc=com
 ## 2. Active Directory
 
 ### AD 구성 요소
+
 | 요소 | 설명 |
 |------|------|
 | Domain Controller | AD 서버 |

@@ -11,6 +11,7 @@ categories: [secure-coding]
 파일 I/O, 프로세스 제어, 메모리 관리 등 하드웨어 자원에 대한 직접적인 접근을 제어합니다.
 
 ### 파일 I/O 시스템 콜
+
 | 시스템 콜 | 설명 |
 |-----------|------|
 | open() | 파일 열기/생성 |
@@ -20,6 +21,7 @@ categories: [secure-coding]
 | lseek() | 파일 포인터 이동 |
 
 ### 파일 디스크립터
+
 | FD | 설명 |
 |----|------|
 | 0 | stdin (표준 입력) |
@@ -41,6 +43,7 @@ int open(const char *pathname, int flags, mode_t mode);
 ```
 
 ### 플래그
+
 | 플래그 | 설명 |
 |--------|------|
 | O_RDONLY | 읽기 전용 |
@@ -73,6 +76,7 @@ ssize_t read(int fd, void *buf, size_t count);
 ```
 
 ### 반환값
+
 | 반환값 | 의미 |
 |--------|------|
 | > 0 | 읽은 바이트 수 |
@@ -189,6 +193,7 @@ if (fd == -1) {
 ```
 
 ### 주요 errno 값
+
 | errno | 설명 |
 |-------|------|
 | ENOENT | 파일 없음 |

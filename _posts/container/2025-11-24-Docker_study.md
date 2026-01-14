@@ -10,6 +10,7 @@ categories: [container]
 **Docker**는 애플리케이션을 컨테이너로 패키징하고 배포하는 플랫폼.
 
 ### VM vs Container
+
 | 구분 | VM | Container |
 |------|-----|-----------|
 | 가상화 | 하드웨어 레벨 | OS 레벨 |

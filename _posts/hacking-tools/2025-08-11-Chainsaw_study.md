@@ -11,6 +11,7 @@ categories: [hacking-tools]
 Sigma 탐지 룰을 네이티브로 지원하여 대용량 로그 파일에서 악성 행위 패턴을 신속하게 식별합니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 개발 | WithSecure Labs |
@@ -86,6 +87,7 @@ git clone https://github.com/SigmaHQ/sigma.git
 ## 4. 주요 탐지 항목
 
 ### 로그온 이벤트
+
 | Event ID | 설명 |
 |----------|------|
 | 4624 | 로그온 성공 |
@@ -94,6 +96,7 @@ git clone https://github.com/SigmaHQ/sigma.git
 | 4648 | 명시적 자격 증명 로그온 |
 
 ### 권한 상승
+
 | Event ID | 설명 |
 |----------|------|
 | 4672 | 특수 권한 할당 |
@@ -101,6 +104,7 @@ git clone https://github.com/SigmaHQ/sigma.git
 | 4728 | 보안 그룹에 멤버 추가 |
 
 ### 프로세스 실행
+
 | Event ID | 설명 |
 |----------|------|
 | 4688 | 새 프로세스 생성 |

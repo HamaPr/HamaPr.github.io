@@ -11,6 +11,7 @@ categories: [network]
 IEEE 802.3ad 표준으로 정의되며, Cisco의 EtherChannel 기술을 구현하는 방식 중 하나입니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 표준 | IEEE 802.3ad (802.1AX) |
@@ -23,6 +24,7 @@ IEEE 802.3ad 표준으로 정의되며, Cisco의 EtherChannel 기술을 구현�
 - **부하 분산**: 트래픽 분산
 
 ### Link Aggregation 프로토콜
+
 | 프로토콜 | 표준 | 협상 |
 |----------|------|------|
 | LACP | IEEE 802.3ad | 동적 |
@@ -30,6 +32,7 @@ IEEE 802.3ad 표준으로 정의되며, Cisco의 EtherChannel 기술을 구현�
 | Static | - | 수동 (권장 안 함) |
 
 ### LACP 모드
+
 | 모드 | 설명 |
 |------|------|
 | Active | 적극적으로 LACP 협상 시도 |
@@ -70,6 +73,7 @@ Switch(config)# port-channel load-balance src-dst-mac
 ```
 
 ### 부하 분산 옵션
+
 | 옵션 | 기준 |
 |------|------|
 | src-mac | 출발지 MAC |

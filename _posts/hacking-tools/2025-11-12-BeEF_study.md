@@ -11,6 +11,7 @@ categories: [hacking-tools]
 자바스크립트 훅(Hook)을 통해 피해자의 웹 브라우저를 제어하고, 내부망 스캔이나 피싱 공격을 수행합니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 유형 | 클라이언트 사이드 공격 |
@@ -91,6 +92,7 @@ Commands → Browser → Get Cookie
 ## 4. 주요 공격 모듈
 
 ### Browser 모듈
+
 | 모듈 | 기능 |
 |------|------|
 | Get Cookie | 쿠키 탈취 |
@@ -99,6 +101,7 @@ Commands → Browser → Get Cookie
 | Screenshot | 화면 캡처 |
 
 ### Social Engineering
+
 | 모듈 | 기능 |
 |------|------|
 | Pretty Theft | 가짜 로그인 폼 |
@@ -106,6 +109,7 @@ Commands → Browser → Get Cookie
 | Redirect | 피싱 페이지로 리다이렉트 |
 
 ### Persistence
+
 | 모듈 | 기능 |
 |------|------|
 | Man-in-the-Browser | 지속적 세션 유지 |

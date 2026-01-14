@@ -11,6 +11,7 @@ categories: [cloud-azure]
 두 네트워크를 논리적으로 결합하여, 마치 하나의 네트워크처럼 사설 IP로 통신할 수 있게 합니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 목적 | VNet 간 프라이빗 연결 |
@@ -18,6 +19,7 @@ categories: [cloud-azure]
 | 지연 | 동일 리전 < 1ms |
 
 ### Peering 유형
+
 | 유형 | 설명 |
 |------|------|
 | Regional Peering | 같은 리전 내 VNet 연결 |
@@ -72,6 +74,7 @@ az network vnet peering create \
 ```
 
 ### 주요 옵션
+
 | 옵션 | 설명 |
 |------|------|
 | allow-vnet-access | VNet 간 통신 허용 |

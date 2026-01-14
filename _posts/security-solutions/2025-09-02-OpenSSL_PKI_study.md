@@ -11,6 +11,7 @@ categories: [security-solutions]
 OpenSSL은 이러한 전자 서명, 인증서(X.509) 발급, 암호화 통신(SSL/TLS) 기능을 제공하는 라이브러리이자 도구입니다.
 
 ### 기본 용어
+
 | 용어 | 설명 |
 |------|------|
 | CA | Certificate Authority (인증 기관) |

@@ -10,6 +10,7 @@ categories: [iac]
 **Ansible**은 서버 구성 자동화 도구 (IaC - 구성 관리).
 
 ### Ansible vs Terraform
+
 | 구분 | Ansible | Terraform |
 |------|---------|-----------|
 | 목적 | 서버 **구성 관리** (패키지, 설정) | 인프라 **생성/삭제** |
@@ -18,6 +19,7 @@ categories: [iac]
 | 상태 | 없음 | State 파일 |
 
 ### 특징
+
 | 항목 | 설명 |
 |------|------|
 | Push 방식 | Controller에서 Node로 명령 전달 |
@@ -34,6 +36,7 @@ graph LR
 ```
 
 ### 핵심 용어
+
 | 용어 | 설명 |
 |------|------|
 | Control Node | Ansible 실행 서버 |

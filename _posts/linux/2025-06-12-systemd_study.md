@@ -11,6 +11,7 @@ categories: [linux]
 서비스 간의 의존성을 처리하고 병렬 실행을 지원하여 부팅 속도와 시스템 관리 효율성을 향상시킵니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 역할 | PID 1 프로세스, 모든 서비스의 부모 |
@@ -18,6 +19,7 @@ categories: [linux]
 | 관리 명령어 | `systemctl` |
 
 ### systemd vs SysVinit
+
 | 항목 | SysVinit | systemd |
 |------|----------|---------|
 | 시작 방식 | 순차적 | 병렬 (빠른 부팅) |
@@ -25,6 +27,7 @@ categories: [linux]
 | 의존성 관리 | 수동 | 자동 (Wants, Requires) |
 
 ### Unit 유형
+
 | 타입 | 확장자 | 용도 |
 |------|--------|------|
 | Service | `.service` | 데몬 프로세스 |
@@ -115,6 +118,7 @@ WantedBy=multi-user.target
 ```
 
 ### Unit 파일 섹션 설명
+
 | 섹션 | 설명 |
 |------|------|
 | `[Unit]` | 메타데이터, 의존성 정의 |
@@ -122,6 +126,7 @@ WantedBy=multi-user.target
 | `[Install]` | enable 시 설정 |
 
 ### Type 옵션
+
 | Type | 설명 |
 |------|------|
 | `simple` | 기본값, ExecStart가 메인 프로세스 |

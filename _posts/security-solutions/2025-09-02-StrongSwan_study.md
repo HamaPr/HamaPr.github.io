@@ -11,6 +11,7 @@ categories: [security-solutions]
 주로 지사 간 연결(Site-to-Site)이나 모바일 사용자의 원격 접속(Remote Access) 보안에 사용됩니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 프로토콜 | IKEv1, IKEv2 |
@@ -18,6 +19,7 @@ categories: [security-solutions]
 | 인증 | PSK, 인증서, EAP |
 
 ### VPN 유형
+
 | 유형 | 설명 |
 |------|------|
 | Site-to-Site | 네트워크 간 연결 |

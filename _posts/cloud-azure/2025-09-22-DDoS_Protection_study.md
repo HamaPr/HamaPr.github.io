@@ -11,6 +11,7 @@ categories: [cloud-azure]
 실시간 트래픽 모니터링과 머신러닝 기반의 적응형 튜닝을 통해 정상 트래픽을 유지하며 공격을 차단합니다.
 
 ### DDoS 공격 유형
+
 | 계층 | 공격 유형 | 예시 |
 |------|-----------|------|
 | L3/L4 | Volumetric | UDP Flood, ICMP Flood |
@@ -18,6 +19,7 @@ categories: [cloud-azure]
 | L7 | Application | HTTP Flood, Slowloris |
 
 ### Azure DDoS Protection 티어
+
 | 티어 | 기능 | 비용 |
 |------|------|------|
 | Basic | 자동 활성화, 기본 보호 | 무료 |
@@ -66,6 +68,7 @@ az network vnet update \
 ## 4. 모니터링
 
 ### 메트릭
+
 | 메트릭 | 설명 |
 |--------|------|
 | Under DDoS attack | 공격 여부 (0/1) |

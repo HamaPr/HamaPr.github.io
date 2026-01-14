@@ -11,6 +11,7 @@ categories: [linux]
 NFS는 주로 Linux/Unix 시스템 간의 고속 공유에, Samba(SMB/CIFS)는 Windows와 Linux 간의 호환성 높은 공유에 사용됩니다.
 
 ### 비교
+
 | 항목 | NFS | Samba (SMB/CIFS) |
 |------|-----|------------------|
 | 대상 | Linux ↔ Linux | Linux ↔ Windows |
@@ -46,6 +47,7 @@ firewall-cmd --reload
 ```
 
 ### exports 옵션
+
 | 옵션 | 설명 |
 |------|------|
 | `rw` | 읽기/쓰기 허용 |

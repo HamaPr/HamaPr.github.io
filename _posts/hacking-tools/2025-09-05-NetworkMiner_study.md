@@ -11,6 +11,7 @@ categories: [hacking-tools]
 패킷 스트림을 재조합하여 전송된 파일과 이미지를 원본 형태로 복원하는 데 특화되어 있습니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 유형 | 네트워크 포렌식 |
@@ -19,6 +20,7 @@ categories: [hacking-tools]
 | 버전 | Free / Professional |
 
 ### Wireshark와 비교
+
 | 기능 | NetworkMiner | Wireshark |
 |------|--------------|-----------|
 | 파일 추출 | 자동 | 수동 (Export) |
@@ -58,6 +60,7 @@ File → Open → PCAP/PCAPNG 파일 선택
 ```
 
 ### 탭별 기능
+
 | 탭 | 설명 |
 |----|------|
 | Hosts | 통신한 호스트 목록 |

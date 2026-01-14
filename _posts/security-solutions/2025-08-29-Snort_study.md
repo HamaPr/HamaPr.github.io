@@ -11,6 +11,7 @@ categories: [security-solutions]
 사전에 정의된 룰(Signature) 기반으로 패킷을 매칭하여 공격을 탐지하고 차단합니다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | 유형 | NIDS (Network IDS) |
@@ -18,6 +19,7 @@ categories: [security-solutions]
 | 모드 | Sniffer, Packet Logger, IDS |
 
 ### IDS vs IPS
+
 | 유형 | 동작 | 배치 |
 |------|------|------|
 | IDS | 탐지 + 알림 | 미러링 (SPAN) |
@@ -92,6 +94,7 @@ alert tcp any any -> $HOME_NET 80 (msg:"HTTP Request"; sid:1000001; rev:1;)
 ```
 
 ### 구성 요소
+
 | 요소 | 설명 | 예시 |
 |------|------|------|
 | action | 탐지 시 동작 | alert, drop, log |
@@ -102,6 +105,7 @@ alert tcp any any -> $HOME_NET 80 (msg:"HTTP Request"; sid:1000001; rev:1;)
 | options | 탐지 옵션 | msg, content, sid |
 
 ### 주요 옵션
+
 | 옵션 | 설명 |
 |------|------|
 | msg | 알림 메시지 |

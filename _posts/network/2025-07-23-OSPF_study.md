@@ -10,6 +10,7 @@ categories: [network]
 **OSPF (Open Shortest Path First)**는 링크 상태 기반 동적 라우팅 프로토콜.
 
 ### 기본 정보
+
 | 항목 | 내용 |
 |------|------|
 | 타입 | Link-State (링크 상태) |
@@ -19,6 +20,7 @@ categories: [network]
 | 알고리즘 | Dijkstra SPF (최단 경로 우선) |
 
 ### Distance Vector vs Link State
+
 | 구분 | Distance Vector (RIP) | Link State (OSPF) |
 |------|----------------------|-------------------|
 | 정보 공유 | 라우팅 테이블 | 토폴로지 전체 |
@@ -37,6 +39,7 @@ categories: [network]
 ## 2. OSPF 동작 원리
 
 ### 세 가지 데이터베이스
+
 | 데이터베이스 | 역할 | 명령어 |
 |--------------|------|--------|
 | Neighbor Table | 이웃 라우터 목록 | `show ip ospf neighbor` |
@@ -63,6 +66,7 @@ flowchart TB
 ```
 
 ### OSPF 패킷 타입
+
 | 타입 | 이름 | 역할 |
 |------|------|------|
 | 1 | Hello | 이웃 발견 및 유지 |
@@ -72,6 +76,7 @@ flowchart TB
 | 5 | LSAck | 수신 확인 |
 
 ### Hello 패킷 타이머
+
 | 네트워크 유형 | Hello 간격 | Dead 간격 |
 |---------------|------------|-----------|
 | Broadcast / Point-to-Point | 10초 | 40초 |
@@ -86,6 +91,7 @@ flowchart TB
 **Multi-Access 네트워크**(이더넷)에서는 DR/BDR을 선출하여 라우팅 정보 교환을 효율화.
 
 ### 역할
+
 | 역할 | 설명 |
 |------|------|
 | DR (Designated Router) | 라우팅 정보 중앙 수집/배포 |
@@ -97,6 +103,7 @@ flowchart TB
 2. **Router ID** (수동설정 > Loopback IP > 물리 인터페이스 중 최대 IP)
 
 ### 멀티캐스트 주소
+
 | 주소 | 대상 |
 |------|------|
 | 224.0.0.5 | 모든 OSPF 라우터 (AllSPFRouters) |
@@ -113,6 +120,7 @@ Cost = Reference Bandwidth / Interface Bandwidth
 ```
 
 ### 기본 Cost 값
+
 | 인터페이스 | 대역폭 | Cost |
 |------------|--------|------|
 | FastEthernet | 100 Mbps | 1 |
@@ -145,6 +153,7 @@ Router(config-router)# network 10.10.10.0 0.0.0.255 area 0
 ```
 
 ### 와일드카드 마스크
+
 | 서브넷 마스크 | 와일드카드 마스크 |
 |---------------|-------------------|
 | 255.0.0.0 | 0.255.255.255 |
