@@ -48,8 +48,7 @@ ssh bandit6@bandit.labs.overthewire.org -p 2220
 ```bash
 find / -user bandit7 -group bandit6 -size 33c
 ```
-이렇게만 치면 어떻게 될까요?
-`Permission denied` 에러가 수천 줄 쏟아져 나와서 정작 찾은 파일이 안 보일 것입니다. 우리는 일반 유저라서 시스템의 대부분의 폴더를 읽을 수 없기 때문입니다.
+이 명령어를 그대로 실행하면 `Permission denied` 에러가 수천 줄 쏟아져 나와서 정작 찾은 파일이 안 보일 것입니다. 우리는 일반 유저라서 시스템의 대부분의 폴더를 읽을 수 없기 때문입니다.
 
 ```bash
 bandit6@bandit:~$ find / -user bandit7 -group bandit6 -size 33c
@@ -59,12 +58,12 @@ find: ‘/var/crash’: Permission denied
 ```
 
 ### 3. 에러 숨기기 (리다이렉션)
-에러 메시지(Standard Error, 2번)를 "블랙홀"인 `/dev/null`로 버려서 안 보이게 처리해야 깔끔합니다.
+에러 메시지(Standard Error, 2번)를 `블랙홀`인 `/dev/null`로 버려서 안 보이게 처리해야 깔끔합니다.
 
 ```bash
 bandit6@bandit:~$ find / -user bandit7 -group bandit6 -size 33c 2> /dev/null
 ```
-뒤에 `2> /dev/null`을 붙이면 에러는 휴지통으로 가고, 우리가 찾는 "성공한 결과"만 화면에 남습니다.
+뒤에 `2> /dev/null`을 붙이면 에러는 휴지통으로 가고, 우리가 찾는 **성공한 결과**만 화면에 남습니다.
 
 ### 4. 결과 확인
 딱 하나의 파일 경로가 출력됩니다.
@@ -103,7 +102,7 @@ morbNTDkSW6jIlUc0ymOdMaLnOlFVAaj
 
 ## 6. 보안 관점
 
-- **정보 은닉**: 리눅스 시스템은 수많은 로그와 에러를 발생시킵니다. 공격자나 보안 분석가는 이런 방대한 데이터 속에서 자신이 원하는 "신호(Signal)"만 걸러내기 위해 필터링 기술을 사용합니다.
-- **권한 분리**: 리눅스는 다중 사용자 시스템입니다. `bandit6` 사용자가 다른 사용자의 민감한 파일에 접근하려 할 때 "Permission denied"가 뜨는 것은 운영체제의 기본적인 접근 제어(Access Control)가 작동하고 있음을 보여줍니다.
+- **정보 은닉**: 리눅스 시스템은 수많은 로그와 에러를 발생시킵니다. 공격자나 보안 분석가는 이런 방대한 데이터 속에서 자신이 원하는 **신호(Signal)**만 걸러내기 위해 필터링 기술을 사용합니다.
+- **권한 분리**: 리눅스는 다중 사용자 시스템입니다. `bandit6` 사용자가 다른 사용자의 민감한 파일에 접근하려 할 때 `Permission denied`가 뜨는 것은 운영체제의 기본적인 접근 제어(Access Control)가 작동하고 있음을 보여줍니다.
 
 <hr class="short-rule">
