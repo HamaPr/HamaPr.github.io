@@ -1,9 +1,9 @@
 ---
-layout:post
-title:"[Bandit]Level0시작하기"
-date:2025-06-0709:00:00+0900
-categories:[bandit]
-tags:[overthewire,bandit,ssh,intro,putty]
+layout: post
+title: "[Bandit]Level0시작하기"
+date: 2025-06-07 09:00:00 +0900
+categories: [bandit]
+tags: [overthewire,bandit,ssh,intro,putty]
 ---
 
 >📝**공식문제(Level0)**

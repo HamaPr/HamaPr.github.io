@@ -1,9 +1,9 @@
 ---
-layout:post
-title:"[Bandit]Level3→4풀이"
-date:2025-06-0709:04:00+0900
-categories:[bandit]
-tags:[overthewire,bandit,linux]
+layout: post
+title: "[Bandit]Level3→4풀이"
+date: 2025-06-07 09:04:00 +0900
+categories: [bandit]
+tags: [overthewire,bandit,linux]
 ---
 
 >📝**공식문제(Level3→4)**

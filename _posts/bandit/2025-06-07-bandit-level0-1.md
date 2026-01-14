@@ -1,9 +1,9 @@
 ---
-layout:post
-title:"[Bandit]Level0→1풀이"
-date:2025-06-0709:01:00+0900
-categories:[bandit]
-tags:[overthewire,bandit,ssh]
+layout: post
+title: "[Bandit]Level0→1풀이"
+date: 2025-06-07 09:01:00 +0900
+categories: [bandit]
+tags: [overthewire,bandit,ssh]
 ---
 
 >📝**공식문제(Level0→1)**
