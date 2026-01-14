@@ -1,64 +1,62 @@
 ---
 layout: post
-title: "[Bandit]Level2→3풀이"
+title: "[Bandit] Level 2 → Level 3"
 date: 2025-06-07 09:03:00 +0900
 categories: [bandit]
-tags: [overthewire,bandit,linux]
+tags: [overthewire, bandit, linux, spaces]
 ---
 
->📝**공식문제(Level2→3)**
->
->**LevelGoal**
->Thepasswordforthenextlevelisstoredinafilecalledspacesinthisfilenamelocatedinthehomedirectory.
->
->**Commandsyoumayneedtosolvethislevel**
->`ls`,`cd`,`cat`,`file`,`du`,`find`
->
->**HelpfulReadingMaterial**
->-[GoogleSearchfor“spacesinfilename”](https://www.google.com/search?q=spaces+in+filename)
+## 1. 문제 개요
+
+> **Level Goal**
+> 
+> The password for the next level is stored in a file called `spaces in this filename` located in the home directory.
 
 ---
 
-##🔐LevelInfo
+## 2. 사용 명령어
 
--**접속정보**
--사용자:`bandit2`
--비밀번호:`263JGJPfgU6LtdEvgfWU1XP5yac29mFx`
+| 명령어 | 설명 |
+|--------|------|
+| `cat "file name"` | 따옴표로 감싸서 공백 포함 파일 읽기 |
+| `cat file\ name` | 역슬래시로 공백 이스케이프 |
 
--**접속명령어**
+---
+
+## 3. 풀이 과정
 
 ```bash
-sshbandit2@bandit.labs.overthewire.org-p2220
+ssh bandit2@bandit.labs.overthewire.org -p 2220
+```
+
+### 1. 파일 확인
+```bash
+bandit2@bandit:~$ ls
+spaces in this filename
+```
+파일명에 공백(Space)이 포함되어 있습니다. 이를 `cat spaces in this filename` 처럼 그냥 입력하면, 리눅스는 `spaces`, `in`, `this`, `filename`이라는 4개의 파일을 각각 찾는 것으로 오해합니다.
+
+### 2. 해결 방법 1: 따옴표 사용
+파일 전체 이름을 따옴표(`"`)로 감싸서 하나의 덩어리임을 알려줍니다.
+
+```bash
+bandit2@bandit:~$ cat "spaces in this filename"
+```
+
+### 3. 해결 방법 2: 탭(Tab) 자동완성
+가장 실용적인 방법입니다. 파일명의 앞글자 `spa` 정도만 치고 `Tab` 키를 누르면 쉘이 알아서 이스케이프 처리를 해줍니다.
+
+```bash
+bandit2@bandit:~$ cat spa[Tab]
+# 결과: cat spaces\ in\ this\ filename
 ```
 
 ---
 
-##🧪풀이과정
+## 4. 결과
 
-1.`ls`로`spacesinthisfilename`이라는이름의파일발견
-2.파일이름에공백이포함되어있어그대로입력하면여러개의인자로인식됨
-3.큰따옴표(`"`)로파일이름전체를감싸서하나의인자로인식시켜내용확인
-
-```bash
-bandit2@bandit:~$ls-l
-total4
--rw-r-----1bandit3bandit215May72020spacesinthisfilename
-bandit2@bandit:~$cat"spacesinthisfilename"
-```
-
-##🧪다른풀이방법
-1.각공백문자앞에역슬래시(\)를사용하여해당공백이일반문자임을쉘에게알려줌
-
-```bash
-bandit2@bandit:~$catspaces\in\this\filename
-```
-
----
-
-##🎯결과
-
-<detailsmarkdown="1">
-<summary>👀클릭하여비밀번호확인하기</summary>
+<details markdown="1">
+<summary>비밀번호 확인</summary>
 
 ```
 MNk8KNH3Usiio41PRUEoDFPqfxLPlSmx
@@ -68,8 +66,21 @@ MNk8KNH3Usiio41PRUEoDFPqfxLPlSmx
 
 ---
 
-##💡배운점
+## 5. 배운 점
 
-1.파일이름에공백이있을경우큰따옴표("...")나작은따옴표('...')로감싸거나각공백앞에역슬래시(\)를붙여처리할수있다.
+1. 파일명에 공백이 있을 경우 따옴표나 역슬래시로 처리
+2. Tab 자동완성 활용하면 특수문자 자동 이스케이프
+3. 쉘에서 공백은 인자 구분자로 사용됨
 
-<hrclass="short-rule">
+---
+
+## 6. 보안 관점
+
+- **파일명 조작 공격**: 특수문자가 포함된 파일명은 스크립트에서 예상치 못한 동작을 유발할 수 있습니다.
+- **안전한 스크립트 작성**: 변수 사용 시 항상 따옴표로 감싸기
+  ```bash
+  cat "$filename"  # 안전
+  cat $filename    # 위험
+  ```
+
+<hr class="short-rule">

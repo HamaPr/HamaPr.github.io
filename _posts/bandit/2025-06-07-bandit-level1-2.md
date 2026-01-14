@@ -1,58 +1,61 @@
 ---
 layout: post
-title: "[Bandit]Level1→2풀이"
+title: "[Bandit] Level 1 → Level 2"
 date: 2025-06-07 09:02:00 +0900
 categories: [bandit]
-tags: [overthewire,bandit,ssh,special-character]
+tags: [overthewire, bandit, ssh, special-character]
 ---
 
->📝**공식문제(Level1→2)**
->
->**LevelGoal**
->Thepasswordforthenextlevelisstoredinafilecalled-locatedinthehomedirectory.
->
->**Commandsyoumayneedtosolvethislevel**
->`ls`,`cd`,`cat`,`file`,`du`,`find`
->
->**HelpfulReadingMaterial**
->-[GoogleSearchfor“dashedfilename”](https://www.google.com/search?q=dashed+filename)
->-[AdvancedBash-scriptingGuide-Chapter3-SpecialCharacters](https://tldp.org/LDP/abs/html/special-chars.html)
+## 1. 문제 개요
+
+> **Level Goal**
+> 
+> The password for the next level is stored in a file called `-` located in the home directory.
 
 ---
 
-##🔐LevelInfo
+## 2. 사용 명령어
 
--**접속정보**
--사용자:`bandit1`
--비밀번호:`ZjLjTmM6FvvyRnrb2rfNWOZOTa6ip5If`
+| 명령어 | 설명 |
+|--------|------|
+| `cat ./-` | `-`라는 파일명을 경로로 명시하여 읽기 |
+| `cat < -` | 입력 리다이렉션으로 `-` 파일 읽기 |
 
--**접속명령어**
+---
+
+## 3. 풀이 과정
 
 ```bash
-sshbandit1@bandit.labs.overthewire.org-p2220
+ssh bandit1@bandit.labs.overthewire.org -p 2220
+# 이전 레벨에서 획득한 비밀번호 사용
 ```
 
----
-
-##🧪풀이과정
-
-1.`ls`명령어로현재디렉토리의파일목록확인
-2.`-`라는이름의파일발견
-3.`cat`으로`-`파일을직접열려고하면옵션으로인식되어오류발생
-4.`./-`와같이현재경로를명시하여파일임을알려준뒤내용확인
+### 1. 파일 확인
+`ls` 명령어로 파일 목록을 봅니다.
 
 ```bash
-bandit1@bandit:~$ls
+bandit1@bandit:~$ ls
 -
-bandit1@bandit:~$cat./-
+```
+파일명이 하이픈(`-`) 하나로 되어 있습니다.
+
+### 2. 문제 상황
+일반적인 방법인 `cat -`를 입력하면 아무런 반응이 없습니다.
+리눅스 명령어에서 단독으로 쓰이는 `-`는 **표준 입력(stdin)**을 의미하기 때문입니다. 즉, 파일 내용을 보여주는 게 아니라 사용자의 키보드 입력을 기다리는 상태가 됩니다.
+
+### 3. 해결 방법 (경로 명시)
+파일명이라는 것을 쉘에게 확실히 알려주기 위해 **상대 경로**인 `./`를 붙여줍니다.
+
+```bash
+bandit1@bandit:~$ cat ./-
 ```
 
 ---
 
-##🎯결과
+## 4. 결과
 
-<detailsmarkdown="1">
-<summary>👀클릭하여비밀번호확인하기</summary>
+<details markdown="1">
+<summary>비밀번호 확인</summary>
 
 ```
 263JGJPfgU6LtdEvgfWU1XP5yac29mFx
@@ -62,8 +65,19 @@ bandit1@bandit:~$cat./-
 
 ---
 
-##💡배운점
+## 5. 배운 점
 
-1.파일이름이-와같은특수문자로시작할경우./를앞에붙여현재디렉토리의파일임을명시
+1. 파일명이 `-`로 시작할 경우 `./`를 붙여 경로로 인식시키기
+2. 리눅스 쉘에서 `-`는 표준 입력/출력을 의미하는 특수 문자
 
-<hrclass="short-rule">
+---
+
+## 6. 보안 관점
+
+- **특수 파일명을 이용한 은닉**: 공격자는 `-`, `..`, `. ` 등 특수한 파일명으로 파일을 숨길 수 있습니다.
+- **명령어 인젝션 방어**: 스크립트에서 파일명 처리 시 `--`를 사용하여 옵션 파싱 종료
+  ```bash
+  cat -- "$filename"
+  ```
+
+<hr class="short-rule">
