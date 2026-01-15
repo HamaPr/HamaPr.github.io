@@ -1,192 +1,126 @@
----
+﻿---
 layout: post
-title: "NFS/Samba 파일 공유"
+title: "NFS & Samba"
 date: 2025-06-18 17:00:00 +0900
 categories: [linux]
 ---
 
-## 1. 개념
+## 1. 개요
 
-**NFS**와 **Samba**는 네트워크를 통해 원격 파일 시스템을 로컬처럼 사용할 수 있게 해주는 파일 공유 프로토콜입니다.
-NFS는 주로 Linux/Unix 시스템 간의 고속 공유에, Samba(SMB/CIFS)는 Windows와 Linux 간의 호환성 높은 공유에 사용됩니다.
+**NFS (Network File System)**와 **Samba (SMB/CIFS)**는 네트워크를 통해 원격지의 디스크를 로컬 디스크처럼 사용할 수 있게 해주는 파일 공유 솔루션이다.
+사용 환경에 따라 적절한 프로토콜을 선택해야 한다.
 
 ### 비교
 
-| 항목 | NFS | Samba (SMB/CIFS) |
-|------|-----|------------------|
-| 대상 | Linux ↔ Linux | Linux ↔ Windows |
-| 포트 | 2049 (TCP/UDP) | 445, 139 |
-| 인증 | UID/GID 기반 | 사용자 계정 |
-| 속도 | 빠름 | 상대적으로 느림 |
+| 특징 | NFS | Samba |
+|------|-----|-------|
+| **주 용도** | Linux/Unix 서버 간 고성능 파일 공유 | Windows와 Linux 간의 파일 공유 |
+| **운영체제** | Linux/Unix 친화적 | Windows 친화적 (Active Directory 지원) |
+| **속도** | 빠름 (오버헤드 적음) | 상대적으로 느림 (기능 많음) |
+| **인증** | IP/Host 기반 (기본) | 사용자 계정/암호 기반 |
 
 ---
 
 ## 2. NFS 서버 구축
 
-### 서버 설정 (Rocky Linux)
+리눅스 서버 간의 파일 공유를 위해 NFS를 설정한다.
+
+### 서버 설정
 ```bash
-# 1. NFS 패키지 설치
+# 1. 패키지 설치
 dnf install -y nfs-utils
 
-# 2. 공유 디렉터리 생성
+# 2. 공유 디렉터리 생성 및 권한 설정
 mkdir -p /srv/nfs/share
 chmod 755 /srv/nfs/share
 
-# 3. exports 파일 설정
+# 3. 설정 파일(/etc/exports) 편집
+# 형식: [공유경로] [허용대상](옵션)
 echo "/srv/nfs/share 10.0.0.0/24(rw,sync,no_root_squash)" >> /etc/exports
 
-# 4. exports 적용 및 서비스 시작
-exportfs -ra
+# 4. 서비스 시작 및 방화벽 오픈
 systemctl enable --now nfs-server
-
-# 5. 방화벽 설정
 firewall-cmd --permanent --add-service=nfs
-firewall-cmd --permanent --add-service=rpc-bind
-firewall-cmd --permanent --add-service=mountd
+firewall-cmd --permanent --add-service={rpc-bind,mountd}
 firewall-cmd --reload
 ```
 
 ### exports 옵션
+*   `rw`: 읽기/쓰기 허용
+*   `sync`: 데이터를 디스크에 즉시 기록 (안전성)
+*   `no_root_squash`: 클라이언트의 root 권한을 서버에서도 그대로 인정 (보안 주의)
 
-| 옵션 | 설명 |
-|------|------|
-| `rw` | 읽기/쓰기 허용 |
-| `ro` | 읽기 전용 |
-| `sync` | 동기 쓰기 (안전) |
-| `no_root_squash` | root 권한 유지 |
-| `all_squash` | 모든 사용자를 nobody로 |
-
-### 클라이언트 마운트
+### 클라이언트 설정
 ```bash
-# 서버 공유 목록 확인
-showmount -e 10.0.0.11
-
-# 마운트
-mkdir -p /mnt/nfs
+# 마운트 (임시)
 mount -t nfs 10.0.0.11:/srv/nfs/share /mnt/nfs
 
-# 영구 마운트 (/etc/fstab)
-echo "10.0.0.11:/srv/nfs/share /mnt/nfs nfs defaults 0 0" >> /etc/fstab
+# 마운트 (영구 - /etc/fstab)
+10.0.0.11:/srv/nfs/share  /mnt/nfs  nfs  defaults  0 0
 ```
 
 ---
 
 ## 3. Samba 서버 구축
 
-### 서버 설정 (Rocky Linux)
+Windows 클라이언트와 파일을 공유하기 위해 Samba를 설정한다.
+
+### 서버 설정
 ```bash
-# 1. Samba 패키지 설치
-dnf install -y samba samba-client
+# 1. 패키지 설치
+dnf install -y samba
 
-# 2. 공유 디렉터리 생성
-mkdir -p /srv/samba/share
-chmod 777 /srv/samba/share
-
-# 3. Samba 설정 파일 편집
+# 2. 설정 파일(/etc/samba/smb.conf) 편집
 cat >> /etc/samba/smb.conf << 'EOF'
-
 [share]
     path = /srv/samba/share
     browseable = yes
     writable = yes
-    guest ok = no
     valid users = sambauser
 EOF
 
-# 4. Samba 사용자 생성
+# 3. Samba 전용 계정 생성 (OS 계정과 별도 관리)
 useradd -s /sbin/nologin sambauser
-smbpasswd -a sambauser
+smbpasswd -a sambauser  # 비밀번호 설정
 
-# 5. 서비스 시작
+# 4. 서비스 시작
 systemctl enable --now smb nmb
-
-# 6. 방화벽 설정
 firewall-cmd --permanent --add-service=samba
 firewall-cmd --reload
 ```
 
 ### SELinux 설정
+Samba가 홈 디렉터리나 특정 경로에 접근하려면 SELinux 정책을 풀어줘야 한다.
 ```bash
-# Samba 공유 허용
 setsebool -P samba_enable_home_dirs on
 chcon -t samba_share_t /srv/samba/share
 ```
 
-### Windows에서 접속
-```
-\\10.0.0.11\share
-```
-
-### Linux 클라이언트 마운트
-```bash
-# cifs-utils 설치
-dnf install -y cifs-utils
-
-# 마운트
-mount -t cifs //10.0.0.11/share /mnt/samba -o username=sambauser,password=비밀번호
-
-# 영구 마운트 (자격 증명 파일 사용)
-echo "username=sambauser" > /root/.smbcreds
-echo "password=비밀번호" >> /root/.smbcreds
-chmod 600 /root/.smbcreds
-
-echo "//10.0.0.11/share /mnt/samba cifs credentials=/root/.smbcreds 0 0" >> /etc/fstab
-```
-
 ---
 
-## 4. 실습 예시
+## 4. 실습: 자동 마운트 (Autofs)
 
-### NFS 자동 마운트 (autofs)
+항상 마운트해 두는 것이 아니라, 사용자가 해당 경로에 **접근할 때만 자동으로 마운트**하고, 사용하지 않으면 연결을 끊어 리소스를 절약하는 방법이다.
+
 ```bash
-# autofs 설치
+# 1. Autofs 설치
 dnf install -y autofs
 
-# 마스터 맵 설정
+# 2. 마스터 파일 설정 (/etc/auto.master)
+# /mnt/auto 디렉터리 하위의 마운트는 /etc/auto.nfs 파일의 정의를 따른다.
 echo "/mnt/auto /etc/auto.nfs" >> /etc/auto.master
 
-# NFS 맵 설정
+# 3. 맵 파일 설정 (/etc/auto.nfs)
+# share라는 이름으로 접근하면 10.0.0.11의 공유 폴더를 마운트
 echo "share -rw,sync 10.0.0.11:/srv/nfs/share" > /etc/auto.nfs
 
-# autofs 시작
-systemctl enable --now autofs
+# 4. 서비스 재시작
+systemctl restart autofs
 
-# 접근 시 자동 마운트
-ls /mnt/auto/share
+# 5. 테스트 (디렉터리가 없어도 이동하면 자동 생성됨)
+cd /mnt/auto/share
 ```
 
 ![Samba 공유 폴더 접속](/assets/images/linux/samba.png)
-
----
-
-## 5. 트러블슈팅
-
-### NFS 마운트 실패
-```bash
-# RPC 서비스 확인
-rpcinfo -p 10.0.0.11
-
-# 방화벽 확인
-firewall-cmd --list-all
-```
-
-### Samba 권한 문제
-```bash
-# SELinux 확인
-getenforce
-ls -Z /srv/samba/share
-
-# Samba 로그 확인
-tail -f /var/log/samba/log.smbd
-```
-
-### 공유 목록 확인
-```bash
-# NFS
-showmount -e localhost
-
-# Samba
-smbclient -L localhost -U sambauser
-```
 
 <hr class="short-rule">

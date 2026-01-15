@@ -1,6 +1,6 @@
----
+﻿---
 layout: post
-title: "대칭키와 비대칭키 암호 공부"
+title: "Symmetric & Asymmetric Key"
 date: 2025-08-17 17:00:00 +0900
 categories: [web-technology]
 ---

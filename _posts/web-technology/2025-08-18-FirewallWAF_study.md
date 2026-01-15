@@ -1,6 +1,6 @@
----
+﻿---
 layout: post
-title: "방화벽과 웹 방화벽 공부"
+title: "Firewall & WAF"
 date: 2025-08-18 17:00:00 +0900
 categories: [web-technology]
 ---

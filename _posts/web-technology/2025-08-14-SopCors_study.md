@@ -1,6 +1,6 @@
----
+﻿---
 layout: post
-title: "SOP와 CORS 공부"
+title: "SOP & CORS"
 date: 2025-08-14 17:00:00 +0900
 categories: [web-technology]
 ---

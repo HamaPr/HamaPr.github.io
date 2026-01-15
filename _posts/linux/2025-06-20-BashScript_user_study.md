@@ -1,98 +1,77 @@
----
+﻿---
 layout: post
-title: "Bash 스크립트 사용자 관리"
+title: "Bash Script"
 date: 2025-06-20 17:00:00 +0900
 categories: [linux]
 ---
 
-## 1. 개념
+## 1. 개요
 
-**Bash 스크립트**는 쉘 명령어를 순차적으로 실행하여 시스템 관리 작업을 자동화하는 스크립트입니다.
-사용자 관리와 같이 반복적이고 대량의 처리가 필요한 작업을 효율적으로 수행할 때 사용합니다.
+**Bash 스크립트**를 활용하면 대량의 사용자 계정을 생성하거나 수정, 삭제하는 지루한 반복 작업을 자동화할 수 있다.
+수십, 수백 명의 신입 사원 계정을 일일이 명령어로 생성하는 대신, 스크립트 하나로 CSV 파일이나 텍스트 파일의 명단을 읽어 빠르고 정확하게 처리한다.
 
-### 활용 사례
-- 신입 사원 일괄 계정 생성
-- 퇴사자 계정 자동 비활성화
-- 비밀번호 정책 적용
-- 그룹 멤버십 관리
-
-### 관련 명령어
-
-| 명령어 | 설명 |
-|--------|------|
-| `useradd` | 사용자 생성 |
-| `usermod` | 사용자 수정 |
-| `userdel` | 사용자 삭제 |
-| `passwd` | 비밀번호 설정 |
-| `chage` | 비밀번호 정책 |
-| `groupadd` | 그룹 생성 |
+### 주요 활용 시나리오
+*   **일괄 생성**: 신규 프로젝트 팀원 50명의 계정 생성 및 초기 비밀번호 설정
+*   **일괄 삭제**: 퇴사자 명단을 읽어 계정 비활성화 및 홈 디렉터리 백업
+*   **보안 정책 적용**: 전체 사용자의 비밀번호 만료일 설정 및 강제 변경 요구 (`chage`)
 
 ---
 
-## 2. 사용법
+## 2. 사용법 (핵심 명령어)
 
-### 사용자 생성 기본
+스크립트 작성 전, 개별 명령어를 이해해야 한다.
+
+### 기초 명령어
 ```bash
-# 기본 사용자 생성
-useradd username
-
-# 홈 디렉터리 생성 + 쉘 지정
+# 사용자 생성 (홈 디렉터리 생성 및 쉘 지정)
 useradd -m -s /bin/bash username
 
-# 그룹 지정하여 생성
-useradd -m -g users -G wheel,docker username
+# 비밀번호 설정 (비대화형)
+echo "username:password123" | chpasswd
 
-# 만료일 설정
-useradd -m -e 2025-12-31 username
-```
+# 계정 관리 (비밀번호 만료일 설정 등)
+chage -M 90 -W 7 username  # 90일 만료, 7일 전 경고
 
-### 비밀번호 설정
-```bash
-# 대화형
-passwd username
-
-# 한 줄로 비밀번호 설정
-echo "username:password" | chpasswd
-
-# 비밀번호 정책 설정
-chage -M 90 -W 7 -I 30 username
-# -M: 최대 사용 기간
-# -W: 만료 경고 일
-# -I: 비활성화 기간
+# 사용자 삭제 (홈 디렉터리 포함)
+userdel -r username
 ```
 
 ---
 
-## 3. 스크립트 예제
+## 3. 실습: 스크립트 작성
 
-### 일괄 사용자 생성
+### 시나리오: 텍스트 파일 기반 일괄 생성
+`users.txt` 파일에 `아이디:비밀번호` 형식으로 저장된 목록을 읽어 계정을 생성한다.
 
-`create_users.sh`:
+**입력 파일 (users.txt)**:
+```text
+user01:Pass123!
+user02:Pass123!
+user03:Pass123!
+```
+
+**스크립트 (create_users.sh)**:
 ```bash
 #!/bin/bash
-# 사용자 목록 파일에서 일괄 생성
 
 USER_FILE="users.txt"
-DEFAULT_GROUP="users"
-DEFAULT_SHELL="/bin/bash"
 
-if [[ ! -f "$USER_FILE" ]]; then
-    echo "Error: $USER_FILE not found!"
+# 파일 존재 여부 확인
+if [ ! -f "$USER_FILE" ]; then
+    echo "Error: $USER_FILE not found."
     exit 1
 fi
 
-while IFS=: read -r username password; do
-    # 공백 라인 건너뛰기
-    [[ -z "$username" ]] && continue
-    
-    # 사용자 존재 확인
+# 파일의 각 줄을 읽어 루프 실행
+while IFS=':' read -r username password; do
+    # 이미 존재하는 사용자인지 확인
     if id "$username" &>/dev/null; then
-        echo "User $username already exists, skipping..."
+        echo "[SKIP] User $username already exists."
         continue
     fi
-    
+
     # 사용자 생성
-    useradd -m -g "$DEFAULT_GROUP" -s "$DEFAULT_SHELL" "$username"
+    useradd -m -s /bin/bash "$username"
     
     # 비밀번호 설정
     echo "$username:$password" | chpasswd
@@ -100,99 +79,29 @@ while IFS=: read -r username password; do
     # 첫 로그인 시 비밀번호 변경 강제
     chage -d 0 "$username"
     
-    echo "Created user: $username"
-done < "$USER_FILE"
-
-echo "User creation completed!"
-```
-
-`users.txt` 형식:
-```
-user1:P@ssw0rd_01!
-user2:P@ssw0rd_02!
-user3:P@ssw0rd_03!
-```
-
-### 실행
-```bash
-chmod +x create_users.sh
-./create_users.sh
-```
-
-### 사용자 삭제 스크립트
-
-`delete_users.sh`:
-```bash
-#!/bin/bash
-# 사용자 목록 파일에서 일괄 삭제
-
-USER_FILE="delete_users.txt"
-
-while read -r username; do
-    [[ -z "$username" ]] && continue
+    echo "[OK] User $username created."
     
-    if ! id "$username" &>/dev/null; then
-        echo "User $username does not exist, skipping..."
-        continue
-    fi
-    
-    # 홈 디렉터리 백업
-    tar -czvf "/backup/${username}_home.tar.gz" "/home/$username" 2>/dev/null
-    
-    # 사용자 삭제 (홈 디렉터리 포함)
-    userdel -r "$username"
-    
-    echo "Deleted user: $username"
 done < "$USER_FILE"
 ```
 
----
+### 시나리오: 비활성 사용자 일괄 잠금
+마지막 로그인 후 90일 이상 지난 사용자를 찾아 계정을 잠근다.
 
-## 4. 실습 예시
-
-### CSV에서 사용자 생성
-
-`create_from_csv.sh`:
+**스크립트 (lock_inactive.sh)**:
 ```bash
 #!/bin/bash
-# CSV: username,fullname,department,email
-
-CSV_FILE="employees.csv"
-
-# 첫 줄(헤더) 건너뛰기
-tail -n +2 "$CSV_FILE" | while IFS=, read -r username fullname dept email; do
-    # 그룹 생성 (없으면)
-    groupadd "$dept" 2>/dev/null
-    
-    # 사용자 생성
-    useradd -m -g "$dept" -c "$fullname" "$username"
-    
-    # 초기 비밀번호 (사원번호 기반)
-    echo "$username:Welcome123!" | chpasswd
-    
-    # 강제 비밀번호 변경
-    chage -d 0 "$username"
-    
-    echo "Created: $username ($fullname) - $dept"
-done
-```
-
-### 비활성 사용자 잠금
-
-`lock_inactive.sh`:
-```bash
-#!/bin/bash
-# 90일 이상 로그인하지 않은 사용자 잠금
 
 INACTIVE_DAYS=90
+TODAY=$(date +%s)
 
-for user in $(lastlog -b $INACTIVE_DAYS | awk 'NR>1 {print $1}'); do
-    # 시스템 계정 제외
-    uid=$(id -u "$user" 2>/dev/null)
-    [[ $uid -lt 1000 ]] && continue
-    
-    echo "Locking inactive user: $user"
-    usermod -L "$user"
+# lastlog 명령어로 모든 사용자 조회
+lastlog -b $INACTIVE_DAYS | tail -n +2 | awk '{print $1}' | while read user; do
+    # 시스템 계정(UID 1000 미만)은 제외
+    UID_NUM=$(id -u "$user")
+    if [ "$UID_NUM" -ge 1000 ]; then
+        echo "Locking inactive user: $user"
+        usermod -L "$user"
+    fi
 done
 ```
 
@@ -200,24 +109,24 @@ done
 
 ---
 
-## 5. 트러블슈팅
+## 4. 트러블슈팅
 
 ### 권한 오류
+스크립트 실행 시 `Permission denied` 오류가 발생하면 두 가지를 확인한다.
+1.  **실행 권한**: 스크립트 파일에 실행 권한(`x`)이 있는지 확인한다.
+    ```bash
+    chmod +x create_users.sh
+    ```
+2.  **루트 권한**: 사용자 생성(`useradd`) 등의 명령어는 root 권한이 필요하므로 `sudo`로 실행한다.
+    ```bash
+    sudo ./create_users.sh
+    ```
+
+### 개행 문자 문제 (Windows -> Linux)
+윈도우에서 작성한 텍스트 파일을 리눅스로 가져오면 개행 문자(`\r\n`) 문제로 오류가 발생할 수 있다.
+`dos2unix` 명령어로 변환하거나 `sed`를 사용한다.
 ```bash
-# root 권한으로 실행
-sudo ./create_users.sh
-
-# 또는 sudoers에 등록
-```
-
-# useradd 전 그룹 확인 (users 그룹은 기본 존재)
-grep users /etc/group
-
-### 로그 기록
-```bash
-# 스크립트에 로깅 추가
-exec > >(tee -a /var/log/user_management.log) 2>&1
-echo "[$(date)] Script started"
+sed -i 's/\r//' users.txt
 ```
 
 <hr class="short-rule">

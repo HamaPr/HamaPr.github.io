@@ -1,34 +1,29 @@
 ---
 layout: post
-title: "Azure Application Gateway (L7 LB)"
+title: "Azure Application Gateway"
 date: 2025-09-19 17:00:00 +0900
 categories: [cloud-azure]
 ---
 
-## 1. 개념
+## 1. 개요
 
-**Azure Application Gateway**는 HTTP/HTTPS 트래픽 관리에 최적화된 L7(애플리케이션 계층) 로드 밸런서입니다.
-URL 경로 기반 라우팅, SSL 오프로딩, 그리고 웹 애플리케이션 방화벽(WAF) 기능을 통합 제공합니다.
+**Azure Application Gateway**는 HTTP/HTTPS 트래픽 관리에 최적화된 **L7 (애플리케이션 계층) 로드 밸런서**이다.
+단순한 패킷 분산이 아니라 URL 경로, 호스트 헤더 등 애플리케이션 데이터를 기반으로 지능적인 라우팅을 수행하며, 웹 애플리케이션 방화벽(WAF)을 통해 보안성을 강화한다.
 
-### 기본 정보
-
-| 항목 | 설명 |
-|------|------|
-| 계층 | L7 (HTTP/HTTPS) |
-| WAF | 웹 방화벽 기능 내장 |
-| 라우팅 | URL 경로, 호스트 기반 |
+### 핵심 기능
+1.  **애플리케이션 레벨 라우팅**: `/images/*`는 이미지 서버로, `/video/*`는 비디오 서버로 보내는 등 URL 경로 기반 라우팅이 가능하다.
+2.  **보안 강화 (WAF)**: SQL Injection, XSS 등 일반적인 웹 공격으로부터 백엔드 서버를 보호한다.
+3.  **SSL 오프로딩**: 암호화/복호화 부하를 게이트웨이에서 처리하여 백엔드 웹 서버의 성능을 확보한다.
 
 ### Azure 로드밸런서 비교
-
 | 서비스 | 계층 | 범위 | 용도 |
 |--------|------|------|------|
-| Azure LB | L4 | Regional | TCP/UDP 분산 |
-| Application Gateway | L7 | Regional | 웹 앱 분산 |
-| Front Door | L7 | Global | 글로벌 웹 앱 |
-| Traffic Manager | DNS | Global | DNS 기반 분산 |
+| **Azure LB** | L4 | Regional | TCP/UDP 트래픽 분산 |
+| **Application Gateway** | L7 | Regional | 웹 애플리케이션 최적화 및 보안 |
+| **Front Door** | L7 | Global | 글로벌 웹 서비스 가속 및 라우팅 |
+| **Traffic Manager** | DNS | Global | DNS 기반 지역 분산 |
 
 ### 구성 요소
-
 ```mermaid
 flowchart TB
     Client["클라이언트"] --> FIP["Frontend IP"]
@@ -55,14 +50,14 @@ www.contoso.com → Pool A
 www.fabrikam.com → Pool B
 ```
 
-### SSL 종료 (Offloading)
-- Application Gateway에서 SSL 처리
-- 백엔드 서버 부하 감소
+### SSL 종료 (SSL Offloading)
+*   Application Gateway에서 SSL 연결을 종료하고 평문으로 백엔드에 전달하거나, 백엔드까지 다시 암호화(E2E SSL)할 수 있다.
+*   백엔드 서버의 CPU 부하를 감소시키는 효과가 있다.
 
 ### WAF (Web Application Firewall)
-- OWASP Top 10 보호
-- SQL Injection, XSS 차단
-- 사용자 정의 규칙
+*   OWASP Top 10 취약점에 대한 사전 정의된 방어 규칙 세트를 제공한다.
+*   SQL Injection, Cross-Site Scripting (XSS) 등을 자동으로 차단한다.
+*   사용자 정의 규칙을 통해 특정 IP 차단이나 지역 차단이 가능하다.
 
 ---
 
@@ -70,12 +65,12 @@ www.fabrikam.com → Pool B
 
 ### Azure CLI로 생성
 ```bash
-# 1. Application Gateway 서브넷 (전용 필요)
+# 1. Application Gateway 서브넷 (전용 서브넷 필수)
 az network vnet subnet create \
   -g MyRG --vnet-name MyVNet \
   -n AppGW-Subnet --address-prefixes 10.0.1.0/24
 
-# 2. Public IP
+# 2. Public IP 생성
 az network public-ip create \
   -g MyRG -n AppGW-PIP --sku Standard
 
@@ -136,18 +131,16 @@ az network application-gateway waf-policy managed-rule rule-set add \
 ```
 
 ### WAF 모드
-
 | 모드 | 동작 |
 |------|------|
-| Detection | 탐지만 (로깅) |
-| Prevention | 탐지 + 차단 |
+| **Detection** | 공격을 탐지하고 로그만 남김 (차단 안 함) |
+| **Prevention** | 공격 탐지 시 트래픽을 즉시 차단 (운영 환경 권장) |
 
 ---
 
 ## 5. 실습 예시
 
 ### VMSS와 연동
-
 ```bash
 # VMSS 생성 시 Application Gateway 연결
 az vmss create \
@@ -163,10 +156,10 @@ az vmss create \
 
 ## 6. 트러블슈팅
 
-### 502 Bad Gateway
-- 백엔드 서버 다운
-- Health Probe 실패
-- NSG가 AppGW → Backend 차단
+### 502 Bad Gateway 에러
+*   **원인**: 백엔드 서버가 다운되었거나 응답하지 않음.
+*   **해결**: Health Probe 상태를 확인하고 백엔드 서버의 포트(80/443)가 열려 있는지 확인한다.
+*   **NSG**: Application Gateway 서브넷이나 백엔드 서브넷의 NSG가 트래픽을 차단하는지 점검한다.
 
 ### Health Probe 확인
 ```bash
@@ -175,7 +168,7 @@ az network application-gateway show-backend-health \
 ```
 
 ### AppGW 서브넷 요구사항
-- 전용 서브넷 필요 (다른 리소스 X)
-- 최소 /27 권장
+*   Application Gateway는 반드시 **전용 서브넷**에 배포되어야 한다. 다른 리소스(VM 등)와 함께 쓸 수 없다.
+*   규모 확장을 고려하여 최소 `/27` 이상의 서브넷 크기를 권장한다.
 
 <hr class="short-rule">

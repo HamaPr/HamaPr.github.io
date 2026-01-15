@@ -1,6 +1,6 @@
----
+﻿---
 layout: post
-title: "프록시 서버 공부"
+title: "Proxy Server"
 date: 2025-08-19 17:00:00 +0900
 categories: [web-technology]
 ---

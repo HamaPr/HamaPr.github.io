@@ -1,6 +1,6 @@
----
+﻿---
 layout: post
-title: "인코딩 vs 암호화 vs 해싱 공부"
+title: "Encoding vs Encryption vs Hashing"
 date: 2025-08-16 17:00:00 +0900
 categories: [web-technology]
 ---

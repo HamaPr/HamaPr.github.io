@@ -1,6 +1,6 @@
----
+﻿---
 layout: post
-title: "HTTP 공부"
+title: "HTTP"
 date: 2025-08-12 17:00:00 +0900
 categories: [web-technology]
 ---

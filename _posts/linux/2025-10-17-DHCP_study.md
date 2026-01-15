@@ -1,67 +1,57 @@
----
+﻿---
 layout: post
-title: "DHCP 서버 구축 (Rocky Linux)"
+title: "DHCP"
 date: 2025-10-17 17:00:00 +0900
 categories: [linux]
 ---
 
-## 1. 개념
+## 1. 개요
 
-**DHCP (Dynamic Host Configuration Protocol)**는 네트워크 장치에 IP 주소를 자동으로 할당하는 프로토콜.
+**DHCP (Dynamic Host Configuration Protocol)**는 네트워크 상의 클라이언트에게 IP 주소, 서브넷 마스크, 게이트웨이, DNS 서버 주소 등의 네트워크 정보를 자동으로 할당해 주는 프로토콜이다.
+관리자가 수동으로 IP를 설정하는 번거로움을 줄이고, IP 충돌을 방지하며 주소 자원을 효율적으로 관리할 수 있게 해준다.
 
-### 기본 정보
+### 동작 과정 (DORA)
+DHCP는 **Discover**, **Offer**, **Request**, **Acknowledge**의 4단계 과정을 통해 IP를 할당한다.
 
-| 항목 | 내용 |
-|------|------|
-| 포트 | 67(서버), 68(클라이언트) - UDP |
-| 할당 정보 | IP, 서브넷 마스크, 게이트웨이, DNS |
-
-### 왜 DHCP를 사용하는가?
-
-| 구분 | 수동 설정 | DHCP |
-|------|----------|------|
-| 관리 | 각 PC마다 직접 설정 | 서버에서 자동 할당 |
-| 중복 IP | 직접 확인 필요 | 자동 방지 |
-| 변경시 | PC마다 설정 | 서버만 설정 |
-
-### DHCP 동작 과정 (DORA) - 중요!
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant S as Server
-    
-    C->>S: Discover (브로드캐스트)
-    S->>C: Offer (IP 제안)
-    C->>S: Request (IP 요청)
-    S->>C: ACK (할당 확인)
-```
+    participant Client
+    participant Server
 
-1. **Discover**: 클라이언트가 DHCP 서버 찾기
-2. **Offer**: 서버가 사용 가능한 IP 제안
-3. **Request**: 클라이언트가 제안된 IP 요청
-4. **ACK**: 서버가 할당 확정
+    Note over Client: IP가 없는 상태
+    Client->>Server: 1. DHCP Discover (브로드캐스트)
+    Server->>Client: 2. DHCP Offer (IP 제안)
+    Client->>Server: 3. DHCP Request (제안 수락 및 요청)
+    Server->>Client: 4. DHCP ACK (할당 확정)
+    Note over Client: IP 설정 완료
+```
 
 ---
 
-## 2. 설치 방법
+## 2. 서버 구축 (dhcpd.conf)
 
-### Rocky Linux / CentOS
+Rocky Linux에서 `dhcp-server` 패키지를 이용하여 DHCP 서버를 구축한다.
+
+### 설치
 ```bash
-# DHCP 서버 설치
 dnf install -y dhcp-server
-
-# 설정 파일 편집
-vi /etc/dhcp/dhcpd.conf
 ```
 
-### 기본 설정 예시
-```conf
-# /etc/dhcp/dhcpd.conf
+### 설정 파일 (/etc/dhcp/dhcpd.conf)
+```bash
+# 기본 네트워크 설정
 subnet 10.0.0.0 netmask 255.255.255.0 {
-    range 10.0.0.100 10.0.0.200;       # 할당 범위
-    option routers 10.0.0.1;           # 게이트웨이
-    option domain-name-servers 8.8.8.8; # DNS
-    default-lease-time 600;            # 임대 시간(초)
+    # 1. 할당할 IP 범위 (Pool)
+    range 10.0.0.51 10.0.0.250;
+    
+    # 2. 클라이언트에게 줄 옵션
+    option routers 10.0.0.254;                  # 게이트웨이
+    option domain-name-servers 8.8.8.8, 1.1.1.1; # DNS 서버
+    option broadcast-address 10.0.0.255;
+    
+    # 3. 임대 시간 (초 단위)
+    default-lease-time 7200;  # 기본 2시간
+    max-lease-time 14400;     # 최대 4시간
 }
 ```
 
@@ -74,114 +64,41 @@ firewall-cmd --reload
 
 ---
 
-## 3. 사용법
+## 3. 실습: 고정 IP 예약 (MAC Binding)
 
-### 상태 확인
-```bash
-systemctl status dhcpd
-cat /var/lib/dhcpd/dhcpd.leases  # 할당 현황
-```
+특정 장치(예: 프린터, 사내 서버, 임원 PC)가 항상 동일한 IP 주소를 받도록 설정한다. 장치의 **MAC 주소**를 DHCP 서버에 등록하여 특정 IP를 영구적으로 예약한다.
 
-### 클라이언트 테스트
-```bash
-# 클라이언트에서
-dhclient -r    # 기존 IP 해제
-dhclient       # 새 IP 요청
-ip addr show   # 확인
-```
-
----
-
-## 4. 실습
-
-![DHCP 설정](/assets/images/linux/dhcp.png)
-
-### IP 구성 계획
-
-| 항목 | 설정값 |
-|------|--------|
-| 네트워크 | 10.0.0.0/24 (10.0.0.1 ~ 254) |
-| 서버 고정 IP | 10.0.0.1 ~ 40 |
-| DHCP 서버 | 10.0.0.11 (rocky9-1) |
-| 동적 할당 범위 | 10.0.0.51 ~ 250 |
-| 게이트웨이 | 10.0.0.254 |
-| DNS | 168.126.63.1, 8.8.8.8 |
-| 기본 임대 시간 | 2시간 (7200초) |
-| 최대 임대 시간 | 4시간 (14400초) |
-
-### 예약 IP 설정
-
-| 클라이언트 | MAC 주소 기반 예약 IP |
-|------------|----------------------|
-| w10-1 | 10.0.0.101 |
-| w11-1 | 10.0.0.201 |
-
-### dhcpd.conf 설정
-
-![DHCP 설정 파일](/assets/images/linux/dhcp-config-file.png)
+### 설정 방법
+`dhcpd.conf` 파일 하단에 `host` 블록을 추가한다.
 
 ```conf
-subnet 10.0.0.0 netmask 255.255.255.0 {
-    range 10.0.0.51 10.0.0.250;
-    option routers 10.0.0.254;
-    option domain-name-servers 168.126.63.1, 8.8.8.8;
-    default-lease-time 7200;
-    max-lease-time 14400;
-}
-
-# MAC 주소 기반 예약
-host w10 {
-    hardware ethernet xx:xx:xx:xx:xx:xx;
-    fixed-address 10.0.0.101;
-}
-host w11 {
-    hardware ethernet yy:yy:yy:yy:yy:yy;
-    fixed-address 10.0.0.201;
+# Windows 10 클라이언트 예약
+host w10-pc {
+    hardware ethernet 00:0C:29:A1:B2:C3;  # 클라이언트 MAC 주소
+    fixed-address 10.0.0.101;             # 할당할 고정 IP
 }
 ```
 
-### 클라이언트 검증
+서비스 재시작 후 해당 클라이언트에서 IP를 갱신하면 항상 10.0.0.101을 받게 된다.
 
-**Windows 10 (w10-1)** - 10.0.0.101 할당 확인
+### 클라이언트 검증 (Windows)
+```cmd
+ipconfig /release
+ipconfig /renew
+ipconfig /all
+```
 
 ![DHCP 클라이언트 W10](/assets/images/linux/dhcp-client-w10.png)
 
-**Windows 11 (w11-1)** - 10.0.0.201 할당 확인
-
-![DHCP 클라이언트 W11](/assets/images/linux/dhcp-client-w11.png)
-
-### 삭제 방법
-```bash
-systemctl stop dhcpd
-systemctl disable dhcpd
-dnf autoremove dhcp-server
-rm -rf /etc/dhcp/ /var/lib/dhcpd/
-```
-
 ---
 
-## Appendix: Windows Server DHCP 구성 및 예약
+## Appendix: Windows Server DHCP
 
-Windows Server 환경에서 DHCP를 구성하고, 특정 클라이언트(MAC 주소 기반)에 고정 IP를 예약하는 실습입니다.
+리눅스뿐만 아니라 Windows Server에서도 DHCP 역할을 추가하여 동일한 기능을 구현할 수 있다. GUI 기반이라 관리가 직관적이다.
 
-### 실습 환경 및 요구사항
-- **네트워크**: `200.200.200.0/24`
-- **DHCP 서버 IP**: `200.200.200.3`
-- **게이트웨이**: `200.200.200.254`
-- **예약 설정**:
-  - **W10-1**: `200.200.200.100` (MAC 주소 기반)
-  - **W11-1**: `200.200.200.200` (MAC 주소 기반)
+### 고정 IP 예약 화면
+MAC 주소를 입력하고 예약할 IP를 지정하는 방식은 리눅스와 원리상 동일하다.
 
-![DHCP 요구사항 및 예약](/assets/images/windows-server/win-dhcp-req-2.png)
-
-### 검증 결과
-
-**Windows 10 (W10-1)**
-예약된 IP `200.200.200.100`을 성공적으로 받아온 것을 확인할 수 있습니다.
-![Windows 10 예약 IP 확인](/assets/images/windows-server/win-dhcp-verify-w10.png)
-
-**Windows 11 (W11-1)**
-예약된 IP `200.200.200.200`을 성공적으로 받아왔으며, 인터넷 연결도 정상입니다.
-![Windows 11 예약 IP 확인](/assets/images/windows-server/win-dhcp-verify-w11.png)
+![Windows DHCP 예약](/assets/images/windows-server/win-dhcp-verify-w11.png)
 
 <hr class="short-rule">
