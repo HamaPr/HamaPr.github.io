@@ -25,9 +25,31 @@ Sigma 탐지 룰을 네이티브로 지원하여 대용량 로그 파일에서 �
 - 공격 타임라인 생성
 - 악성 행위 패턴 식별
 
+```mermaid
+flowchart LR
+    A[EVTX 수집] --> B[Chainsaw 실행]
+    B --> C[Sigma 룰 매칭]
+    C --> D[탐지 결과 출력]
+    D --> E[타임라인 분석]
+```
+
 ---
 
-## 2. 설치 방법
+## 2. 실습 환경
+
+### 샘플 EVTX 데이터셋
+분석 실습을 위해 실제 공격 시나리오가 담긴 EVTX 파일이 필요하다.
+*   **SigmaHQ Test Data**: `sigma/tests/` 디렉터리에 포함된 샘플 로그
+*   **Mordor Project**: 공격 기법별(Mitre ATT&CK) 고품질 데이터셋 제공 ([링크](https://github.com/OTRF/mordor))
+*   **EVTX-Attack-Samples**: 다양한 공격 벡터별 샘플 ([링크](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES))
+
+### 분석 환경
+*   Windows, Linux, macOS 모두 지원 (Rust 기반 단일 바이너리)
+*   대용량 로그 분석 시 충분한 RAM 권장
+
+---
+
+## 3. 설치 방법
 
 Chainsaw는 별도의 설치 과정 없이 실행 파일만으로 동작한다.
 
@@ -59,7 +81,7 @@ git clone https://github.com/SigmaHQ/sigma.git
 
 ---
 
-## 3. 기본 사용법
+## 4. 기본 사용법
 
 ### 로그 검색
 특정 이벤트 ID나 키워드를 포함한 로그를 검색한다.
@@ -92,7 +114,7 @@ Sigma 룰을 적용하여 악성 행위를 자동으로 탐지한다. 가장 많
 
 ---
 
-## 4. 실습: 침해 사고 분석
+## 5. 실습: 침해 사고 분석
 
 ### 주요 탐지 이벤트 ID
 분석 시 중점적으로 확인해야 할 이벤트 ID이다.
@@ -124,7 +146,7 @@ Sigma 룰을 적용하여 악성 행위를 자동으로 탐지한다. 가장 많
 
 ---
 
-## 5. 트러블슈팅
+## 6. 트러블슈팅
 
 ### 인코딩 문제
 Windows 환경에서 한글 로그가 깨져 보일 경우 JSON으로 출력하여 확인하거나 PowerShell 인코딩을 변경해야 한다.
@@ -138,5 +160,18 @@ Sigma 룰과 Chainsaw 간의 필드 매핑이 맞지 않을 경우 오류가 발
 ```bash
 --mapping mappings/sigma-event-logs-all.yml
 ```
+
+---
+
+## 7. 탐지 및 대응 전략
+
+### 로그 수집 정책
+Chainsaw와 같은 도구로 분석하기 위해서는 먼저 로그가 적절히 남아야 한다.
+*   **감사 정책 설정**: `Audit Process Creation` (4688), `Audit Logon` (4624/4625) 등 필수보안 감사 정책 활성화
+*   **PowerShell 로깅**: `Script Block Logging` (Event ID 4104) 활성화로 난독화된 스크립트 탐지
+
+### 자동화된 위협 헌팅
+*   **주기적 스캔**: Task Scheduler나 Cron으로 Chainsaw를 주기적으로 실행하여 위협을 조기 탐지
+*   **SIEM 연동**: 탐지된 결과를 JSON으로 내보내어 Splunk, ELK 등으로 전송 및 시각화
 
 <hr class="short-rule">

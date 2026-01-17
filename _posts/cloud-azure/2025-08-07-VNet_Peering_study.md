@@ -163,4 +163,13 @@ az network vnet peering list -g MyRG --vnet-name Hub-VNet -o table
 *   피어링 상태가 `Connected`여도 통신이 안 된다면 NSG 규칙을 확인해야 한다.
 *   Subnet 레벨이나 NIC 레벨에 적용된 NSG가 트래픽을 차단하고 있을 수 있다.
 
+---
+
+## 6. 보안 고려사항
+
+*   **NSG 적용**: 피어링된 VNet 간에도 NSG 규칙이 적용되므로, 필요한 트래픽만 허용하도록 최소 권한 원칙을 적용한다.
+*   **IP 주소 계획**: 피어링은 주소 공간 충돌 시 불가능하므로, 설계 단계부터 체계적인 IP 주소 관리(IPAM)를 수행한다.
+*   **Hub에 보안 장비 집중**: Hub-Spoke 구조에서는 Hub VNet에 Azure Firewall이나 NVA를 배치하여 모든 Spoke 간 트래픽을 검사한다.
+*   **게이트웨이 전송 주의**: `useRemoteGateways` 옵션 활성화 시 Spoke의 모든 트래픽이 Hub 게이트웨이를 경유하므로, 의도치 않은 경로 노출에 주의한다.
+
 <hr class="short-rule">

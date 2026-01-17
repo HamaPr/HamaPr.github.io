@@ -264,4 +264,13 @@ NameVirtualHost *:80
 </VirtualHost>
 ```
 
+---
+
+## 7. 보안 고려사항
+
+*   **디렉터리 리스팅 비활성화**: `Options -Indexes`를 설정하여 디렉터리 내 파일 목록이 노출되지 않도록 한다.
+*   **서버 정보 최소 노출**: `ServerTokens Prod`와 `ServerSignature Off`를 설정하여 오류 페이지에서 버전 정보를 숨긴다.
+*   **불필요한 모듈 비활성화**: 사용하지 않는 Apache 모듈(`mod_status`, `mod_info` 등)을 비활성화하여 공격 표면을 줄인다.
+*   **로그 모니터링**: `access.log`와 `error.log`를 정기적으로 분석하여 공격 시도를 조기에 탐지한다.
+
 <hr class="short-rule">

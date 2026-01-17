@@ -255,7 +255,7 @@ Switch# reload
 
 ---
 
-## 9. 보안: VLAN Hopping 공격
+## 9. 보안 고려사항
 
 공격자가 VLAN 격리를 뚫고 다른 VLAN의 트래픽에 접근하는 공격이다.
 

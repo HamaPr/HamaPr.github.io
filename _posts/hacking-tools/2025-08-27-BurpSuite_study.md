@@ -13,7 +13,40 @@ categories: [hacking-tools]
 
 ---
 
-## 2. 설치 및 설정
+## 2. 테스트 워크플로우
+
+```mermaid
+flowchart LR
+    A[Proxy 설정] --> B[Intercept 요청]
+    B --> C[Repeater 분석]
+    C --> D[파라미터 조작]
+    D --> E[Intruder 자동화]
+    E --> F[취약점 확인]
+```
+
+---
+
+## 3. 실습 환경
+
+### DVWA (Docker)
+```bash
+docker run -d -p 80:80 vulnerables/web-dvwa
+# http://localhost 접속 후 Burp Proxy 설정
+```
+
+### OWASP WebGoat
+```bash
+docker run -d -p 8080:8080 webgoat/webgoat
+# SQL Injection, XSS 등 다양한 취약점 실습
+```
+
+### PortSwigger Web Security Academy
+온라인 무료 랩 환경으로 Burp Suite와 직접 연동하여 실습할 수 있다.
+- https://portswigger.net/web-security
+
+---
+
+## 4. 설치 및 설정
 
 Burp Suite를 사용하려면 브라우저의 트래픽이 프록시 서버(`127.0.0.1:8080`)를 통과하도록 설정해야 한다.
 
@@ -23,7 +56,7 @@ Burp Suite를 사용하려면 브라우저의 트래픽이 프록시 서버(`127
 
 ---
 
-## 3. 실습: Proxy (패킷 변조)
+## 5. 실습: Proxy (패킷 변조)
 
 **Proxy** 기능은 모든 트래픽을 확인하고 제어하는 관문이다.
 
@@ -38,7 +71,7 @@ Burp Suite를 사용하려면 브라우저의 트래픽이 프록시 서버(`127
 
 ---
 
-## 4. 실습: Repeater (반복 전송)
+## 6. 실습: Repeater (반복 전송)
 
 **Repeater**는 가로챈 요청을 수동으로 수정하고 반복적으로 재전송할 수 있는 도구이다. SQL Injection이나 권한 우회 취약점을 테스트할 때 유용하다.
 
@@ -50,7 +83,7 @@ Burp Suite를 사용하려면 브라우저의 트래픽이 프록시 서버(`127
 
 ---
 
-## 5. 실습: Intruder (자동화 공격)
+## 7. 실습: Intruder (자동화 공격)
 
 **Intruder**는 요청의 특정 위치에 페이로드를 자동으로 주입하여 무차별 대입(Brute-Force) 공격을 수행하는 도구이다.
 
@@ -63,7 +96,7 @@ Burp Suite를 사용하려면 브라우저의 트래픽이 프록시 서버(`127
 
 ---
 
-## 6. 추가 도구
+## 8. 추가 도구
 
 Burp Suite Pro에는 자동 취약점 스캔, 인코딩 처리, 응답 비교 등 추가 도구가 포함되어 있다. Community Edition에서도 일부 기능을 사용할 수 있다.
 
@@ -82,5 +115,20 @@ Burp Suite Pro에는 자동 취약점 스캔, 인코딩 처리, 응답 비교 �
 
 ### Collaborator (Pro)
 Out-of-Band (OOB) 취약점 탐지 도구이다. 서버가 외부로 요청을 보내는지 확인하여 Blind SSRF, XXE 등을 탐지한다.
+
+---
+
+## 9. 방어 대책
+
+### 탐지 방법
+*   **WAF 로그**: 비정상적인 파라미터 조작 패턴 탐지
+*   **Rate Limiting**: 동일 세션에서 과도한 요청 차단
+*   **입력 검증 로그**: 서버 측에서 변조된 요청 기록
+
+### 방어 방법
+*   **입력 값 검증**: 서버 측에서 모든 파라미터 화이트리스트 검증
+*   **CSRF 토큰**: 요청 위조 방지
+*   **Rate Limiting**: 무차별 대입 공격 차단
+*   **WAF 적용**: ModSecurity, Cloudflare WAF
 
 <hr class="short-rule">

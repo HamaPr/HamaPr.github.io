@@ -144,4 +144,15 @@ Router# undebug all
 Router# u all
 ```
 
+---
+
+## 7. 보안 고려사항
+
+*   **Enable Secret 사용**: `enable password` 대신 암호화 저장되는 `enable secret`을 사용한다.
+*   **Service Password Encryption**: 모든 평문 비밀번호를 암호화하는 `service password-encryption`을 활성화한다.
+*   **SSH만 허용**: Telnet 대신 SSH를 사용하도록 `transport input ssh`를 설정하고, Telnet 접속을 차단한다.
+*   **Timeout 설정**: 유휴 세션을 자동 종료하여 무인 세션을 통한 비인가 접근을 방지한다. (`exec-timeout 5 0`)
+*   **Banner 경고**: 로그인 화면에 접근 금지/모니터링 경고 문구를 표시하여 법적 근거를 마련한다. (`banner motd`)
+*   **불필요 서비스 비활성화**: `no ip http server`, `no cdp run` 등으로 사용하지 않는 서비스를 끈다.
+
 <hr class="short-rule">

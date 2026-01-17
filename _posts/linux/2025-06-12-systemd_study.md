@@ -165,4 +165,13 @@ journalctl -u nginx -f
 journalctl -xe
 ```
 
+---
+
+## 6. 보안 고려사항
+
+*   **불필요한 서비스 비활성화**: 사용하지 않는 서비스는 `systemctl disable --now`로 비활성화하여 공격 표면을 줄인다.
+*   **서비스 샌드박싱**: Unit 파일에 `ProtectSystem=strict`, `PrivateTmp=true`, `NoNewPrivileges=true` 등의 옵션을 추가하여 서비스의 권한을 최소화한다.
+*   **타이머 권한 관리**: 사용자 정의 타이머는 의도치 않은 스크립트 실행을 막기 위해 실행될 스크립트의 권한과 소유자를 명확히 지정한다.
+*   **로그 모니터링**: `journalctl`을 활용하여 서비스 이상 징후를 주기적으로 모니터링한다.
+
 <hr class="short-rule">

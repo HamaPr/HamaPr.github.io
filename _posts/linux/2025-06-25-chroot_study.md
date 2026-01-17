@@ -112,4 +112,12 @@ Match Group sftponly
 
 **주의사항**: `ChrootDirectory`로 지정된 경로는 반드시 **root 소유**여야 하며, 쓰기 권한이 그룹이나 타인에게 있으면 안 된다. (`chmod 755`, `chown root:root`)
 
+---
+
+## 5. 보안 고려사항
+
+*   **Chroot 탈옥 위험**: chroot는 완벽한 격리 솔루션이 아니다. root 권한을 가진 프로세스는 `mknod`, `mount` 등을 이용해 격리를 벗어날 수 있다. 보다 강력한 격리가 필요하면 Docker나 VM을 사용한다.
+*   **최소한의 바이너리 제공**: 격리 환경에는 필수 바이너리만 복사하여 공격자가 내부 도구를 악용할 가능성을 줄인다.
+*   **SFTP Chroot 권한 설정**: `ChrootDirectory` 경로는 반드시 `root` 소유, `755` 권한이어야 한다. 그렇지 않으면 SSH 데몬이 접속을 거부한다.
+
 <hr class="short-rule">

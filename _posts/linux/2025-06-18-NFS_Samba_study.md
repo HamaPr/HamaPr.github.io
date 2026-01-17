@@ -123,4 +123,17 @@ cd /mnt/auto/share
 
 ![Samba 공유 폴더 접속](/assets/images/linux/samba.png)
 
+---
+
+## 5. 보안 고려사항
+
+### NFS
+*   **`no_root_squash` 위험성**: 이 옵션은 클라이언트의 root 권한을 서버에서도 그대로 인정한다. 악의적인 클라이언트가 서버 파일을 무단 수정할 수 있으므로 신뢰할 수 있는 환경에서만 사용한다.
+*   **IP 기반 접근 제어**: `/etc/exports` 파일에서 허용 IP 대역을 최소화하고, 방화벽으로 추가 제한한다.
+
+### Samba
+*   **익명 접속 차단**: `smb.conf`의 `guest ok = no` 설정을 통해 인증 없이 접근하는 것을 막는다.
+*   **강력한 비밀번호 정책**: `smbpasswd`로 생성하는 Samba 계정에 복잡한 비밀번호를 적용한다.
+*   **SMBv1 비활성화**: 취약점이 알려진 SMBv1 프로토콜 사용을 금지한다. (`min protocol = SMB2`)
+
 <hr class="short-rule">

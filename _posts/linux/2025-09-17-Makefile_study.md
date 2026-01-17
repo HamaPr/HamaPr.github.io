@@ -129,4 +129,12 @@ Makefile:2: *** missing separator.  Stop.
 main.o: main.c func.h  # func.h 추가
 ```
 
+---
+
+## 6. 보안 고려사항
+
+*   **신뢰할 수 없는 Makefile 실행 주의**: Makefile의 명령어는 쉘에서 실행되므로, 출처가 불분명한 소스코드의 Makefile을 실행하기 전에 반드시 내용을 검토한다. 악성 명령어(`rm -rf /`, `curl | sh` 등)가 포함될 수 있다.
+*   **빌드 환경 격리**: 중요한 시스템에서 직접 빌드하지 말고, Docker나 VM 등 격리된 환경에서 빌드하여 시스템 오염을 방지한다.
+*   **컴파일러 옵션 보안**: 보안 강화 옵션(`-fstack-protector-strong`, `-D_FORTIFY_SOURCE=2`)을 `CFLAGS`에 추가하여 버퍼 오버플로우 취약점을 완화한다.
+
 <hr class="short-rule">

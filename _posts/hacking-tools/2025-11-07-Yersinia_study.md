@@ -34,7 +34,21 @@ sequenceDiagram
 
 ---
 
-## 3. 설치 및 컴파일
+## 3. 실습 환경
+
+### GNS3 / Packet Tracer
+실제 물리적 스위치 없이도 L2 공격을 실습할 수 있는 네트워크 시뮬레이터이다.
+*   DHCP 서버가 포함된 토폴로지 구성
+*   Kali VM을 시뮬레이션 네트워크에 연결
+
+### VirtualBox Internal Network
+*   **공격자 (Kali)**: Yersinia 실행
+*   **DHCP 서버**: Windows Server나 dnsmasq 설정된 Linux
+*   **피해자**: Windows 클라이언트
+
+---
+
+## 4. 설치 및 컴파일
 
 Kali Linux 최신 버전에는 Yersinia가 기본 설치되어 있지 않으며, 패키지 의존성 문제로 직접 소스를 컴파일해야 한다.
 
@@ -64,7 +78,7 @@ make install
 
 ---
 
-## 4. 공격 실습: DHCP Starvation
+## 5. 공격 실습: DHCP Starvation
 
 ### 도구 실행
 ```bash
@@ -83,7 +97,7 @@ Wireshark로 패킷을 캡처해보면 엄청난 속도로 DHCP Discover 패킷�
 
 ---
 
-## 5. 방어 방법
+## 6. 방어 방법
 
 L2 공격은 네트워크 스위치 장비에서 방어 기능을 설정해야 막을 수 있다.
 

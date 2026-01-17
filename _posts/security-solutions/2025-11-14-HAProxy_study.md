@@ -219,4 +219,13 @@ HAProxy가 네트워크에 연결하거나 특정 포트를 바인딩할 때 SEL
 setsebool -P haproxy_connect_any 1
 ```
 
+---
+
+## 7. 보안 고려사항
+
+*   **SSL/TLS 강화**: 오래된 프로토콜(TLS 1.0, 1.1)과 취약한 암호 스위트를 비활성화한다. (`ssl-min-ver TLSv1.2`)
+*   **Stats 페이지 보호**: 관리 대시보드는 강력한 비밀번호와 IP 화이트리스트로 접근을 제한한다.
+*   **Rate Limiting**: DDoS 방어를 위해 `stick-table`과 `http-request deny`를 사용하여 요청 속도를 제한한다.
+*   **헤더 보안**: `http-response set-header X-Frame-Options DENY`와 기타 보안 헤더를 추가하여 클릭재킹 등을 방지한다.
+
 <hr class="short-rule">

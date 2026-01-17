@@ -2,7 +2,7 @@
 layout: post
 title: "Azure CLI Attack & Recon"
 date: 2025-09-18 17:00:00 +0900
-categories: [system-hacking]
+categories: [cloud-azure]
 tags: [Azure CLI, Cloud Hacking, Reconnaissance, Lateral Movement]
 description: "공격자 관점에서의 Azure CLI 활용: 리소스 정찰, 데이터 유출, 그리고 백도어 계정 생성"
 ---
@@ -80,7 +80,7 @@ az vm run-command invoke -g MyGroup -n MyVM --command-id RunShellScript --script
 
 ---
 
-## 4. 방어 대책
+## 4. 보안 고려사항
 
 *   **Cloud Shell 제한**: 프로덕션 서버에는 불필요하게 Azure CLI를 설치하지 않는다.
 *   **RBAC (역할 기반 접근 제어)**: 사용자에게 `Owner`나 `Contributor` 같은 과도한 권한을 주지 말고, 필요한 리소스에만 접근 가능한 최소 권한을 부여한다.

@@ -13,7 +13,37 @@ categories: [hacking-tools]
 
 ---
 
-## 2. 주요 스캔 유형
+## 2. 스캔 워크플로우
+
+```mermaid
+flowchart LR
+    A[대상 IP] --> B[포트 스캔]
+    B --> C[서비스 버전 확인]
+    C --> D[NSE 취약점 스캔]
+    D --> E[CVE 확인]
+    E --> F[익스플로잇 선택]
+```
+
+---
+
+## 3. 실습 환경
+
+### Metasploitable 2
+```bash
+# 취약한 VM 다운로드 후 VirtualBox로 실행
+# https://sourceforge.net/projects/metasploitable/
+nmap -sV -sC 192.168.56.101
+```
+
+### Docker 기반
+```bash
+docker run -d -p 80:80 -p 22:22 vulnerables/web-dvwa
+nmap -sV localhost
+```
+
+---
+
+## 4. 주요 스캔 유형
 
 #### 기본 TCP 스캔
 가장 기본적인 스캔 방식으로, 대상 호스트와 3-way Handshake 연결을 시도하여 포트 개방 여부를 확인한다.
@@ -48,7 +78,7 @@ PORT   STATE SERVICE VERSION
 
 ---
 
-## 3. 주요 옵션 분석
+## 4. 주요 옵션 분석
 
 *   **-sC (Script Scan)**: 기본 스크립트(`default` 카테고리)를 실행하여 더 많은 정보를 수집한다. `-sV`와 함께 `-sC -sV` 조합으로 자주 사용된다.
 *   **-p [Ports]**: 특정 포트만 지정하여 스캔한다. (예: `-p 80,443`) 시간 단축을 위해 필수적이다.
@@ -57,7 +87,7 @@ PORT   STATE SERVICE VERSION
 
 ---
 
-## 4. NSE 활용
+## 5. NSE 활용
 
 Nmap Scripting Engine (NSE)은 Lua 언어로 작성된 스크립트를 통해 Nmap의 기능을 확장한다. 단순한 포트 스캔을 넘어 취약점 진단까지 가능하다.
 
@@ -73,7 +103,7 @@ nmap -sV --script=vuln 192.9.200.11
 
 ---
 
-## 5. 스텔스 스캔
+## 6. 스텔스 스캔
 
 실제 침투 테스트 환경에서는 방화벽이나 IDS가 스캔을 차단하거나 탐지할 수 있다. 다양한 옵션을 활용해 탐지를 우회한다.
 
@@ -107,5 +137,36 @@ IDS 탐지를 피하기 위해 스캔 속도를 낮출 수 있다.
 | `-T1` | Sneaky | 느림 |
 | `-T3` | Normal | 기본값 |
 | `-T4` | Aggressive | 빠름 (CTF/랩 환경) |
+
+---
+
+## 7. 방어 대책
+
+### 탐지 방법
+*   **IDS/IPS 룰**: Snort, Suricata에서 SYN 스캔 패턴 탐지
+*   **방화벽 로그**: 짧은 시간 내 다수 포트 연결 시도 모니터링
+*   **Rate Limiting**: 동일 IP의 연속 연결 시도 제한
+
+### 방어 방법
+*   **불필요한 포트 닫기**: 사용하지 않는 서비스 비활성화
+*   **방화벽 규칙**: 화이트리스트 기반 접근 제어
+*   **배너 그랩 방지**: 서비스 버전 정보 숨기기
+    ```bash
+    # Apache 버전 숨기기 (httpd.conf)
+    ServerTokens Prod
+    ServerSignature Off
+    ```
+
+---
+
+## MITRE ATT&CK 매핑
+
+| Nmap 기능 | ATT&CK 기법 | ID | 단계 |
+|-----------|------------|-----|------|
+| 포트 스캔 (`-sS`, `-sT`) | Network Service Discovery | T1046 | Discovery |
+| 서비스 버전 탐지 (`-sV`) | Network Service Discovery | T1046 | Discovery |
+| OS 탐지 (`-O`) | System Information Discovery | T1082 | Discovery |
+| NSE 취약점 스캔 (`--script vuln`) | Vulnerability Scanning | T1595.002 | Reconnaissance |
+| 호스트 탐색 (`-sn`) | Remote System Discovery | T1018 | Discovery |
 
 <hr class="short-rule">

@@ -87,7 +87,7 @@ $result = $stmt->get_result();
 
 ---
 
-## 5. 보안 설정 (Hardening)
+## 5. 보안 고려사항
 
 1.  **원격 접속 제한**: `/etc/mysql/mysql.conf.d/mysqld.cnf` 파일에서 `bind-address = 127.0.0.1`로 설정하여 외부 접속을 차단한다.
 2.  **익명 사용자 제거**: `mysql_secure_installation` 스크립트를 실행하여 익명 사용자, 테스트 DB 등을 삭제한다.

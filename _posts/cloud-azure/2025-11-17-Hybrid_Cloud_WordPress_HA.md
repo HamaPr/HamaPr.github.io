@@ -307,4 +307,118 @@ curl 10.0.0.11/health.html
 - **확장성**: 웹 서버 수평 확장 가능
 - **보안**: Private 서브넷으로 DB 보호
 
+---
+
+## 6. 보안 고려사항
+
+### 주요 보안 위협
+
+| 위협 | 영향 범위 | Azure | On-Premise |
+|------|----------|-------|------------|
+| **DB 직접 접근** | 데이터 유출 | Private Endpoint 미설정 시 | 방화벽 미설정 시 |
+| **WordPress 취약점** | RCE, 데이터 유출 | 플러그인/테마 취약점 | 동일 |
+| **SSH 무차별 대입** | 서버 장악 | Public IP 노출 시 | 동일 |
+| **SSRF 공격** | 내부 네트워크 정찰 | IMDS 토큰 탈취 가능 | 내부 서비스 접근 |
+| **설정 파일 노출** | 자격 증명 유출 | `wp-config.php` 접근 | 동일 |
+
+### 공격 시나리오: WordPress를 통한 침투
+
+```mermaid
+sequenceDiagram
+    participant Attacker as 공격자
+    participant WP as WordPress
+    participant DB as Database
+    participant Internal as 내부 서비스
+    
+    Attacker->>WP: 1. 취약한 플러그인 익스플로잇
+    WP->>WP: 2. WebShell 업로드
+    WP->>DB: 3. wp-config.php에서 DB 자격 증명 획득
+    WP->>DB: 4. 데이터베이스 덤프
+    WP->>Internal: 5. SSRF로 내부 네트워크 스캔
+    Note over Internal: 6. 추가 서비스 침해
+```
+
+### 방어 대책 체크리스트
+
+#### Azure 환경
+
+**🔴 필수**
+- [ ] **Private Endpoint**: Azure MySQL에 Private Link만 허용
+- [ ] **Bastion 사용**: SSH 접근은 Bastion을 통해서만
+- [ ] **NSG 강화**: Web 서버 80/443만 허용
+
+**🟠 권장**
+- [ ] **WAF 활성화**: App Gateway에 OWASP 규칙셋 적용
+- [ ] **NAT Gateway**: 아웃바운드 IP 고정 및 제한
+- [ ] **Key Vault 연동**: 비밀번호/연결 문자열 안전 저장
+
+#### On-Premise 환경
+
+**🔴 필수**
+- [ ] **MySQL 접근 제어**: WordPress IP만 3306 허용
+- [ ] **방화벽 규칙**: 필요한 포트만 개방
+
+**🟠 권장**
+- [ ] **HAProxy 보안**: Stats 페이지 비활성화 또는 인증
+- [ ] **SSH 키 인증**: 비밀번호 로그인 비활성화
+
+### 보안 강화 명령어
+
+**Azure: WAF 활성화 (App Gateway)**
+```bash
+# WAF 정책 생성
+az network application-gateway waf-policy create \
+    -g 04-hamap -n hamap-waf-policy
+
+# OWASP 3.2 규칙셋 적용
+az network application-gateway waf-policy managed-rule rule-set add \
+    -g 04-hamap --policy-name hamap-waf-policy \
+    --type OWASP --version 3.2
+```
+
+**Azure: Key Vault로 비밀번호 관리**
+```bash
+# Key Vault 생성
+az keyvault create -g 04-hamap -n hamap-kv --location koreacentral
+
+# DB 비밀번호 저장
+az keyvault secret set --vault-name hamap-kv \
+    -n mysql-password --value "SecurePassword123!"
+
+# VM에서 비밀번호 조회 (Managed Identity 필요)
+az keyvault secret show --vault-name hamap-kv -n mysql-password --query value -o tsv
+```
+
+**On-Premise: MySQL 접근 제어 강화**
+```bash
+# WordPress 서버 IP만 허용
+firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="10.0.0.12" port port="3306" protocol="tcp" accept'
+firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="10.0.0.13" port port="3306" protocol="tcp" accept'
+firewall-cmd --permanent --remove-port=3306/tcp  # 기존 any 허용 제거
+firewall-cmd --reload
+```
+
+**WordPress 보안 설정**
+```bash
+# wp-config.php 권한 강화
+chmod 600 /var/www/html/wp-config.php
+
+# 디렉토리 리스팅 비활성화
+echo "Options -Indexes" >> /var/www/html/.htaccess
+
+# XML-RPC 비활성화 (DDoS 방지)
+echo "<Files xmlrpc.php>
+Require all denied
+</Files>" >> /var/www/html/.htaccess
+```
+
+### 모니터링 체크리스트
+
+| 항목 | Azure | On-Premise |
+|------|-------|------------|
+| **접근 로그** | App Gateway 진단 로그 | HAProxy 접근 로그 |
+| **DB 감사** | Azure MySQL 감사 로그 | MySQL slow/general 로그 |
+| **보안 이벤트** | Azure Defender for Cloud | Fail2ban, auditd |
+| **가용성 모니터링** | Azure Monitor | Prometheus + Grafana |
+
 <hr class="short-rule">

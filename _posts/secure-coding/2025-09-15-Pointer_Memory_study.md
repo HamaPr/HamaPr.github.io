@@ -187,4 +187,13 @@ free(ptr);
 free(ptr); // 에러 발생
 ```
 
+---
+
+## 7. 보안 고려사항
+
+*   **입력 크기 검증**: 사용자 입력을 버퍼에 저장할 때 반드시 크기를 검증하여 버퍼 오버플로우를 방지한다.
+*   **안전한 함수 사용**: `strcpy` 대신 `strncpy`, `sprintf` 대신 `snprintf`처럼 크기 제한이 있는 함수를 사용한다.
+*   **해제 후 NULL 대입**: 메모리 해제(`free`) 직후 포인터를 `NULL`로 설정하여 댕글링 포인터와 Double-Free를 방지한다.
+*   **ASLR/DEP/Canary 활용**: 컴파일 및 OS 레벨에서 보안 옵션(ASLR, DEP, Stack Canary)을 활성화한다.
+
 <hr class="short-rule">

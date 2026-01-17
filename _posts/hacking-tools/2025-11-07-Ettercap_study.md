@@ -32,7 +32,24 @@ sequenceDiagram
 
 ---
 
-## 3. 사전 준비
+## 3. 실습 환경
+
+### VirtualBox/VMware 내부 네트워크
+ARP Spoofing은 동일 로컬 네트워크(L2) 내에서만 작동하므로, VM을 Host-Only나 Internal Network로 구성해야 한다.
+*   **공격자 (Kali)**: `10.0.0.32`
+*   **피해자 (Windows)**: `10.0.0.101`
+*   **DNS 서버 / 게이트웨이**: `10.0.0.11`
+
+### 가짜 웹 서버 (Apache)
+공격자 PC에서 Apache를 실행하여 피해자를 유도할 가짜 페이지를 구성한다.
+```bash
+sudo systemctl start apache2
+# /var/www/html/index.html 수정
+```
+
+---
+
+## 4. 사전 준비
 
 ### 환경 구성
 *   **공격자 (Kali)**: `10.0.0.32` (Apache 웹 서버 실행 중)
@@ -51,7 +68,7 @@ vi /etc/ettercap/etter.dns
 
 ---
 
-## 4. 공격 실습: DNS Spoofing
+## 5. 공격 실습: DNS Spoofing
 
 Ettercap의 GUI 모드를 사용하여 공격을 수행한다.
 
@@ -70,7 +87,7 @@ nslookup hamap.local
 
 ---
 
-## 5. 방어 방법
+## 6. 방어 방법
 
 *   **정적 ARP 테이블 (Static ARP)**: 주요 서버나 게이트웨이의 MAC 주소를 수동으로 고정하여 ARP Spoofing을 차단한다.
     ```cmd

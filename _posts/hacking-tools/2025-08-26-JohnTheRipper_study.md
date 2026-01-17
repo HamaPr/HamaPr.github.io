@@ -15,7 +15,21 @@ description: "John the Ripper를 이용한 리눅스 Shadow 파일, Zip 파일 �
 
 ---
 
-## 2. 기본 사용법
+## 2. 크래킹 흐름
+
+```mermaid
+flowchart LR
+    A[해시 파일 획득] --> B[해시 형식 식별]
+    B --> C[John 실행]
+    C --> D{크래킹 성공?}
+    D -->|Yes| E[평문 비밀번호]
+    D -->|No| F[Wordlist 변경]
+    F --> C
+```
+
+---
+
+## 3. 기본 사용법
 
 기본적인 실행 구문은 다음과 같다.
 
@@ -29,9 +43,29 @@ john [옵션] [해시 파일]
 *   **--show**: 이미 크랙에 성공하여 `john.pot` 파일에 저장된 비밀번호를 출력한다.
 *   **--rules**: 사전 파일의 단어를 변형(대소문자, 숫자 추가 등)하여 대입하는 규칙을 적용한다.
 
+*   **--rules**: 사전 파일의 단어를 변형(대소문자, 숫자 추가 등)하여 대입하는 규칙을 적용한다.
+
 ---
 
-## 3. 공격 실습: Linux Shadow 파일
+## 4. 실습 환경
+
+### 로컬 해시 생성 실습
+```bash
+# 테스트용 MD5 해시 생성 (password123)
+echo -n 'password123' | openssl md5
+# hello:5d41402abc4b2a76b9719d911017c592 > hash.txt
+```
+
+### 암호화된 Zip 파일 생성
+```bash
+# 실습용 잠긴 zip 파일 만들기
+touch secret.txt
+zip --password "secret123" protected.zip secret.txt
+```
+
+---
+
+## 5. 공격 실습: Linux Shadow 파일
 
 리눅스 시스템은 계정 정보를 `/etc/passwd`에, 암호화된 비밀번호 해시를 `/etc/shadow`에 분리하여 저장한다. 크래킹을 위해서는 이 두 파일을 하나로 합쳐야 한다.
 
@@ -55,7 +89,7 @@ john --wordlist=/usr/share/wordlists/rockyou.txt passwords.txt
 
 ---
 
-## 4. 공격 실습: 압축 파일
+## 6. 공격 실습: 압축 파일
 
 암호가 걸린 Zip 파일도 해시로 변환하여 JtR로 크랙할 수 있다.
 
@@ -75,7 +109,7 @@ john --wordlist=/usr/share/wordlists/rockyou.txt zip.hash
 
 ---
 
-## 5. 공격 실습: 단일 해시
+## 7. 공격 실습: 단일 해시
 
 `sqlmap` 등을 통해 획득한 단일 MD5 해시값을 크래킹하는 방법이다.
 
@@ -91,7 +125,7 @@ john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
 
 ---
 
-## 6. 보안 대책
+## 8. 보안 대책
 
 *   **강력한 비밀번호 정책**: 단순한 사전 공격에 뚫리지 않도록 충분한 길이와 특수문자, 대소문자를 포함한 복잡한 비밀번호를 강제한다.
 *   **솔트(Salt) 적용**: 비밀번호 해시 생성 시 랜덤한 솔트 값을 추가하여 레인보우 테이블 공격을 무력화한다. (현대 리눅스는 SHA-512 with Salt를 기본으로 사용한다.)

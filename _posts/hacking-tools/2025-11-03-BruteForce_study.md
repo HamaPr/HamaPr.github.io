@@ -13,7 +13,38 @@ categories: [hacking-tools]
 
 ---
 
-## 2. 공격 도구 및 유형
+## 2. 공격 흐름
+
+```mermaid
+flowchart LR
+    A[대상 서비스] --> B[Wordlist 준비]
+    B --> C[도구 선택]
+    C --> D[공격 실행]
+    D --> E{인증 성공?}
+    E -->|Yes| F[계정 탈취]
+    E -->|No| D
+```
+
+---
+
+## 3. 실습 환경
+
+### Metasploitable 2 (SSH)
+```bash
+# SSH Brute Force 실습 대상
+# https://sourceforge.net/projects/metasploitable/
+hydra -l msfadmin -P rockyou.txt 192.168.56.101 ssh
+```
+
+### DVWA (Web Form)
+```bash
+# Brute Force 메뉴를 Low 레벨로 설정 후 Burp Intruder 실습
+docker run -d -p 80:80 vulnerables/web-dvwa
+```
+
+---
+
+## 4. 공격 도구 및 유형
 
 | 도구 | 용도 |
 |------|------|
@@ -30,7 +61,7 @@ categories: [hacking-tools]
 
 ---
 
-## 3. 공격 실습: SSH 및 웹
+## 5. 공격 실습: SSH 및 웹
 
 ### Hydra - SSH 공격
 원격지 SSH 서비스(22번 포트)에 대해 사전 파일을 대입한다.
@@ -56,7 +87,7 @@ john --show hashes.txt
 
 ---
 
-## 4. 공격 실습: 웹 폼
+## 6. 공격 실습: 웹 폼
 
 DVWA와 같은 웹 애플리케이션의 로그인 페이지를 대상으로 Burp Suite를 사용한다.
 
@@ -68,7 +99,7 @@ DVWA와 같은 웹 애플리케이션의 로그인 페이지를 대상으로 Bur
 
 ---
 
-## 5. 보안 대책 및 탐지
+## 7. 보안 대책 및 탐지
 
 ### 보안 대책
 *   **계정 잠금 (Account Lockout)**: 5회 이상 실패 시 30분간 계정 잠금 설정.

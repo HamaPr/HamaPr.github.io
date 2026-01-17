@@ -15,7 +15,19 @@ description: "웹 서버의 숨겨진 디렉터리와 파일을 찾아내는 Dir
 
 ---
 
-## 2. 도구 비교
+## 2. 스캔 워크플로우
+
+```mermaid
+flowchart LR
+    A[대상 URL] --> B[Wordlist 선택]
+    B --> C[Gobuster 실행]
+    C --> D[200/301/403 응답 확인]
+    D --> E[숨겨진 경로 발견]
+```
+
+---
+
+## 3. 도구 비교
 
 | 특징 | DIRB | Gobuster |
 | :--- | :--- | :--- |
@@ -44,9 +56,27 @@ gobuster dir -u [대상 URL] -w [사전 파일] [옵션]
 *   **-k**: SSL 인증서 검증 무시 (사설 인증서 사용 시 유용)
 *   **-s (status codes)**: 정상으로 간주할 상태 코드 지정
 
+*   **-s (status codes)**: 정상으로 간주할 상태 코드 지정
+
 ---
 
-## 4. 공격 실습: Directory Brute-Force
+## 4. 실습 환경
+
+### DVWA (Docker)
+```bash
+docker run -d -p 80:80 vulnerables/web-dvwa
+# http://localhost/dvwa 경로 스캔
+```
+
+### OWASP Juice Shop
+```bash
+docker run -d -p 3000:3000 bkimminich/juice-shop
+# http://localhost:3000 경로 스캔
+```
+
+---
+
+## 5. 공격 실습: Directory Brute-Force
 
 DVWA 서버를 대상으로 숨겨진 `php`, `txt` 파일을 탐색한다.
 
@@ -65,7 +95,7 @@ gobuster dir -u http://192.9.200.11/dvwa/ -w /usr/share/wordlists/dirb/common.tx
 
 ---
 
-## 5. DIRB 사용법
+## 6. DIRB 사용법 (참고)
 
 참고로 DIRB는 별도의 모드 지정 없이 바로 URL과 사전 파일을 입력하여 사용한다. 기본적으로 재귀 스캔(하위 디렉터리까지 탐색)을 수행한다.
 
@@ -75,7 +105,7 @@ dirb http://192.9.200.11/ /usr/share/wordlists/dirb/common.txt
 
 ---
 
-## 6. 보안 대책
+## 7. 보안 대책
 
 *   **불필요한 파일 삭제**: 개발용 테스트 파일, 백업 파일(`.bak`, `.old`), 임시 파일 등을 운영 서버 배포 전에 반드시 제거한다.
 *   **디렉터리 리스팅 비활성화**: 웹 서버 설정에서 `Options -Indexes` (Apache) 등을 적용하여 파일 목록이 노출되지 않도록 한다.

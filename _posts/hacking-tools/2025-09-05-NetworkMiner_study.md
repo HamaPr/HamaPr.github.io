@@ -27,6 +27,14 @@ categories: [hacking-tools]
 | **자격 증명** | 평문 (ID/PW) 자동 탐지 | 문자열 검색 필요 |
 | **실시간 캡처** | 제한적 (무료 버전 불가) | 강력함 |
 
+```mermaid
+flowchart LR
+    A[PCAP 파일] --> B[NetworkMiner 로드]
+    B --> C[호스트 프로파일링]
+    C --> D[파일 추출]
+    D --> E[자격 증명 탐지]
+```
+
 ---
 
 ## 2. 설치 방법
@@ -84,7 +92,20 @@ AssembledFiles/
 
 ---
 
-## 4. 실습: 패킷 분석
+## 4. 실습 환경
+
+### 샘플 PCAP 다운로드
+다양한 프로토콜 분석 실습을 위해 공개된 PCAP 파일을 다운로드한다.
+*   **Netresec Public PCAP**: https://www.netresec.com/?page=PcapFiles
+*   **Wireshark Sample Captures**: `http.cap`, `telnet.cap` 등
+*   **Malware Traffic Analysis**: 실제 악성코드 통신 패킷 분석 ([링크](https://www.malware-traffic-analysis.net/))
+
+### 로컬 트래픽 캡처
+NetworkMiner 무료 버전은 실시간 캡처 기능에 제한이 있으므로, Wireshark나 Tcpdump로 캡처한 파일을 로드하는 것이 좋다.
+
+---
+
+## 5. 실습: 패킷 분석
 
 웹 트래픽에 포함된 계정 정보와 파일을 추출하는 실습이다.
 
@@ -104,7 +125,7 @@ wget https://raw.githubusercontent.com/packetrat/packethunting/master/HTTP-passw
 
 ---
 
-## 5. CTF 활용 팁
+## 6. CTF 활용 팁
 
 해킹 대회(CTF)의 포렌식 문제에서 NetworkMiner는 다음과 같이 활용된다.
 
@@ -114,7 +135,7 @@ wget https://raw.githubusercontent.com/packetrat/packethunting/master/HTTP-passw
 
 ---
 
-## 6. 트러블슈팅
+## 7. 트러블슈팅
 
 ### 파일이 추출되지 않는 경우
 *   **HTTPS 트래픽**: 암호화된 트래픽(TLS)은 복호화 키가 없으면 내용을 볼 수 없으므로 파일 추출이 불가능하다.
@@ -125,5 +146,17 @@ wget https://raw.githubusercontent.com/packetrat/packethunting/master/HTTP-passw
     ```bash
     editcap -c 100000 large.pcap split.pcap
     ```
+
+---
+
+## 8. 방어 대책 (패킷 분석 대응)
+
+### 패킷 보호
+*   **전송 구간 암호화**: HTTPS(TLS 1.3) 사용 시 NetworkMiner가 내용을 복원하거나 파일을 추출할 수 없다.
+*   **VPN 사용**: 터널링을 통해 패킷 헤더와 페이로드를 숨긴다.
+
+### 데이터 유출 방지 (DLP)
+*   **네트워크 DRM**: 중요 파일이 외부로 전송될 때 암호화되거나 차단되도록 한다.
+*   **스테가노그래피 탐지**: 이미지 파일 등에 숨겨진 데이터가 있는지 주기적으로 점검한다.
 
 <hr class="short-rule">

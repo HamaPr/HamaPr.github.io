@@ -15,7 +15,41 @@ description: "Nikto를 이용한 웹 서버 설정 오류 진단, SSL 스캔, WA
 
 ---
 
-## 2. 사용법
+## 2. 스캔 워크플로우
+
+```mermaid
+flowchart LR
+    A[대상 URL] --> B[Nikto 실행]
+    B --> C[취약점 DB 대조]
+    C --> D[결과 리포트]
+    D --> E[수동 검증]
+```
+
+---
+
+## 3. 실습 환경
+
+### DVWA (Docker)
+```bash
+docker run -d -p 80:80 vulnerables/web-dvwa
+# http://localhost 웹 서버 스캔 실습
+```
+
+### Metasploitable 2
+```bash
+# 구버전 Apache/PHP 취약점 스캔 (OSINT)
+# http://192.168.56.101
+```
+
+### OWASP WebGoat
+```bash
+docker run -d -p 8080:8080 webgoat/webgoat
+# HTTPS 스캔 테스트 (-ssl 옵션)
+```
+
+---
+
+## 4. 사용법
 
 기본적인 구문은 다음과 같다.
 
@@ -32,7 +66,7 @@ nikto -h [Target IP or Domain] [옵션]
 
 ---
 
-## 3. 실습: 기본 스캔
+## 5. 실습: 기본 스캔
 
 대상 서버(`192.9.200.11`)의 80번 포트를 스캔한다.
 
@@ -50,7 +84,7 @@ nikto -h 192.9.200.11 -p 80
 
 ---
 
-## 4. 심화 실습: SSL 및 우회
+## 6. 심화 실습: SSL 및 우회
 
 ### SSL/TLS 스캔
 HTTPS 사이트는 `-ssl` 옵션을 추가하여 인증서 정보와 암호화 설정 취약점(Heartbleed, POODLE 등)을 점검할 수 있다.
@@ -74,7 +108,7 @@ nikto -h 192.9.200.11 -evasion 1
 
 ---
 
-## 5. 보안 대책
+## 7. 방어 대책
 
 *   **불필요한 파일 제거**: 설치 시 생성된 매뉴얼, 예제 파일, 기본 스크립트 등을 모두 삭제한다.
 *   **HTTP 메소드 제한**: `GET`, `POST` 외에 불필요한 메소드(`PUT`, `DELETE`, `TRACE`)를 비활성화한다.

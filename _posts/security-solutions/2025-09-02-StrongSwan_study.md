@@ -189,4 +189,13 @@ firewall-cmd --reload
 *   **NAT-T(Traversal)**가 필요하므로 UDP 4500 포트가 열려 있어야 한다.
 *   설정 파일에서 `leftid`, `rightid`를 공인 IP로 명시적으로 지정해 주어야 한다. (IP 주소 대신 ID로 식별)
 
+---
+
+## 6. 보안 고려사항
+
+*   **PSK 강도**: Pre-Shared Key는 최소 20자 이상의 무작위 문자열을 사용하고, 주기적으로 교체한다.
+*   **인증서 기반 인증 권장**: 대규모 환경에서는 PSK 대신 X.509 인증서 기반 인증이 보안성과 관리 면에서 유리하다.
+*   **PFS (Perfect Forward Secrecy)**: DH 그룹(modp2048 이상)을 사용하여 키 노출 시에도 과거 세션을 보호한다.
+*   **IKEv2 사용 권장**: IKEv1보다 보안성이 강화된 IKEv2를 사용하고, 불필요한 IKEv1 호환성을 비활성화한다.
+
 <hr class="short-rule">

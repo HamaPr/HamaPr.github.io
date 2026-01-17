@@ -232,4 +232,16 @@ O    192.168.2.0/24 [110/65] via 10.10.10.2, 00:00:31, Serial0/0/0
 *   인터페이스가 `no shutdown` 상태인지 확인한다.
 *   `show ip ospf interface` 명어로 해당 인터페이스가 OSPF에 포함되었는지 확인한다.
 
+---
+
+## 8. 보안 고려사항
+
+*   **인증 필수 적용**: 라우터 간 MD5 또는 SHA 인증을 설정하여 위조 라우터가 라우팅 정보를 주입하는 것을 방지한다.
+*   **Passive Interface**: 사용자 네트워크가 연결된 인터페이스는 `passive-interface`로 설정하여 OSPF 패킷을 보내지 않도록 한다. 내부 토폴로지 정보 노출을 막는다.
+    ```cisco
+    Router(config-router)# passive-interface g0/1
+    ```
+*   **네트워크 선언 최소화**: `network` 명령어로 필요한 인터페이스만 정확하게 OSPF에 포함시킨다.
+*   **Stub Area 활용**: 외부 라우팅 정보가 불필요한 영역은 Stub Area로 설정하여 LSDB 크기와 CPU 부하를 줄인다.
+
 <hr class="short-rule">

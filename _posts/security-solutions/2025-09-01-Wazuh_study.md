@@ -148,7 +148,7 @@ sudo tar -O -xvf wazuh-install-files.tar wazuh-install-files/wazuh-passwords.txt
 
 Wazuh 서버의 `/var/ossec/etc/rules/local_rules.xml` 파일에 사용자 정의 룰을 추가할 수 있다.
 
-### 예시: 특정 파일 수정 시 경고 레벨 상향
+### 기본 예시: 특정 파일 수정 시 경고 레벨 상향
 ```xml
 <group name="syscheck, custom_alert,">
   <rule id="100010" level="12">
@@ -161,7 +161,140 @@ Wazuh 서버의 `/var/ossec/etc/rules/local_rules.xml` 파일에 사용자 정�
 
 ---
 
-## 6. 트러블슈팅
+## 6. Windows AD 공격 탐지
+
+Active Directory 환경에서 발생하는 주요 공격을 탐지하기 위한 룰셋이다. Windows Security 이벤트 로그를 수집하여 분석한다.
+
+### 필수 이벤트 로그 수집 설정
+
+Windows Agent의 `ossec.conf`에 Security 로그 수집을 추가한다.
+```xml
+<localfile>
+  <location>Security</location>
+  <log_format>eventchannel</log_format>
+</localfile>
+```
+
+### 주요 Event ID 참조
+
+| Event ID | 설명 | 위협 |
+|----------|------|------|
+| 4624 | 로그온 성공 | 정상 또는 Lateral Movement |
+| 4625 | 로그온 실패 | Brute Force |
+| 4672 | 특수 권한 할당 | 권한 상승 |
+| 4768 | Kerberos TGT 요청 | Kerberoasting (RC4) |
+| 4769 | Kerberos TGS 요청 | Kerberoasting |
+| 4771 | Kerberos Pre-Auth 실패 | AS-REP Roasting |
+| 4776 | NTLM 인증 시도 | Pass-the-Hash |
+| 5136 | 디렉터리 객체 변경 | AD 변조 |
+
+---
+
+### AD 공격 탐지 룰셋
+
+#### Brute Force (로그온 실패 다수)
+```xml
+<group name="windows, authentication_failed,">
+  <rule id="100100" level="10" frequency="5" timeframe="60">
+    <if_matched_sid>60122</if_matched_sid> <!-- 4625 -->
+    <same_source_ip />
+    <description>Brute Force: 5+ failed logins from same IP in 60s</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+</group>
+```
+
+#### Kerberoasting 탐지 (RC4 암호화 TGS 요청)
+```xml
+<group name="windows, kerberos,">
+  <rule id="100110" level="12">
+    <if_sid>60103</if_sid> <!-- 4769 -->
+    <field name="win.eventdata.ticketEncryptionType">0x17</field> <!-- RC4 -->
+    <description>Kerberoasting: TGS requested with RC4 encryption</description>
+    <mitre>
+      <id>T1558.003</id>
+    </mitre>
+  </rule>
+</group>
+```
+
+#### AS-REP Roasting 탐지
+```xml
+<group name="windows, kerberos,">
+  <rule id="100111" level="12">
+    <if_sid>60100</if_sid> <!-- 4768 -->
+    <field name="win.eventdata.preAuthType">0</field>
+    <description>AS-REP Roasting: TGT without pre-authentication</description>
+    <mitre>
+      <id>T1558.004</id>
+    </mitre>
+  </rule>
+</group>
+```
+
+#### DCSync 공격 탐지 (디렉터리 복제 권한 사용)
+```xml
+<group name="windows, ad_attack,">
+  <rule id="100120" level="14">
+    <if_sid>60144</if_sid> <!-- 4662 -->
+    <field name="win.eventdata.properties" type="pcre2">1131f6aa.*1131f6ad</field>
+    <description>DCSync Attack: DS-Replication-Get-Changes detected</description>
+    <mitre>
+      <id>T1003.006</id>
+    </mitre>
+  </rule>
+</group>
+```
+
+#### Golden Ticket 탐지 (TGT 이상 징후)
+```xml
+<group name="windows, kerberos,">
+  <rule id="100130" level="14">
+    <if_sid>60103</if_sid> <!-- 4769 -->
+    <field name="win.eventdata.serviceName" type="pcre2">krbtgt</field>
+    <field name="win.eventdata.ticketOptions">0x40810000</field>
+    <description>Golden Ticket: Suspicious TGT usage pattern</description>
+    <mitre>
+      <id>T1558.001</id>
+    </mitre>
+  </rule>
+</group>
+```
+
+#### Pass-the-Hash 탐지 (NTLM 인증)
+```xml
+<group name="windows, lateral_movement,">
+  <rule id="100140" level="12">
+    <if_sid>60110</if_sid> <!-- 4776 -->
+    <field name="win.eventdata.status">0xC0000064</field>
+    <description>Pass-the-Hash: NTLM auth with invalid username</description>
+    <mitre>
+      <id>T1550.002</id>
+    </mitre>
+  </rule>
+</group>
+```
+
+---
+
+### 탐지 룰 적용 및 테스트
+
+```bash
+# 룰 문법 검사
+/var/ossec/bin/wazuh-analysisd -t
+
+# 서비스 재시작
+systemctl restart wazuh-manager
+
+# 로그 확인
+tail -f /var/ossec/logs/alerts/alerts.json
+```
+
+---
+
+## 7. 트러블슈팅
 
 ### Agent가 연결되지 않음 (Disconnected)
 1.  **방화벽 확인**: Manager와 Agent 간 **TCP 1514**, **TCP 1515** 포트가 열려 있는지 확인한다.
@@ -177,5 +310,14 @@ vi /etc/wazuh-indexer/jvm.options
 # -Xmx1g 
 # 시스템 메모리의 50% 이하로 설정 권장
 ```
+
+---
+
+## 8. 보안 고려사항
+
+*   **API 접근 제어**: Wazuh API는 강력한 권한을 가지므로, 접근 IP를 제한하고 강력한 자격 증명을 사용한다.
+*   **에이전트 인증**: 에이전트-매니저 간 통신은 암호화되지만, 에이전트 등록 시 인증 키 관리에 주의한다.
+*   **민감 정보 마스킹**: FIM이나 로그에 비밀번호, 토큰 등 민감 정보가 노출되지 않도록 필터링 규칙을 적용한다.
+*   **대시보드 접근 보안**: HTTPS를 강제하고, MFA(다중 인증)나 LDAP 연동을 통해 접근을 제한한다.
 
 <hr class="short-rule">

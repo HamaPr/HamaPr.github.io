@@ -182,4 +182,13 @@ az monitor diagnostic-settings create \
 *   서브넷 크기는 최소 `/26` 이상이어야 한다. (64개 IP 주소)
 *   이 서브넷에는 다른 리소스를 배포할 수 없으며, NSG를 연결해서도 안 된다.
 
+---
+
+## 7. 보안 고려사항
+
+*   **규칙 우선순위 관리**: DNAT → Network → Application 순서로 처리되므로, 허용 규칙이 의도치 않게 우선하지 않도록 Priority를 신중하게 설정한다.
+*   **위협 인텔리전스 활성화**: Microsoft의 위협 정보 피드를 활용하여 알려진 악성 IP/도메인을 자동 차단한다.
+*   **IDPS 활성화 (Premium)**: 침입 탐지/방지 시스템(IDPS)을 활성화하여 네트워크 기반 공격을 실시간 탐지한다.
+*   **진단 로그 수집**: `AzureFirewallNetworkRule`, `AzureFirewallApplicationRule` 로그를 Log Analytics로 전송하여 포렌식 및 탐지에 활용한다.
+
 <hr class="short-rule">

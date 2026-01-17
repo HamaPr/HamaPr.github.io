@@ -145,4 +145,13 @@ az monitor metrics list \
 *   비용 효율이 중요하다면 **Azure Front Door**나 **Cloudflare** 같은 CDN 기반 보안 서비스를 고려해야 한다.
 *   중요한 엔터프라이즈 프로덕션 환경에서는 비용 보호(Cost Guarantee) 혜택 때문에 Standard Plan이 권장된다.
 
+---
+
+## 7. 보안 고려사항
+
+*   **보호 대상 식별**: Public IP가 있는 모든 리소스를 DDoS Plan에 연결되도록 VNet 단위로 적용한다. 누락된 리소스가 없는지 주기적으로 점검한다.
+*   **WAF와 다계층 방어**: L3/L4 공격은 DDoS Protection이, L7 공격은 Application Gateway WAF가 담당하도록 다계층 방어 체계를 구축한다.
+*   **대응 계획 수립**: DDoS Rapid Response(DRR) 서비스를 활용하여 대규모 공격 시 전문가 지원을 받을 수 있도록 사전 준비한다.
+*   **알림 설정 필수**: `Under DDoS attack` 메트릭에 대한 알림을 설정하여 공격 발생 즉시 대응팀에 통보한다.
+
 <hr class="short-rule">

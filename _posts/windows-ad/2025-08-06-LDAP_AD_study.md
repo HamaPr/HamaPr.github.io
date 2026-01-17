@@ -78,6 +78,47 @@ Get-ADGroupMember -Identity "Administrators"
 Get-ADUser -Identity "john.doe" -Properties *
 ```
 
+### AD 실무 쿼리 활용
+실무에서 자주 사용되는 PowerShell 쿼리 예제이다.
+
+**부서별 사용자 이메일 추출**
+```powershell
+Get-ADUser -Filter {Department -eq "영업부"} -Properties mail, Department | 
+    Select-Object Name, SamAccountName, mail, Department |
+    Export-Csv -Path "C:\sales_users.csv" -NoTypeInformation -Encoding UTF8
+```
+
+**비활성화된 계정 조회**
+```powershell
+Search-ADAccount -AccountDisabled | 
+    Select-Object Name, SamAccountName, DistinguishedName
+```
+
+**만료 예정 계정 확인 (30일 이내)**
+```powershell
+Search-ADAccount -AccountExpiring -TimeSpan 30.00:00:00 |
+    Select-Object Name, AccountExpirationDate
+```
+
+**중첩 그룹 멤버 전체 조회**
+```powershell
+Get-ADGroupMember -Identity "Domain Admins" -Recursive | 
+    Select-Object Name, SamAccountName, objectClass
+```
+
+**사용자 OU 간 이동**
+```powershell
+Get-ADUser -Identity "john.doe" | 
+    Move-ADObject -TargetPath "OU=Managers,DC=company,DC=com"
+```
+
+**특정 속성 일괄 수정**
+```powershell
+# 부서 전체 사용자의 전화번호 일괄 변경
+Get-ADUser -Filter {Department -eq "IT부서"} | 
+    Set-ADUser -OfficePhone "02-1234-5678"
+```
+
 ---
 
 ## 3. OpenLDAP (Linux)
@@ -174,8 +215,23 @@ ldapdelete -x -D "cn=admin,dc=company,dc=com" -W "uid=john,ou=Users,dc=company,d
 ## 5. 보안 고려사항
 
 ### LDAPS 활성화
-*   기본 LDAP(389)은 데이터를 평문으로 전송하므로 스니핑에 취약하다.
-*   반드시 인증서를 적용하여 암호화된 **LDAPS (636)** 또는 **StartTLS**를 사용해야 한다.
+기본 LDAP(389)은 데이터를 평문으로 전송하므로 스니핑에 취약하다.
+반드시 인증서를 적용하여 암호화된 **LDAPS (636)** 또는 **StartTLS**를 사용해야 한다.
+
+**Windows AD에서 LDAPS 확인**
+```powershell
+# LDAPS 연결 테스트
+Test-NetConnection -ComputerName dc01.company.com -Port 636
+
+# 인증서 확인
+Get-ChildItem Cert:\LocalMachine\My | Where-Object {$_.Subject -like "*dc01*"}
+```
+
+**OpenLDAP에서 TLS 설정**
+```bash
+# TLS 인증서 설정 확인
+ldapsearch -x -H ldaps://localhost -b "dc=company,dc=com" -D "cn=admin,dc=company,dc=com" -W
+```
 
 ### 접근 제어 (ACL)
 중요한 속성(예: 비밀번호)에 대한 접근 권한을 엄격히 제어해야 한다.
@@ -186,8 +242,112 @@ access to attrs=userPassword
     by * none
 ```
 
-### 주요 취약점 및 대응
-*   **익명 바인딩**: 인증 없는 정보 조회를 허용하지 않도록 설정한다.
-*   **LDAP Injection**: 웹 애플리케이션 입력값 검증을 통해 쿼리 조작을 방지한다.
+---
+
+## 6. 보안 위협과 대응
+
+### 주요 LDAP 관련 위협
+
+| 위협 | 설명 | 심각도 |
+|------|------|--------|
+| **LDAP Injection** | 쿼리 조작을 통한 인증 우회 및 데이터 유출 | 🔴 높음 |
+| **Anonymous Binding** | 익명 접근을 통한 디렉터리 정보 열거 | 🟠 중간 |
+| **LDAP Pass-back Attack** | 프린터/MFP의 LDAP 설정 변경으로 자격 증명 캡처 | 🟠 중간 |
+| **LDAP Reconnaissance** | BloodHound 등을 이용한 AD 구조 분석 | 🟡 정보 수집 |
+| **평문 LDAP 스니핑** | 389 포트 트래픽 캡처로 자격 증명 탈취 | 🔴 높음 |
+| **Credential Stuffing** | 유출된 자격 증명으로 대량 인증 시도 | 🟠 중간 |
+
+### 공격 시나리오: LDAP Injection
+
+**취약한 코드 예시 (PHP)**
+```php
+// 취약: 사용자 입력을 직접 LDAP 쿼리에 삽입
+$username = $_POST['username'];
+$filter = "(uid=" . $username . ")";
+$result = ldap_search($ldap_conn, "dc=company,dc=com", $filter);
+```
+
+**공격 입력값**
+```
+username: *)(uid=*))(|(uid=*
+```
+
+**결과 필터**
+```
+(uid=*)(uid=*))(|(uid=*)
+```
+→ 모든 사용자 정보를 반환하거나 인증 우회
+
+**대응책: 입력값 이스케이프**
+```php
+// 안전: 특수 문자 이스케이프
+$username = ldap_escape($_POST['username'], "", LDAP_ESCAPE_FILTER);
+$filter = "(uid=" . $username . ")";
+```
+
+### 공격 시나리오: LDAP Pass-back
+
+```mermaid
+sequenceDiagram
+    participant Attacker as 공격자
+    participant MFP as 복합기/프린터
+    participant LDAP as 공격자 LDAP 서버
+    
+    Attacker->>MFP: 1. 관리자 페이지 접근 (기본 비밀번호)
+    Attacker->>MFP: 2. LDAP 서버 주소를 공격자 IP로 변경
+    MFP->>LDAP: 3. 테스트 연결 시 자격 증명 전송
+    LDAP-->>Attacker: 4. 평문 자격 증명 캡처
+```
+
+**탐지 방법**
+*   복합기/프린터의 LDAP 설정 변경 로그 모니터링
+*   내부 네트워크에서 비정상적인 389/636 포트 연결 탐지
+
+### 방어 대책 체크리스트
+
+| 통제 항목 | 구현 방법 | 우선순위 |
+|-----------|-----------|----------|
+| **LDAPS 강제** | 389 포트 차단, 636 포트만 허용 | 🔴 필수 |
+| **익명 바인딩 비활성화** | `olcDisallows: bind_anon` 설정 | 🔴 필수 |
+| **Channel Binding** | LDAP 채널 바인딩 토큰 요구 | 🟠 권장 |
+| **쿼리 로깅** | Event ID 2889 (평문 LDAP 바인딩) 모니터링 | 🟠 권장 |
+| **바인딩 계정 최소 권한** | 읽기 전용 계정 사용, 필요한 OU만 접근 | 🟠 권장 |
+| **계정 잠금 정책** | 5회 실패 시 30분 잠금 | 🟠 권장 |
+| **LDAP Signing 요구** | GPO에서 서명 필수화 | 🟡 선택 |
+
+### 보안 점검 PowerShell
+
+**평문 LDAP 바인딩 시도 탐지 (Event ID 2889)**
+```powershell
+Get-WinEvent -FilterHashtable @{
+    LogName = 'Directory Service'
+    Id = 2889
+} -MaxEvents 100 | Select-Object TimeCreated, Message
+```
+
+**익명 바인딩 가능 여부 확인**
+```powershell
+# 익명으로 LDAP 쿼리 시도
+$searcher = New-Object DirectoryServices.DirectorySearcher
+$searcher.SearchRoot = "LDAP://dc=company,dc=com"
+$searcher.Filter = "(objectClass=user)"
+$searcher.AuthenticationType = [System.DirectoryServices.AuthenticationTypes]::Anonymous
+try {
+    $searcher.FindAll()
+    Write-Host "경고: 익명 바인딩이 허용됨!" -ForegroundColor Red
+} catch {
+    Write-Host "정상: 익명 바인딩이 차단됨" -ForegroundColor Green
+}
+```
+
+**LDAPS 연결 상태 확인**
+```powershell
+# 도메인 컨트롤러 LDAPS 포트 확인
+$DCs = Get-ADDomainController -Filter *
+foreach ($DC in $DCs) {
+    $result = Test-NetConnection -ComputerName $DC.HostName -Port 636
+    Write-Host "$($DC.HostName): LDAPS = $($result.TcpTestSucceeded)"
+}
+```
 
 <hr class="short-rule">

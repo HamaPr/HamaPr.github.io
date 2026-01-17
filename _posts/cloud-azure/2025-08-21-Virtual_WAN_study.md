@@ -171,4 +171,13 @@ az network vhub effective-routes show \
 *   **Connection Unit**: VNet 연결 당 비용이 발생한다.
 *   **Hub 비용**: 허브가 배포되어 있는 시간만큼 시간당 과금된다.
 
+---
+
+## 6. 보안 고려사항
+
+*   **Hub에 Azure Firewall 통합**: 모든 Hub 트래픽을 방화벽으로 라우팅하여 중앙 집중식 보안 검사를 수행한다. (Secured Virtual Hub)
+*   **VPN 암호화**: Site-to-Site VPN은 IPsec 암호화를 사용하므로, 강력한 Pre-Shared Key와 IKEv2를 적용한다.
+*   **접근 제어**: 라우팅 Intent 및 정책을 활용하여 Spoke 간 직접 통신을 제한하고, 허브를 통한 검사를 강제한다.
+*   **로그 및 모니터링**: VPN 연결 로그, 라우팅 변경 로그를 Azure Monitor로 전송하여 이상 징후를 탐지한다.
+
 <hr class="short-rule">

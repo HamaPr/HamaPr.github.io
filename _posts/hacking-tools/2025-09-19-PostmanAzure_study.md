@@ -15,7 +15,36 @@ description: "Postman을 이용한 API 취약점 진단과 Azure Storage Explore
 
 ---
 
-## 2. 실습: Postman
+## 2. 공격 흐름
+
+```mermaid
+flowchart LR
+    A[API 엔드포인트 발견] --> B[Postman 요청 조작]
+    B --> C[IDOR 테스트]
+    C --> D[데이터 유출]
+    D --> E[SAS 토큰 탈취]
+    E --> F[Storage Explorer 접속]
+```
+
+---
+
+## 3. 실습 환경
+
+### DVWA / OWASP Juice Shop
+IDOR 취약점 실습을 위한 웹 애플리케이션이다.
+```bash
+docker run -d -p 80:80 vulnerables/web-dvwa
+docker run -d -p 3000:3000 bkimminich/juice-shop
+```
+
+### Azure Storage Account (테스트용)
+무료 계정으로 Azure Blob Storage를 생성하고 SAS 토큰을 발급하여 실습할 수 있다.
+*   Azure Portal 로그인 후 **Storage Account 생성**
+*   SAS 발급: `Shared access signature` 메뉴에서 테스트 토큰 생성
+
+---
+
+## 4. 실습: Postman
 
 Postman은 HTTP 요청을 자유자재로 조작하여 서버로 보낼 수 있어 로직 취약점 진단에 최적화되어 있다.
 
@@ -36,7 +65,7 @@ Postman은 HTTP 요청을 자유자재로 조작하여 서버로 보낼 수 있�
 
 ---
 
-## 3. 실습: Azure Storage Explorer (데이터 유출)
+## 5. 실습: Azure Storage Explorer (데이터 유출)
 
 Azure Storage Explorer는 GUI 환경에서 클라우드 저장소(Blob, File, Queue, Table)에 접근하는 도구이다.
 
@@ -56,7 +85,7 @@ SAS 토큰에 `Write(w)`, `Delete(d)`, `List(l)` 권한이 포함되어 있다�
 
 ---
 
-## 4. 보안 대책
+## 6. 보안 대책
 
 ### API 보안
 1.  **철저한 인증 및 권한 부여**: 모든 API 엔드포인트에서 요청자의 권한을 검증(Authorization)해야 한다.

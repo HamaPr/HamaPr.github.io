@@ -13,7 +13,23 @@ categories: [system-hacking]
 
 ---
 
-## 2. ARP Spoofing 실습
+## 2. 실습 환경
+
+### VirtualBox Internal Network
+ARP Spoofing은 동일 L2 네트워크 내에서만 동작하므로 VM을 Internal Network로 구성해야 한다.
+*   **공격자 (Kali)**: `192.168.1.50`
+*   **피해자 (Windows/Linux)**: `192.168.1.100`
+*   **게이트웨이**: `192.168.1.1`
+
+### 필수 도구
+```bash
+# Kali에서 설치
+sudo apt install dsniff ettercap-graphical bettercap -y
+```
+
+---
+
+## 3. ARP Spoofing 실습
 
 ### 공격 흐름
 
@@ -59,7 +75,7 @@ bettercap -iface eth0
 
 ---
 
-## 3. WPAD Spoofing 공격
+## 4. WPAD Spoofing 공격
 
 ### 공격 원리
 **WPAD (Web Proxy Auto-Discovery)**는 브라우저가 프록시 설정을 자동으로 찾도록 돕는 프로토콜이다. 공격자는 이를 악용하여 피해자의 모든 웹 트래픽이 자신의 프록시 서버를 경유하도록 만들 수 있다.
@@ -79,7 +95,7 @@ responder -I eth0 -wrf
 
 ---
 
-## 4. 공격 심화: Sniffing & SSL Strip
+## 5. 공격 심화: Sniffing & SSL Strip
 
 ARP Spoofing으로 트래픽 흐름을 확보했다면, 이제 실제 데이터를 가로채거나 조작할 수 있다.
 
@@ -105,7 +121,7 @@ sslstrip -l 10000
 
 ---
 
-## 5. 보안 대책
+## 6. 보안 대책
 
 ### 탐지 방법
 *   **ARP 테이블 모니터링**: 주기적으로 `arp -a` 명령어를 실행하여 동일한 MAC 주소를 가진 IP가 여러 개 존재하는지 확인한다.
