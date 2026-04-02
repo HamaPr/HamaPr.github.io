@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "DHCP"
 date: 2025-10-17 17:00:00 +0900
@@ -41,6 +41,7 @@ sequenceDiagram
 Rocky Linux에서 `dhcp-server` 패키지를 이용하여 DHCP 서버를 구축한다.
 
 ### 실습 환경 구성
+
 | 항목 | 값 |
 |------|-----|
 | 네트워크 대역 | `10.0.0.0/24` |
