@@ -102,7 +102,7 @@ Snort의 강력함은 유연한 룰에서 나온다. 룰은 헤더(Header)와 �
 *   **Option**: 탐지 세부 조건을 괄호 `()` 안에 정의
 
 ### 예시: 웹 서버(80)로의 모든 접속 탐지
-```snort
+```text
 alert tcp any any -> $HOME_NET 80 (msg:"HTTP Connection Detected"; sid:1000001; rev:1;)
 ```
 
@@ -125,7 +125,7 @@ alert tcp any any -> $HOME_NET 80 (msg:"HTTP Connection Detected"; sid:1000001; 
 
 #### SQL Injection
 
-```snort
+```text
 alert tcp any any -> $HOME_NET 80 (
     msg:"SQL Injection - SELECT FROM";
     content:"SELECT"; nocase;
@@ -143,7 +143,7 @@ alert tcp any any -> $HOME_NET 80 (
 
 #### XSS (Cross-Site Scripting)
 
-```snort
+```text
 alert tcp any any -> $HOME_NET 80 (
     msg:"XSS - Script Tag Detected";
     content:"<script"; nocase;
@@ -154,7 +154,7 @@ alert tcp any any -> $HOME_NET 80 (
 
 #### Command Injection
 
-```snort
+```text
 alert tcp any any -> $HOME_NET 80 (
     msg:"Command Injection - Pipe Operator";
     content:"|"; 
@@ -165,7 +165,7 @@ alert tcp any any -> $HOME_NET 80 (
 
 #### Web Shell 탐지
 
-```snort
+```text
 alert tcp any any -> $HOME_NET 80 (
     msg:"Web Shell - PHP System Call";
     content:"system("; nocase;
@@ -181,7 +181,7 @@ alert tcp any any -> $HOME_NET 80 (
 
 #### Port Scan (SYN Flood)
 
-```snort
+```text
 alert tcp any any -> $HOME_NET any (
     msg:"Port Scan - Multiple SYN";
     flags:S;
@@ -193,7 +193,7 @@ alert tcp any any -> $HOME_NET any (
 
 #### ICMP Sweep
 
-```snort
+```text
 alert icmp any any -> $HOME_NET any (
     msg:"ICMP Sweep Detected";
     itype:8;
@@ -208,7 +208,7 @@ alert icmp any any -> $HOME_NET any (
 
 #### SSH Brute Force
 
-```snort
+```text
 alert tcp any any -> $HOME_NET 22 (
     msg:"SSH Brute Force Attempt";
     flow:to_server,established;
@@ -220,7 +220,7 @@ alert tcp any any -> $HOME_NET 22 (
 
 #### FTP Brute Force
 
-```snort
+```text
 alert tcp any any -> $HOME_NET 21 (
     msg:"FTP Login Failed - Brute Force";
     content:"530 "; depth:4;
@@ -235,7 +235,7 @@ alert tcp any any -> $HOME_NET 21 (
 
 #### DNS Tunneling
 
-```snort
+```text
 alert udp any any -> any 53 (
     msg:"DNS Tunneling - Long Subdomain";
     content:"|00 01 00 00|"; offset:4; depth:4;
@@ -247,7 +247,7 @@ alert udp any any -> any 53 (
 
 #### Reverse Shell (Bash)
 
-```snort
+```text
 alert tcp $HOME_NET any -> any any (
     msg:"Reverse Shell - Bash /dev/tcp";
     content:"/dev/tcp/"; nocase;
@@ -273,7 +273,7 @@ APT(Advanced Persistent Threat) 공격은 정교하고 지속적이므로, 단�
 
 ### 예시: Cobalt Strike Beacon 탐지
 
-```snort
+```text
 alert tcp $HOME_NET any -> any any (
     msg:"APT - Cobalt Strike Beacon C2";
     flow:to_server,established;
@@ -287,7 +287,7 @@ alert tcp $HOME_NET any -> any any (
 
 ### 예시: Mimikatz 실행 탐지 (SMB)
 
-```snort
+```text
 alert tcp any any -> $HOME_NET 445 (
     msg:"APT - Mimikatz Pattern over SMB";
     content:"sekurlsa"; nocase;
