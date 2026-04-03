@@ -65,7 +65,7 @@ ls -l /etc/haproxy/haproxy.cfg
 
 ### 1) 기본(Defaults) 설정
 모든 섹션에 공통으로 적용될 기본값을 정의한다.
-```cfg
+```text
 defaults
     mode                    http            # 기본 모드 (http 또는 tcp)
     log                     global
@@ -78,7 +78,7 @@ defaults
 
 ### 2) L7 HTTP 로드 밸런싱 설정
 사용자의 요청(Frontend)을 받아 백엔드 서버들(Backend)로 분산한다.
-```cfg
+```text
 frontend http_front
     bind *:80
     default_backend web_servers
@@ -94,7 +94,7 @@ backend web_servers
 ```
 
 ### 3) L4 TCP 로드 밸런싱 설정 (DB 등)
-```cfg
+```text
 frontend mysql_front
     mode tcp
     bind *:3306
@@ -113,7 +113,7 @@ backend mysql_servers
 
 ### SSL Offloading (HTTPS 설정)
 클라이언트와는 HTTPS로 통신하고, 백엔드와는 HTTP로 통신한다.
-```cfg
+```text
 frontend https_front
     bind *:443 ssl crt /etc/haproxy/certs/combined.pem
     default_backend web_servers
@@ -126,7 +126,7 @@ frontend https_front
 
 ### 모니터링 대시보드 (Stats Page)
 실시간 트래픽 및 서버 상태를 웹에서 확인할 수 있다.
-```cfg
+```text
 listen stats
     bind *:8080
     stats enable

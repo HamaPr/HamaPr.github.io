@@ -16,6 +16,7 @@ categories: [windows-ad]
 3.  **표준 프로토콜**: Active Directory, OpenLDAP 등 다양한 디렉터리 서비스 솔루션의 통신 규약으로 사용된다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |------|------|
 | **포트** | 389 (LDAP, 평문), 636 (LDAPS, 암호화) |
@@ -55,6 +56,7 @@ cn=john.doe,ou=Users,dc=company,dc=com
 ## 2. Active Directory
 
 ### AD 구성 요소
+
 | 요소 | 설명 |
 |------|------|
 | **Domain Controller** | AD 서비스를 실행하고 인증을 담당하는 서버 |

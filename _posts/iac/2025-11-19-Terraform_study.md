@@ -198,7 +198,7 @@ az login --service-principal -u <client_id> -p <client_secret> --tenant <tenant_
 # 클라우드 인프라 완전 장악
 ```
 
-**[공격 결과]**: State 파일 노출 → 클라우드 자격 증명 탈취 → 인프라 장악 🔓
+**[공격 결과]**: State 파일 노출 → 클라우드 자격 증명 탈취 → 인프라 장악
 
 ---
 
@@ -229,7 +229,7 @@ resource "null_resource" "exfil" {
 }
 ```
 
-**[공격 결과]**: 악성 Module 사용 → AWS 자격 증명 탈취 🔓
+**[공격 결과]**: 악성 Module 사용 → AWS 자격 증명 탈취
 
 ---
 
@@ -266,7 +266,7 @@ resource "null_resource" "backdoor" {
 }
 ```
 
-**[공격 결과]**: 취약한 CI/CD → Secrets 탈취 → 인프라 장악 🔓
+**[공격 결과]**: 취약한 CI/CD → Secrets 탈취 → 인프라 장악
 
 ---
 
@@ -303,7 +303,7 @@ terraform {
 
 State 파일이 절대 Git에 커밋되지 않도록 설정한다.
 
-```gitignore
+```text
 # .gitignore
 *.tfstate
 *.tfstate.*

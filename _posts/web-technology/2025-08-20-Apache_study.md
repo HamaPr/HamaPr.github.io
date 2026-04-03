@@ -71,7 +71,7 @@ Apache 로그 파일, 특히 접근 로그 **`access.log`** 는 정상적인 서
     grep "UNION" /var/log/apache2/access.log
     ```
 
-    ```log
+    ```text
     192.9.200.12 - - [20/Aug/2025:21:15:30 +0900] "GET /dvwa/vulnerabilities/sqli/?id=1%27%20UNION%20ALL%20SELECT%20NULL%2CCONCAT%280x...%29--%20-&Submit=Submit HTTP/1.1" 200 1961 "-" "sqlmap/1.9.8"
     ```
     로그에는 URL 인코딩된 형태(`%20UNION%20SELECT...`)로 공격 페이로드가 기록되어 공격이 발생했다는 명백한 증거가 된다.
@@ -83,7 +83,7 @@ Apache 로그 파일, 특히 접근 로그 **`access.log`** 는 정상적인 서
     grep "%3B%20ls" /var/log/apache2/access.log
     ```
 
-    ```log
+    ```text
     192.9.200.12 - - [20/Aug/2025:21:40:11 +0900] "GET /dvwa/vulnerabilities/exec/?ip=127.0.0.1%3B%20ls+-l HTTP/1.1" 200 1950 "http://192.9.200.11/dvwa/vulnerabilities/exec/" "Mozilla/5.0..."
     ```
 

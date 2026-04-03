@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "StrongSwan"
 date: 2025-09-02 17:00:00 +0900
@@ -11,6 +11,7 @@ categories: [security-solutions]
 주로 서로 다른 네트워크를 안전하게 연결하는 **Site-to-Site VPN**이나, 모바일 사용자가 내부망에 접속하기 위한 **Remote Access VPN** 구축에 사용된다.
 
 ### 기본 정보
+
 | 항목 | 설명 |
 |---|---|
 | **프로토콜** | IKEv1, IKEv2 (Internet Key Exchange) |
@@ -18,6 +19,7 @@ categories: [security-solutions]
 | **인증 방식** | PSK(Pre-Shared Key), X.509 인증서, EAP |
 
 ### VPN 유형 비교
+
 | 유형 | 설명 | 용도 |
 |---|---|---|
 | **Site-to-Site** | 두 개의 네트워크(지사-본사)를 터널로 연결 | 사무실 간 연결 |
@@ -34,8 +36,8 @@ sequenceDiagram
     B->>A: HDR, SAr1, KEr, Nr
     
     Note over A,B: Phase 2: IKE_AUTH (인증 및 IPsec SA 생성)
-    A->>B: HDR, SK {IDi, CERT, AUTH, SAi2, TSi, TSr}
-    B->>A: HDR, SK {IDr, CERT, AUTH, SAr2, TSi, TSr}
+    A->>B: "HDR, SK {IDi, CERT, AUTH, SAi2, TSi, TSr}"
+    B->>A: "HDR, SK {IDr, CERT, AUTH, SAr2, TSi, TSr}"
     
     Note over A,B: ESTABLISHED (암호화 통신 시작)
     A->>B: ESP (Encrypted Payload)

@@ -71,7 +71,7 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce
 ## 5. 공격 실습
 
 ### 레지스트리 등록 (CMD)
-```cmd
+```bash
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v MyBackdoor /t REG_SZ /d "C:\Temp\evil.exe" /f
 ```
 
@@ -81,7 +81,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Na
 ```
 
 ### 등록 확인
-```cmd
+```bash
 reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
 ```
 
@@ -92,7 +92,7 @@ reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
 ## 6. 탐지 방법
 
 ### Autoruns (Sysinternals)
-```cmd
+```bash
 autorunsc.exe -accepteula -a * -c -h -s -v -vt
 ```
 *   서명되지 않은(Unsigned) 항목

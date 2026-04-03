@@ -132,7 +132,7 @@ sslstrip -l 10000
 *   **DAI (Dynamic ARP Inspection)**: 스위치 단에서 신뢰할 수 없는 포트의 ARP 패킷을 검사하고 차단하는 가장 효과적인 방법이다.
 
 #### Cisco 스위치 DAI 설정 예시
-```cisco
+```text
 Switch(config)# ip arp inspection vlan 10
 Switch(config)# interface g0/1
 Switch(config-if)# ip arp inspection trust

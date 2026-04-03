@@ -72,7 +72,7 @@ tags: [네트워크 관리사, ICQA, network]
   - **DNS 서버**: 도메인 이름을 IP 주소로 변환. 주요 레코드 타입(A, CNAME, MX, NS).
   - **DHCP 서버**: 클라이언트에게 IP 주소, 서브넷 마스크, 게이트웨이, DNS 서버 주소를 자동으로 할당.
   - **주요 명령어**:
-    ```cmd
+    ```bash
     ipconfig /all     :: 네트워크 설정 상세 확인
     nslookup [domain] :: DNS 질의
     ping [ip/domain]  :: 연결성 테스트

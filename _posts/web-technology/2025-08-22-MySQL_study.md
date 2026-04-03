@@ -38,8 +38,6 @@ SELECT user, password FROM users;
 
 ![MysqlDatabase](/assets/images/web-technology/Mysql_1.png)
 
-![MysqlDatabase](/assets/images/web-technology/Mysql_Select.png)
-
 ---
 
 ## 3. 사용자 및 권한 관리 (Security)

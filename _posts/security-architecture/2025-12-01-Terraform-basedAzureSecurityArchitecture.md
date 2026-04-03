@@ -220,7 +220,7 @@ graph TD
     Mail -.->|"Outbound Filter"| FW
 
     %% VNet Peering (Visualized via Nodes)
-    FW <==>|"⚡ VNet Peering ⚡"| AppGW
+    FW <-->|"⚡ VNet Peering ⚡"| AppGW
 
     %% Apply Styles
     class Hub_VNet hub;

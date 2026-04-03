@@ -103,7 +103,9 @@ az network application-gateway probe create \
   --interval 30 --timeout 30 --threshold 3
 ```
 
-### URL 경로 라우팅
+### URL 경로 기반 라우팅
+요청 URL의 경로에 따라 서로 다른 백엔드 풀로 트래픽을 분배하는 기능이다. 예를 들어 `/api/*` 요청은 API 서버 풀로, `/images/*` 요청은 스토리지 서버 풀로, 나머지는 기본 웹 서버 풀로 라우팅할 수 있다. 마이크로서비스 아키텍처에서 하나의 진입점으로 여러 서비스를 제공할 때 유용하다.
+
 ```bash
 # URL Path Map 생성
 az network application-gateway url-path-map create \
