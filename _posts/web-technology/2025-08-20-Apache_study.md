@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Apache"
 date: 2025-08-20 17:00:00 +0900
@@ -70,6 +70,7 @@ Apache 로그 파일, 특히 접근 로그 **`access.log`** 는 정상적인 서
     # /var/log/apache2 디렉터리에서 access.log 파일을 대상으로 'UNION' 문자열 검색
     grep "UNION" /var/log/apache2/access.log
     ```
+
     ```log
     192.9.200.12 - - [20/Aug/2025:21:15:30 +0900] "GET /dvwa/vulnerabilities/sqli/?id=1%27%20UNION%20ALL%20SELECT%20NULL%2CCONCAT%280x...%29--%20-&Submit=Submit HTTP/1.1" 200 1961 "-" "sqlmap/1.9.8"
     ```
@@ -81,6 +82,7 @@ Apache 로그 파일, 특히 접근 로그 **`access.log`** 는 정상적인 서
     # URL 인코딩된 세미콜론(%3B)과 ls 명령어를 함께 검색
     grep "%3B%20ls" /var/log/apache2/access.log
     ```
+
     ```log
     192.9.200.12 - - [20/Aug/2025:21:40:11 +0900] "GET /dvwa/vulnerabilities/exec/?ip=127.0.0.1%3B%20ls+-l HTTP/1.1" 200 1950 "http://192.9.200.11/dvwa/vulnerabilities/exec/" "Mozilla/5.0..."
     ```

@@ -16,6 +16,7 @@ categories: [cloud-azure]
 3.  **SSL 오프로딩**: 암호화/복호화 부하를 게이트웨이에서 처리하여 백엔드 웹 서버의 성능을 확보한다.
 
 ### Azure 로드밸런서 비교
+
 | 서비스 | 계층 | 범위 | 용도 |
 |--------|------|------|------|
 | **Azure LB** | L4 | Regional | TCP/UDP 트래픽 분산 |
@@ -25,7 +26,7 @@ categories: [cloud-azure]
 
 ### 구성 요소
 ```mermaid
-flowchart TB
+flowchart LR
     Client["클라이언트"] --> FIP["Frontend IP"]
     FIP --> Listener["Listener"]
     Listener --> Rule["Routing Rule"]
@@ -131,6 +132,7 @@ az network application-gateway waf-policy managed-rule rule-set add \
 ```
 
 ### WAF 모드
+
 | 모드 | 동작 |
 |------|------|
 | **Detection** | 공격을 탐지하고 로그만 남김 (차단 안 함) |

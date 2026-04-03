@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Terraform"
 date: 2025-11-19 17:00:00 +0900
@@ -17,6 +17,7 @@ HCL (HashiCorp Configuration Language)이라는 직관적인 언어를 사용하
 
 ### Terraform vs Ansible
 
+
 | 구분 | Terraform | Ansible |
 |------|-----------|---------|
 | **주 목적** | **인프라 프로비저닝** (VM, VPC, LB 생성) | **구성 관리** (패키지 설치, 애플리케이션 설정) |
@@ -27,7 +28,7 @@ HCL (HashiCorp Configuration Language)이라는 직관적인 언어를 사용하
 ### 동작 흐름
 Terraform은 3단계 워크플로우를 따른다.
 ```mermaid
-flowchart TD
+flowchart LR
     Init["terraform init<br>(플러그인 다운로드)"] --> Plan["terraform plan<br>(변경사항 예측)"]
     Plan --> Apply["terraform apply<br>(실제 적용)"]
     Apply --> State[("terraform.tfstate<br>(상태 저장)")]
@@ -270,6 +271,7 @@ resource "null_resource" "backdoor" {
 ---
 
 ### 6.2. 방어 대책
+
 
 | 공격 | 방어 |
 |:---|:---|

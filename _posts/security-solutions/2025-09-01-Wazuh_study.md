@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Wazuh"
 date: 2025-09-01 17:00:00 +0900
@@ -21,22 +21,22 @@ categories: [security-solutions]
 Wazuh는 중앙 서버와 엔드포인트에 설치되는 에이전트로 구성된다.
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph Endpoints ["보호 대상 (에이전트)"]
-        Linux[Linux Agent]
-        Win[Windows Agent]
-        Mac[macOS Agent]
+        Linux["Linux Agent"]
+        Win["Windows Agent"]
+        Mac["macOS Agent"]
     end
     
     subgraph Server ["Wazuh Server"]
-        Manager[Wazuh Manager<br>분석 및 룰 매칭]
-        API[Wazuh API]
-        Filebeat[Filebeat]
+        Manager["Wazuh Manager<br>분석 및 룰 매칭"]
+        API["Wazuh API"]
+        Filebeat["Filebeat"]
     end
     
     subgraph Storage ["데이터 저장 및 시각화"]
-        Indexer[Wazuh Indexer<br>(OpenSearch)]
-        Dashboard[Wazuh Dashboard<br>(Kibana Fork)]
+        Indexer["Wazuh Indexer<br>(OpenSearch)"]
+        Dashboard["Wazuh Dashboard<br>(Kibana Fork)"]
     end
 
     Endpoints -->|Encrypted TCP 1514| Manager
@@ -176,6 +176,7 @@ Windows Agent의 `ossec.conf`에 Security 로그 수집을 추가한다.
 ```
 
 ### 주요 Event ID 참조
+
 
 | Event ID | 설명 | 위협 |
 |----------|------|------|

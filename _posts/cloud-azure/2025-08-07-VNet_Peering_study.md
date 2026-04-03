@@ -16,6 +16,7 @@ categories: [cloud-azure]
 3.  **교차 구독/리전**: 서로 다른 구독(Subscription)이나 서로 다른 리전(Region)에 있는 VNet 간에도 연결이 가능하다.
 
 ### 피어링 유형 비교 (Peering Types)
+
 | 유형 | 설명 | 특징 |
 |---|---|---|
 | **Regional Peering** | 같은 리전 내 VNet 연결 | 대역폭 제한 없음, 지연 시간 매우 낮음 (<1ms) |
@@ -23,7 +24,7 @@ categories: [cloud-azure]
 
 ### Hub-Spoke 아키텍처 다이어그램
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph Hub ["Hub VNet (Central)"]
         FW["Azure Firewall"]
         VPN["VPN Gateway"]
@@ -37,8 +38,8 @@ flowchart TB
         DbVM["DB Server"]
     end
     
-    Spoke1 <== "Peering" ==> Hub
-    Spoke2 <== "Peering" ==> Hub
+    Spoke1 <-->|Peering| Hub
+    Spoke2 <-->|Peering| Hub
     VPN <--> OnPrem["On-Premise Network"]
     
     classDef hub fill:#e1f5fe,stroke:#01579b
@@ -82,6 +83,7 @@ az network vnet peering create \
 ```
 
 ### 주요 옵션 설명
+
 | 옵션 | 설명 | 권장 설정 |
 |---|---|---|
 | **allow-vnet-access** | 피어링된 VNet 간 통신 허용 여부 | Enabled (기본값) |

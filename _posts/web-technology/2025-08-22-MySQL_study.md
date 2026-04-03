@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "MySQL Security"
 date: 2025-08-22 17:00:00 +0900
@@ -37,6 +37,7 @@ SELECT user, password FROM users;
 결과로 사용자명과 해시된 비밀번호가 출력된다. 공격자가 SQL Injection을 통해 노리는 것이 바로 이러한 데이터이다.
 
 ![MysqlDatabase](/assets/images/web-technology/Mysql_1.png)
+
 ![MysqlDatabase](/assets/images/web-technology/Mysql_Select.png)
 
 ---

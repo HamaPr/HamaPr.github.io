@@ -17,6 +17,7 @@ categories: [secure-coding]
 
 ### 파일 디스크립터 (File Descriptor)
 리눅스/유닉스에서 파일을 다룰 때 사용하는 정수형 식별자이다.
+
 | FD | 설명 | 스트림 |
 |----|------|--------|
 | **0** | 표준 입력 (Standard Input) | stdin |
@@ -164,6 +165,7 @@ if (fd == -1) {
 ```
 
 ### 주요 에러 코드 (errno)
+
 | 코드 | 의미 | 원인 예시 |
 |------|------|-----------|
 | **ENOENT** | No such file or directory | 파일 경로가 잘못됨 |

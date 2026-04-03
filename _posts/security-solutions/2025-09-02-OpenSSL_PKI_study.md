@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "OpenSSL & PKI"
 date: 2025-09-02 18:00:00 +0900
@@ -11,6 +11,7 @@ categories: [security-solutions]
 리눅스 환경에서는 **OpenSSL** 도구를 사용하여 사설 CA(Certificate Authority)를 구축하고 SSL/TLS 인증서를 직접 발급하여 테스트할 수 있다.
 
 ### 핵심 용어
+
 | 용어 | 설명 |
 |---|---|
 | **CA (Certificate Authority)** | 인증서 발급 및 관리를 담당하는 신뢰할 수 있는 기관 |
@@ -22,10 +23,10 @@ categories: [security-solutions]
 
 ### 인증서 체인 구조
 ```mermaid
-flowchart TB
-    Root[Root CA<br>(최상위 신뢰)] --> Intermediate[Intermediate CA<br>(중간 인증 기관)]
-    Intermediate --> ServerCert[Server Certificate<br>(최종 사용자 인증서)]
-    Intermediate --> ClientCert[Client Certificate<br>(클라이언트 인증서)]
+flowchart LR
+    Root["Root CA<br>(최상위 신뢰)"] --> Intermediate["Intermediate CA<br>(중간 인증 기관)"]
+    Intermediate --> ServerCert["Server Certificate<br>(최종 사용자 인증서)"]
+    Intermediate --> ClientCert["Client Certificate<br>(클라이언트 인증서)"]
 ```
 
 ---

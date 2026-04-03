@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "OSPF"
 date: 2025-07-23 17:00:00 +0900
@@ -41,7 +41,7 @@ OSPF는 다음 세 가지 테이블을 유지하며 동작한다.
 라우터가 인접 관계를 맺고 동기화되는 과정이다.
 
 ```mermaid
-flowchart TB
+flowchart LR
     DOWN["1. Down<br>초기 상태"] --> INIT["2. Init<br>Hello 패킷 수신"]
     INIT --> TWOWAY["3. 2-Way<br>양방향 통신 확인"]
     TWOWAY --> EXSTART["4. ExStart<br>Master/Slave 선출"]
@@ -113,9 +113,9 @@ Cost = Reference Bandwidth / Interface Bandwidth
 
 > **중요**: 1Gbps 이상의 고속 링크가 보편화된 현재 환경에서는 기본 기준 대역폭(100Mbps)으로는 1G와 100M를 구분할 수 없다(둘 다 Cost 1). 따라서 `auto-cost reference-bandwidth` 명령어로 기준 값을 1000 이상으로 올려주어야 정확한 경로 계산이 가능하다.
 
-```cisco
+```bash
 Router(config-router)# auto-cost reference-bandwidth 1000
-! 단위를 Mbps로 입력 (1000 = 1Gbps)
+# 단위를 Mbps로 입력 (1000 = 1Gbps)
 ```
 
 ---
@@ -123,16 +123,16 @@ Router(config-router)# auto-cost reference-bandwidth 1000
 ## 5. 설정 방법
 
 ### 기본 OSPF 설정
-```cisco
+```bash
 Router(config)# router ospf 10
-! Process ID 10 (로컬 라우터 내에서만 식별하는 번호)
+# Process ID 10 (로컬 라우터 내에서만 식별하는 번호)
 
 Router(config-router)# router-id 1.1.1.1
-! Router ID 수동 설정 (권장)
+# Router ID 수동 설정 (권장)
 
 Router(config-router)# network 192.168.1.0 0.0.0.255 area 0
 Router(config-router)# network 10.10.10.0 0.0.0.255 area 0
-! network [네트워크주소] [와일드카드마스크] area [영역번호]
+# network [네트워크주소] [와일드카드마스크] area [영역번호]
 ```
 
 ### 와일드카드 마스크 (Wildcard Mask)
@@ -143,51 +143,51 @@ Router(config-router)# network 10.10.10.0 0.0.0.255 area 0
 
 ### Priority 설정 (DR 선출 조정)
 특정 라우터를 DR로 만들고 싶다면 Priority를 높인다.
-```cisco
+```bash
 Router(config)# interface g0/0
 Router(config-if)# ip ospf priority 100
-! 기본값 1, 0이면 DR 선출 불가
+# 기본값 1, 0이면 DR 선출 불가
 ```
 
 ### 인증 설정 (Authentication)
 보안을 위해 라우터 간 인증을 설정한다. (MD5 권장)
-```cisco
-! 영역 전체에 인증 활성화
+```bash
+# 영역 전체에 인증 활성화
 Router(config)# router ospf 10
 Router(config-router)# area 0 authentication message-digest
 
-! 인터페이스별 키 설정
+# 인터페이스별 키 설정
 Router(config)# interface serial 0/0/0
 Router(config-if)# ip ospf message-digest-key 1 md5 MySecretKey
 ```
 
 ### 타이머 변경
 Hello/Dead 간격을 조정하여 수렴 속도를 높이거나 부하를 줄일 수 있다. **양쪽 라우터가 동일해야 한다.**
-```cisco
+```bash
 Router(config-if)# ip ospf hello-interval 5
 Router(config-if)# ip ospf dead-interval 20
-! Dead는 보통 Hello의 4배로 설정
+# Dead는 보통 Hello의 4배로 설정
 ```
 
 ---
 
 ## 6. 확인 명령어
 
-```cisco
-! 1. 이웃 상태 확인 (가장 중요)
+```bash
+# 1. 이웃 상태 확인 (가장 중요)
 Router# show ip ospf neighbor
-! State가 FULL 또는 2-WAY인지 확인해야 함. (Init, ExStart 등은 문제 상황)
+# State가 FULL 또는 2-WAY인지 확인해야 함. (Init, ExStart 등은 문제 상황)
 
-! 2. 토폴로지 테이블 확인 (LSDB)
+# 2. 토폴로지 테이블 확인 (LSDB)
 Router# show ip ospf database
 
-! 3. 인터페이스 OSPF 설정 확인
+# 3. 인터페이스 OSPF 설정 확인
 Router# show ip ospf interface
 
-! 4. 라우팅 테이블 확인 (OSPF 경로)
+# 4. 라우팅 테이블 확인 (OSPF 경로)
 Router# show ip route ospf
 
-! 5. 프로토콜 상세 정보 확인
+# 5. 프로토콜 상세 정보 확인
 Router# show ip protocols
 ```
 
@@ -238,7 +238,7 @@ O    192.168.2.0/24 [110/65] via 10.10.10.2, 00:00:31, Serial0/0/0
 
 *   **인증 필수 적용**: 라우터 간 MD5 또는 SHA 인증을 설정하여 위조 라우터가 라우팅 정보를 주입하는 것을 방지한다.
 *   **Passive Interface**: 사용자 네트워크가 연결된 인터페이스는 `passive-interface`로 설정하여 OSPF 패킷을 보내지 않도록 한다. 내부 토폴로지 정보 노출을 막는다.
-    ```cisco
+    ```bash
     Router(config-router)# passive-interface g0/1
     ```
 *   **네트워크 선언 최소화**: `network` 명령어로 필요한 인터페이스만 정확하게 OSPF에 포함시킨다.

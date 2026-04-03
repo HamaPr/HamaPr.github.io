@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "LACP"
 date: 2025-08-05 17:00:00 +0900
@@ -16,6 +16,7 @@ Cisco 장비에서는 이를 **EtherChannel (이더채널)**이라고 부르며,
 3.  **부하 분산 (Load Balancing)**: 트래픽을 여러 물리 포트로 나누어 전송한다.
 
 ### Link Aggregation 프로토콜 비교
+
 | 프로토콜 | 표준 | 모드 (적극적/소극적) | 특징 |
 |---|---|---|---|
 | **LACP** | IEEE 802.3ad | **Active** / **Passive** | 업계 표준. 이기종 장비 간 연결 가능 |
@@ -40,13 +41,13 @@ LACP가 정상적으로 동작하려면 양쪽 장비의 모드 조합이 맞아
 2.  채널 그룹 생성 및 모드 설정 (`channel-group`)
 3.  논리 인터페이스(`port-channel`) 설정
 
-```cisco
-! 1. 물리 인터페이스 설정
+```bash
+# 1. 물리 인터페이스 설정
 Switch(config)# interface range gi0/1 - 2
 Switch(config-if-range)# channel-group 1 mode active
-! mode active 입력 시 LACP가 자동 선택됨
+# mode active 입력 시 LACP가 자동 선택됨
 
-! 2. 논리 인터페이스 설정
+# 2. 논리 인터페이스 설정
 Switch(config)# interface port-channel 1
 Switch(config-if)# switchport mode trunk
 Switch(config-if)# switchport trunk allowed vlan 10,20
@@ -56,9 +57,9 @@ Switch(config-if)# switchport trunk allowed vlan 10,20
 ### 2) L3 EtherChannel (라우팅)
 스위치 포트를 라우티드 포트(No Switchport)로 변환하여 IP 주소를 할당한다. 백본 스위치 간 연결에 주로 사용된다.
 
-```cisco
+```bash
 Switch(config)# interface range gi0/1 - 2
-Switch(config-if-range)# no switchport       ! L2 기능 끄기
+Switch(config-if-range)# no switchport       # L2 기능 끄기
 Switch(config-if-range)# channel-group 1 mode active
 
 Switch(config)# interface port-channel 1
@@ -67,7 +68,7 @@ Switch(config-if)# ip address 10.1.1.1 255.255.255.0
 
 ### 3) 부하 분산 (Load Balancing) 설정
 트래픽을 어떤 기준으로 물리 링크에 나눌지 결정한다.
-```cisco
+```bash
 Switch(config)# port-channel load-balance src-dst-ip
 ```
 
@@ -83,23 +84,23 @@ Switch(config)# port-channel load-balance src-dst-ip
 
 ## 3. 확인 명령어
 
-```cisco
-! 1. 이더채널 요약 정보 (가장 중요)
+```bash
+# 1. 이더채널 요약 정보 (가장 중요)
 Switch# show etherchannel summary
-! 출력 해석:
-! Po1(SU)  P(Gi0/1) P(Gi0/2)
-! SU: S=Layer2, U=In Use (정상)
-! P: Bundled in port-channel (정상)
-! D: Down (다운됨)
-! I: Stand-alone (독립 상태, 묶이지 않음)
+# 출력 해석:
+# Po1(SU)  P(Gi0/1) P(Gi0/2)
+# SU: S=Layer2, U=In Use (정상)
+# P: Bundled in port-channel (정상)
+# D: Down (다운됨)
+# I: Stand-alone (독립 상태, 묶이지 않음)
 
-! 2. 상세 정보 확인
+# 2. 상세 정보 확인
 Switch# show etherchannel detail
 
-! 3. 논리 인터페이스 상태 확인
+# 3. 논리 인터페이스 상태 확인
 Switch# show interfaces port-channel 1
 
-! 4. 부하 분산 방식 확인
+# 4. 부하 분산 방식 확인
 Switch# show etherchannel load-balance
 ```
 
@@ -113,7 +114,7 @@ Switch# show etherchannel load-balance
 `SW1 [Gi0/1, Gi0/2] <=========> [Gi0/1, Gi0/2] SW2`
 
 **[SW1 설정]**
-```cisco
+```bash
 conf t
 interface range gi0/1 - 2
  channel-group 1 mode active
@@ -125,7 +126,7 @@ interface port-channel 1
 ```
 
 **[SW2 설정]**
-```cisco
+```bash
 conf t
 interface range gi0/1 - 2
  channel-group 1 mode active

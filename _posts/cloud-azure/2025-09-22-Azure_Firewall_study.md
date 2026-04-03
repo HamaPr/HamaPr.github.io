@@ -16,6 +16,7 @@ categories: [cloud-azure]
 3.  **애플리케이션 제어**: FQDN(정규화된 도메인 이름) 기반으로 아웃바운드 HTTP/S 트래픽을 필터링한다.
 
 ### Azure Firewall vs NSG
+
 | 항목 | Azure Firewall | NSG (Network Security Group) |
 |------|----------------|-----|
 | **계층** | L3-L7 (네트워크 + 애플리케이션) | L4 (전송 계층) |
@@ -25,6 +26,7 @@ categories: [cloud-azure]
 | **비용** | 유료 (시간당 + 데이터 처리량) | 무료 |
 
 ### SKU 비교
+
 | SKU | 기능 | 처리량 |
 |-----|------|--------|
 | **Standard** | L3-L7 필터링, 위협 인텔리전스 | ~30 Gbps |
@@ -38,7 +40,7 @@ categories: [cloud-azure]
 Hub-and-Spoke 네트워크 토폴로지에서 허브 VNet에 방화벽을 배치하여 모든 트래픽을 중앙에서 검사하는 구조가 일반적이다.
 
 ```mermaid
-flowchart TB
+flowchart LR
     Internet["인터넷"] --> FW["Azure Firewall"]
     subgraph Hub["Hub VNet"]
         FW

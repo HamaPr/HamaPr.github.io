@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "Snort"
 date: 2025-08-29 17:00:00 +0900
@@ -16,6 +16,7 @@ categories: [security-solutions]
 *   **네트워크 NIDS/NIPS**: 트래픽을 분석하여 공격을 탐지(Alert)하거나 차단(Block)한다.
 
 ### IDS vs IPS 비교
+
 | 구분 | IDS (침입 탐지) | IPS (침입 방지) |
 |---|---|---|
 | **동작** | 공격 탐지 및 관리자 알림 | 공격 탐지 및 즉시 차단 |
@@ -106,6 +107,7 @@ alert tcp any any -> $HOME_NET 80 (msg:"HTTP Connection Detected"; sid:1000001; 
 ```
 
 ### 주요 옵션 설명
+
 | 옵션 | 설명 | 예시 |
 |---|---|---|
 | **msg** | 로그에 남길 메시지 | `msg:"SQL Injection Attack";` |
@@ -122,6 +124,7 @@ alert tcp any any -> $HOME_NET 80 (msg:"HTTP Connection Detected"; sid:1000001; 
 ### 웹 공격 탐지
 
 #### SQL Injection
+
 ```snort
 alert tcp any any -> $HOME_NET 80 (
     msg:"SQL Injection - SELECT FROM";
@@ -139,6 +142,7 @@ alert tcp any any -> $HOME_NET 80 (
 ```
 
 #### XSS (Cross-Site Scripting)
+
 ```snort
 alert tcp any any -> $HOME_NET 80 (
     msg:"XSS - Script Tag Detected";
@@ -149,6 +153,7 @@ alert tcp any any -> $HOME_NET 80 (
 ```
 
 #### Command Injection
+
 ```snort
 alert tcp any any -> $HOME_NET 80 (
     msg:"Command Injection - Pipe Operator";
@@ -159,6 +164,7 @@ alert tcp any any -> $HOME_NET 80 (
 ```
 
 #### Web Shell 탐지
+
 ```snort
 alert tcp any any -> $HOME_NET 80 (
     msg:"Web Shell - PHP System Call";
@@ -174,6 +180,7 @@ alert tcp any any -> $HOME_NET 80 (
 ### 네트워크 스캔 탐지
 
 #### Port Scan (SYN Flood)
+
 ```snort
 alert tcp any any -> $HOME_NET any (
     msg:"Port Scan - Multiple SYN";
@@ -185,6 +192,7 @@ alert tcp any any -> $HOME_NET any (
 ```
 
 #### ICMP Sweep
+
 ```snort
 alert icmp any any -> $HOME_NET any (
     msg:"ICMP Sweep Detected";
@@ -199,6 +207,7 @@ alert icmp any any -> $HOME_NET any (
 ### 인증 공격 탐지
 
 #### SSH Brute Force
+
 ```snort
 alert tcp any any -> $HOME_NET 22 (
     msg:"SSH Brute Force Attempt";
@@ -210,6 +219,7 @@ alert tcp any any -> $HOME_NET 22 (
 ```
 
 #### FTP Brute Force
+
 ```snort
 alert tcp any any -> $HOME_NET 21 (
     msg:"FTP Login Failed - Brute Force";
@@ -224,6 +234,7 @@ alert tcp any any -> $HOME_NET 21 (
 ### C2 통신 및 데이터 유출 탐지
 
 #### DNS Tunneling
+
 ```snort
 alert udp any any -> any 53 (
     msg:"DNS Tunneling - Long Subdomain";
@@ -235,6 +246,7 @@ alert udp any any -> any 53 (
 ```
 
 #### Reverse Shell (Bash)
+
 ```snort
 alert tcp $HOME_NET any -> any any (
     msg:"Reverse Shell - Bash /dev/tcp";
@@ -260,6 +272,7 @@ APT(Advanced Persistent Threat) 공격은 정교하고 지속적이므로, 단�
 | **Threshold** | 임계값 설정으로 알림 폭주 방지 |
 
 ### 예시: Cobalt Strike Beacon 탐지
+
 ```snort
 alert tcp $HOME_NET any -> any any (
     msg:"APT - Cobalt Strike Beacon C2";
@@ -273,6 +286,7 @@ alert tcp $HOME_NET any -> any any (
 ```
 
 ### 예시: Mimikatz 실행 탐지 (SMB)
+
 ```snort
 alert tcp any any -> $HOME_NET 445 (
     msg:"APT - Mimikatz Pattern over SMB";

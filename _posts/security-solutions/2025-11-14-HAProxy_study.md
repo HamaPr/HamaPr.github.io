@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: "HAProxy"
 date: 2025-11-14 17:00:00 +0900
@@ -17,8 +17,8 @@ categories: [security-solutions]
 
 ### 아키텍처 다이어그램
 ```mermaid
-flowchart TB
-    Client["User (Browser)"] -->|HTTPS (443)| HAP["HAProxy (Load Balancer)<br>SSL Termination"]
+flowchart LR
+    Client["User (Browser)"] -->|HTTPS 443| HAP["HAProxy (Load Balancer)<br>SSL Termination"]
     
     subgraph Backend ["Web Server Pool"]
         Web1["Web Server 1<br>(192.168.1.11)"]
@@ -26,12 +26,13 @@ flowchart TB
         Web3["Web Server 3<br>(192.168.1.13)"]
     end
     
-    HAP -->|HTTP (80)| Web1
-    HAP -->|HTTP (80)| Web2
-    HAP -->|HTTP (80)| Web3
+    HAP -->|HTTP 80| Web1
+    HAP -->|HTTP 80| Web2
+    HAP -->|HTTP 80| Web3
 ```
 
 ### 부하 분산 알고리즘 비교
+
 | 알고리즘 | 설명 | 적합한 환경 |
 |---|---|---|
 | **Round Robin** | 서버에 순차적으로 하나씩 트래픽을 분배 | 일반적인 웹 서버 |
@@ -141,6 +142,7 @@ listen stats
 HAProxy를 포함한 웹/WAS/DB 3계층 아키텍처를 Ansible Playbook으로 자동 구축하는 예시이다.
 
 ### 구성 호스트 정보
+
 | 호스트 | IP | 역할 |
 |---|---|---|
 | **LB** | 10.0.0.11 | HAProxy |
