@@ -12,7 +12,7 @@ settings=get_settings()
 app=FastAPI(title=settings.app_name, version="1.0.0")
 
 WORKOUT_KEYS=["id","exercise_type","start","end","distance_km","elapsed_pace_seconds_per_km","average_heart_rate_bpm","max_heart_rate_bpm","vo2max_ml_kg_min","calories_kcal","average_cadence_spm","average_power_watts","steps"]
-RECOVERY_KEYS=["date","sleep_minutes","sleep_stages","resting_heart_rate_bpm","hrv_rmssd_ms","weight_kg"]
+RECOVERY_KEYS=["date","sleep_minutes","resting_heart_rate_bpm","hrv_rmssd_ms","weight_kg"]
 
 def compact_context(db:Session):
     c=build_context(db)
