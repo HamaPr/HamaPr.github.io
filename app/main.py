@@ -11,8 +11,25 @@ from .service import upsert_workout, delete_workout, list_workouts, unpack, buil
 settings=get_settings()
 app=FastAPI(title=settings.app_name, version="1.0.0")
 
+WORKOUT_KEYS=["id","exercise_type","start","end","distance_km","elapsed_pace_seconds_per_km","average_heart_rate_bpm","max_heart_rate_bpm","vo2max_ml_kg_min","calories_kcal","average_cadence_spm","average_power_watts","steps"]
+RECOVERY_KEYS=["date","sleep_minutes","sleep_stages","resting_heart_rate_bpm","hrv_rmssd_ms","weight_kg"]
+
+def compact_context(db:Session):
+    c=build_context(db)
+    workouts=[{k:w.get(k) for k in WORKOUT_KEYS if w.get(k) is not None} for w in c.get("recent_workouts",[])[:10] if isinstance(w,dict)]
+    recovery=[{k:r.get(k) for k in RECOVERY_KEYS if r.get(k) is not None} for r in c.get("recovery_daily",[])[:14] if isinstance(r,dict)]
+    return {"generated_at":c.get("generated_at"),"workout_count":c.get("workout_count"),"seven_day_distance_km":c.get("seven_day_distance_km"),"latest_vo2max_ml_kg_min":c.get("latest_vo2max_ml_kg_min"),"recent_workouts":workouts,"recovery_daily":recovery}
+
+def emit_context(db:Session):
+    try: print("HB_CONTEXT "+json.dumps(compact_context(db),ensure_ascii=False,separators=(",",":")),flush=True)
+    except Exception as e: print("HB_CONTEXT_ERROR "+repr(e),flush=True)
+
 @app.on_event("startup")
-def startup(): init_db()
+def startup():
+    init_db()
+    db=SessionLocal()
+    try: emit_context(db)
+    finally: db.close()
 
 def db_dep():
     db=SessionLocal()
@@ -41,11 +58,14 @@ async def put_workout(workout_id: str, request: Request, db: Session=Depends(db_
     wid=unquote(workout_id)
     upsert_workout(db,wid,payload)
     set_state(db,"latest_analysis",deterministic_summary(db))
+    emit_context(db)
     return {"success":True,"workout_id":wid}
 
 @app.delete("/v1/workouts/{workout_id:path}", dependencies=[Depends(require_write)])
 def remove_workout(workout_id: str, db: Session=Depends(db_dep)):
-    return {"success":True,"deleted":delete_workout(db,unquote(workout_id))}
+    result=delete_workout(db,unquote(workout_id))
+    emit_context(db)
+    return {"success":True,"deleted":result}
 
 @app.get("/v1/summary", dependencies=[Depends(require_write)])
 def apk_summary(db: Session=Depends(db_dep)):
@@ -89,8 +109,4 @@ def sleep(db:Session=Depends(db_dep)):
 def shared_context(token:str, db:Session=Depends(db_dep)):
     import hmac
     if not settings.share_enabled or not settings.share_token or not hmac.compare_digest(token,settings.share_token): raise HTTPException(404,"Not found")
-    c=build_context(db)
-    recent=[]
-    for w in c["recent_workouts"][:7]:
-        recent.append({k:w.get(k) for k in ["id","exercise_type","start","end","distance_km","elapsed_pace_seconds_per_km","average_heart_rate_bpm","max_heart_rate_bpm","vo2max_ml_kg_min","calories_kcal","average_cadence_spm"]})
-    return {"generated_at":c["generated_at"],"seven_day_distance_km":c["seven_day_distance_km"],"latest_vo2max_ml_kg_min":c["latest_vo2max_ml_kg_min"],"recovery_daily":c["recovery_daily"][:7],"recent_workouts":recent,"training_plan":c["training_plan"]}
+    return compact_context(db)
