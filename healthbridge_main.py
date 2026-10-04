@@ -95,3 +95,37 @@ def share(token:str,d:Session=Depends(db)):
     if not SE or not ST or not hmac.compare_digest(token,ST):raise HTTPException(404,'Not found')
     c=context(d); keep=['id','exercise_type','start','end','distance_km','elapsed_pace_seconds_per_km','average_heart_rate_bpm','max_heart_rate_bpm','vo2max_ml_kg_min','calories_kcal','average_cadence_spm']
     return {'generated_at':c['generated_at'],'seven_day_distance_km':c['seven_day_distance_km'],'latest_vo2max_ml_kg_min':c['latest_vo2max_ml_kg_min'],'recovery_daily':c['recovery_daily'][:7],'recent_workouts':[{k:w.get(k) for k in keep} for w in c['recent_workouts'][:7]],'training_plan':c['training_plan']}
+# The shared summary deliberately omits detailed workout fields. This endpoint
+# exposes only one selected session and excludes location/route coordinates.
+@app.get('/share/workout/{token}/{session_id}')
+def shared_workout(token:str, session_id:str, d:Session=Depends(db)):
+    if not SE or not ST or not hmac.compare_digest(token,ST):
+        raise HTTPException(404,'Not found')
+    rows=d.scalars(select(Workout).order_by(Workout.updated_at.desc()).limit(100)).all()
+    for row in rows:
+        try:
+            payload=json.loads(row.payload_json)
+        except (ValueError,TypeError):
+            continue
+        sessions=payload.get('sessions') if isinstance(payload,dict) else None
+        sessions=sessions if isinstance(sessions,list) else [payload]
+        for session in sessions:
+            if not isinstance(session,dict) or str(session.get('id'))!=session_id:
+                continue
+            fields=('id','exercise_type','start','end','distance_km',
+                    'source_package','recorded_title','laps','segments',
+                    'segment_metrics','kilometer_splits_estimated',
+                    'kilometer_split_basis','speed_samples_meters_per_second',
+                    'pace_samples_seconds_per_km','distance_intervals',
+                    'heart_rate_samples')
+            result={key:session.get(key) for key in fields if key in session}
+            result['counts']={
+                key:len(result[key]) if isinstance(result.get(key),list) else 0
+                for key in ('laps','segments','segment_metrics',
+                            'speed_samples_meters_per_second',
+                            'pace_samples_seconds_per_km','distance_intervals',
+                            'heart_rate_samples')
+            }
+            return result
+    raise HTTPException(404,'Workout session not found')
+
