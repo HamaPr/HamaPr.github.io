@@ -1,5 +1,5 @@
 from __future__ import annotations
-import gzip, json
+import gzip, json, hmac
 from urllib.parse import unquote
 from fastapi import FastAPI, Request, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -24,11 +24,41 @@ def emit_context(db:Session):
     try: print("HB_CONTEXT "+json.dumps(compact_context(db),ensure_ascii=False,separators=(",",":")),flush=True)
     except Exception as e: print("HB_CONTEXT_ERROR "+repr(e),flush=True)
 
+def stored_sessions(db:Session):
+    seen=set()
+    for row in list_workouts(db,100):
+        payload=row.get("data")
+        if not isinstance(payload,dict): continue
+        sessions=payload.get("sessions")
+        sessions=sessions if isinstance(sessions,list) else [payload]
+        for session in sessions:
+            if not isinstance(session,dict): continue
+            sid=str(session.get("id") or session.get("record_id") or "")
+            if sid and sid not in seen:
+                seen.add(sid)
+                yield session
+
+def emit_interval_counts(db:Session):
+    # Count only: no route coordinates, heart rate values or sampled values in logs.
+    try:
+        running=[s for s in stored_sessions(db) if s.get("exercise_type")==56]
+        running.sort(key=lambda s:str(s.get("start") or ""),reverse=True)
+        keys=("laps","segments","segment_metrics","speed_samples_meters_per_second",
+              "pace_samples_seconds_per_km","distance_intervals")
+        counts=[{"id":s.get("id"),"start":s.get("start"),
+                 **{key:len(s[key]) if isinstance(s.get(key),list) else 0 for key in keys}}
+                for s in running[:10]]
+        print("HB_INTERVAL_COUNTS "+json.dumps(counts,separators=(",",":")),flush=True)
+    except Exception as e:
+        print("HB_INTERVAL_COUNTS_ERROR "+type(e).__name__,flush=True)
+
 @app.on_event("startup")
 def startup():
     init_db()
     db=SessionLocal()
-    try: emit_context(db)
+    try:
+        emit_context(db)
+        emit_interval_counts(db)
     finally: db.close()
 
 def db_dep():
@@ -107,6 +137,26 @@ def sleep(db:Session=Depends(db_dep)):
 
 @app.get("/share/context/{token}")
 def shared_context(token:str, db:Session=Depends(db_dep)):
-    import hmac
     if not settings.share_enabled or not settings.share_token or not hmac.compare_digest(token,settings.share_token): raise HTTPException(404,"Not found")
     return compact_context(db)
+
+@app.get("/share/workout/{token}/{session_id}")
+def shared_workout(token:str, session_id:str, db:Session=Depends(db_dep)):
+    if not settings.share_enabled or not settings.share_token or not hmac.compare_digest(token,settings.share_token):
+        raise HTTPException(404,"Not found")
+    for session in stored_sessions(db):
+        if str(session.get("id"))!=session_id: continue
+        fields=("id","exercise_type","start","end","distance_km","source_package",
+                "recorded_title","laps","segments","segment_metrics",
+                "kilometer_splits_estimated","kilometer_split_basis",
+                "speed_samples_meters_per_second","pace_samples_seconds_per_km",
+                "distance_intervals","heart_rate_samples")
+        result={key:session[key] for key in fields if key in session}
+        result["counts"]={
+            key:len(result[key]) if isinstance(result.get(key),list) else 0
+            for key in ("laps","segments","segment_metrics",
+                        "speed_samples_meters_per_second",
+                        "pace_samples_seconds_per_km","distance_intervals","heart_rate_samples")
+        }
+        return result
+    raise HTTPException(404,"Workout session not found")
