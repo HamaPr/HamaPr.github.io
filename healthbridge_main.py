@@ -129,3 +129,18 @@ def shared_workout(token:str, session_id:str, d:Session=Depends(db)):
             return result
     raise HTTPException(404,'Workout session not found')
 
+@app.on_event('startup')
+def log_interval_counts():
+    # Presence only: no routes, coordinates, heart rate values or samples.
+    try:
+        with SessionLocal() as d:
+            sessions=context(d)['recent_workouts']
+        running=[s for s in sessions if isinstance(s,dict) and s.get('exercise_type')==56]
+        keys=('laps','segments','segment_metrics','speed_samples_meters_per_second',
+              'pace_samples_seconds_per_km','distance_intervals')
+        counts=[{'id':s.get('id'),'start':s.get('start'),
+                 **{key:len(s[key]) if isinstance(s.get(key),list) else 0 for key in keys}}
+                for s in running]
+        print('HB_INTERVAL_COUNTS '+json.dumps(counts,separators=(',',':')),flush=True)
+    except Exception:
+        print('HB_INTERVAL_COUNTS unavailable',flush=True)
